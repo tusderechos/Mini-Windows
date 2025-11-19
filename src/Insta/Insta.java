@@ -1,0 +1,42 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package Insta;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ *
+ * @author HP
+ */
+public class Insta implements Serializable{
+    private String autorUsername;
+    private Date fechaPublicacion;
+    private String contenido;
+    private String rutaImg;
+    
+    public Insta(String autorUsername, String contenido, String rutaImg){
+        this.autorUsername = autorUsername;
+        this.fechaPublicacion = new Date();
+        this.contenido = contenido;
+        this.rutaImg = rutaImg;
+    }
+    
+    public String getAutorUsername(){
+        return autorUsername;
+    }
+    
+    public Date getFechaPublicacion(){
+        return fechaPublicacion;
+    }
+    
+    public String getContenido(){
+        return contenido;
+    }
+    
+   public String getRutaImg(){
+       return rutaImg;
+   }
+}
