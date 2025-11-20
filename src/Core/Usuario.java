@@ -6,7 +6,7 @@ package Core;
 
 /**
  *
- * @author Hp
+ * @author Hp -d
  */
 
 import java.time.LocalDate;

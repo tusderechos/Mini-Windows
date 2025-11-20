@@ -76,7 +76,7 @@ public class Usuario implements Serializable{
         return fechaIngreso;
     }
     
-    public boolean getActivo(){
+    public boolean isActivo(){
         return activo;
     }
     
