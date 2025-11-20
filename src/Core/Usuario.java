@@ -6,12 +6,13 @@ package Core;
 
 /**
  *
- * @author Hp
+ * @author Hp -d
  */
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Usuario {
+public class Usuario implements Serializable {
     
     private String NombreUsuario;
     private char Genero;
