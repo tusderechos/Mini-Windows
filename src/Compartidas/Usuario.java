@@ -2,16 +2,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Core;
+package Compartidas;
 
 /**
  *
  * @author Hp -d
  */
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Usuario {
+public class Usuario implements Serializable {
     
     private String NombreUsuario;
     private char Genero;
