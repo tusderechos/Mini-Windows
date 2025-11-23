@@ -63,4 +63,54 @@ public class GestorInsta {
         java.util.Collections.sort(timeLine);
         return timeLine;
     }
+    
+    public static ArrayList<Insta> obtenerInstasConMenciones(String usuarioActual){
+        ArrayList<Insta> instasMencionados = new ArrayList<>();
+        String mencionBuscada = "@"+usuarioActual.toLowerCase();
+        
+        try{
+            ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+            
+            for(Usuario u : todosLosUsuarios){
+                if(!u.isActivo()){
+                    continue;
+                }
+                ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getUsername());
+                for(Insta i : instasDelUsuario){
+                    if(i.getContenido().toLowerCase().contains(mencionBuscada)){
+                        instasMencionados.add(i);
+                    }
+                }
+            }
+            
+        } catch(IOException e){
+            System.err.println("Error al acceder a los archivos para buscar menciones: "+e.getMessage());
+        }
+        java.util.Collections.sort(instasMencionados);
+        return instasMencionados;
+    }
+    
+    public static ArrayList<Insta> buscarInstasPorHashtag(String hashtag){
+        ArrayList<Insta> instasEncontrados = new ArrayList<>();
+        String hashtagBuscado = "#"+hashtag.toLowerCase();
+        
+        try{
+            ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+            
+            for(Usuario u : todosLosUsuarios){
+                if(!u.isActivo()){
+                    continue;
+                }
+                ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getUsername());
+                for(Insta i : instasDelUsuario){
+                    if(i.getContenido().toLowerCase().contains(hashtagBuscado)){
+                        instasEncontrados.add(i);
+                    }
+                }
+            }
+        } catch(IOException e){
+            System.err.println("Error al acceder a lso archivos para buscar hashtags: "+e.getMessage());
+        }
+        return instasEncontrados;
+    }
 }
