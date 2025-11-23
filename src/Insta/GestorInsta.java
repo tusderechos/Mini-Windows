@@ -5,6 +5,7 @@
 package Insta;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
@@ -42,5 +43,24 @@ public class GestorInsta {
         ManejoArchivosBinarios.escribirFollow(rutaFollowers, followerNuevo);
         
         System.out.println(seguidor+" ahora sigue a "+seguido);
+    }
+    
+    public static ArrayList<Insta> generarTimeLine(String usuarioActual){
+        ArrayList<Insta> timeLine = new ArrayList<>();
+        
+        ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(usuarioActual, true);
+        
+        for(Follow f : seguidos){
+            if(f.isActivo()){
+                ArrayList<Insta> instasSeguido = ManejoArchivosBinarios.leerInstasDeUsuario(f.getUsername());
+                timeLine.addAll(instasSeguido);
+            }
+        }
+        
+        ArrayList<Insta> instasPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual);
+        timeLine.addAll(instasPropios);
+        
+        java.util.Collections.sort(timeLine);
+        return timeLine;
     }
 }

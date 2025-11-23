@@ -11,7 +11,7 @@ import java.util.Date;
  *
  * @author HP
  */
-public class Insta implements Serializable{
+public class Insta implements Serializable, Comparable<Insta>{
     private String autorUsername;
     private Date fechaPublicacion;
     private String contenido;
@@ -22,6 +22,10 @@ public class Insta implements Serializable{
         this.fechaPublicacion = new Date();
         this.contenido = contenido;
         this.rutaImg = rutaImg;
+    }
+    
+    public int compareTo(Insta otroInsta){
+        return otroInsta.getFechaPublicacion().compareTo(this.fechaPublicacion);
     }
     
     public String getAutorUsername(){
