@@ -31,4 +31,16 @@ public class GestorInsta {
         }
         return true;
     }
+    
+    public static void agregarFollow(String seguidor, String seguido) throws IOException {
+        String rutaFollowing = "Z\\"+seguidor+"\\following.ins";
+        Follow followNuevo = new Follow(seguido);
+        ManejoArchivosBinarios.escribirFollow(rutaFollowing, followNuevo);
+        
+        String rutaFollowers = "Z\\"+seguido+"\\followers.ins";
+        Follow followerNuevo = new Follow(seguidor);
+        ManejoArchivosBinarios.escribirFollow(rutaFollowers, followerNuevo);
+        
+        System.out.println(seguidor+" ahora sigue a "+seguido);
+    }
 }

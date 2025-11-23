@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -18,57 +19,165 @@ import java.util.ArrayList;
  * @author HP
  */
 public class ManejoArchivosBinarios {
+
     public static final String archivoUsers = "Z:\\users.ins";
-    
-    public static void escribirUsuario(Usuario nuevoUsuario)throws IOException{
-        try(FileOutputStream fos = new FileOutputStream(archivoUsers, true);
-            AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
-            
+
+    public static void escribirUsuario(Usuario nuevoUsuario) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(archivoUsers, true); AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)) {
+
             oos.writeObject(nuevoUsuario);
-            System.out.println("usuario "+nuevoUsuario.getUsername()+" escrito con exito");
-        } catch(FileNotFoundException e){
-            System.err.println("archivo no encontrado: "+e.getMessage());
+            System.out.println("usuario " + nuevoUsuario.getUsername() + " escrito con exito");
+        } catch (FileNotFoundException e) {
+            System.err.println("archivo no encontrado: " + e.getMessage());
             throw e;
         }
     }
-    
-    public static ArrayList<Usuario> leerTodosLosUsuarios() throws IOException{
+
+    public static ArrayList<Usuario> leerTodosLosUsuarios() throws IOException {
         ArrayList<Usuario> usuarios = new ArrayList<>();
-        
+
         File archivo = new File(archivoUsers);
-        if(!archivo.exists() || archivo.length() == 0){
+        if (!archivo.exists() || archivo.length() == 0) {
             return usuarios;
         }
-        
-        try(FileInputStream fis = new FileInputStream(archivoUsers);
-            ObjectInputStream ois = new ObjectInputStream(fis)){
-            
-            while(true){
-                try{
+
+        try (FileInputStream fis = new FileInputStream(archivoUsers); ObjectInputStream ois = new ObjectInputStream(fis)) {
+
+            while (true) {
+                try {
                     Usuario usuario = (Usuario) ois.readObject();
                     usuarios.add(usuario);
-                } catch(EOFException e){
+                } catch (EOFException e) {
                     break;
                 }
             }
-        } catch(ClassNotFoundException e){
-            System.err.println("Clase no encontrada: "+e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("Clase no encontrada: " + e.getMessage());
         }
         return usuarios;
     }
-    
-    public static boolean existeUsername(String unsername){
-        try{
+
+    public static boolean existeUsername(String unsername) {
+        try {
             ArrayList<Usuario> listaUsuarios = leerTodosLosUsuarios();
-            for(Usuario u : listaUsuarios){
-                if(u.getUsername().equalsIgnoreCase(unsername)){
+            for (Usuario u : listaUsuarios) {
+                if (u.getUsername().equalsIgnoreCase(unsername)) {
                     return true;
                 }
             }
             return false;
-        } catch(IOException e){
-            System.err.println("Error al leer la lista de usuarios: "+e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error al leer la lista de usuarios: " + e.getMessage());
             return false;
+        }
+    }
+
+    public static void escribirInsta(Insta nuevoInsta) throws IOException {
+        String username = nuevoInsta.getAutorUsername();
+        String rutaArchivo = "Z\\" + username + "\\insta.ins";
+
+        try (FileOutputStream fos = new FileOutputStream(rutaArchivo, true); 
+             AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
+            oos.writeObject(nuevoInsta);
+            System.out.println("Insta de "+username+" publicado exitosamente");
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Archivo insta.ins no encontrado para "+username+": "+e.getMessage());
+            throw e;
+        }
+    }
+    
+    public static ArrayList<Insta> leerInstasDeUsuario(String username){
+        ArrayList<Insta> instas = new ArrayList<>();
+        String rutaArchivo = "Z\\"+username+"\\insta.ins";
+        File archivo = new File(rutaArchivo);
+        
+        if(!archivo.exists() || archivo.length()==0){
+            return instas;
+        }
+        
+        try(FileInputStream fis = new FileInputStream(rutaArchivo);
+            ObjectInputStream ois = new ObjectInputStream(fis)){
+            
+            while(true){
+                try{
+                    Insta insta = (Insta)ois.readObject();
+                    instas.add(insta);
+                }catch(EOFException e){
+                    break;
+                }
+            }
+        } catch(FileNotFoundException e){
+            System.err.println("El archivo insta.ins para "+username+" no se encuentra");
+        } catch(IOException e){
+            System.err.println("Error de lectura para "+username+": "+e.getMessage());
+        } catch(ClassNotFoundException e){
+            System.err.println("Clase Insta no encontrada");
+        }
+        return instas;
+    }
+    
+    public static void escribirFollow(String rutaArchivo, Follow follow) throws IOException{
+        try(FileOutputStream fos = new FileOutputStream(rutaArchivo, true);
+            AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
+            oos.writeObject(follow);
+        } catch(FileNotFoundException e){
+            System.err.println("Archivo de follow no encontrado: "+e.getMessage());
+            throw e;
+        }
+    }
+    
+    public static ArrayList<Follow> leerListaFollows(String username, boolean esFollowing){
+        ArrayList<Follow> follows = new ArrayList();
+        String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
+        String rutaArchivo = "Z\\"+username+"\\"+nombreArchivo;
+        
+        File archivo = new File(rutaArchivo);
+        if(!archivo.exists() || archivo.length()==0){
+            return follows;
+        }
+        
+        try(FileInputStream fis = new FileInputStream(rutaArchivo);
+            ObjectInputStream ois = new ObjectInputStream(fis)){
+            
+            while(true){
+                try{
+                    Follow follow = (Follow)ois.readObject();
+                    follows.add(follow);
+                }catch(EOFException e){
+                    break;
+                }
+            }
+            
+        }catch(Exception e){
+            System.err.println("Error a leer lista de follows: "+e.getMessage());
+        }
+        return follows;
+    }
+    
+    public static void actualizarEstadoFollow(String usuarioQueModifica, String objetivoUsername, boolean esFollowing) throws IOException {
+        ArrayList<Follow> listaActual = leerListaFollows(usuarioQueModifica, esFollowing);
+        boolean encontrado = false;
+        
+        for(Follow f : listaActual){
+            if(f.getUsername().equalsIgnoreCase(objetivoUsername)){
+                f.setActivo(false);
+                encontrado = true;
+                break;
+            }
+        }
+        
+        if(!encontrado) return;
+        
+        String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
+        String rutaArchivo = "Z\\"+usuarioQueModifica+"\\"+nombreArchivo;
+        
+        try(FileOutputStream fos = new FileOutputStream(rutaArchivo, false); 
+            ObjectOutputStream oos = new ObjectOutputStream(fos)){
+            
+            for(Follow f : listaActual){
+                oos.writeObject(f);
+            }
         }
     }
 }
