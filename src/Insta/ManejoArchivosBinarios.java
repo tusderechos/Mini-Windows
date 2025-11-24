@@ -180,4 +180,18 @@ public class ManejoArchivosBinarios {
             }
         }
     }
+    
+    public static void reescribirTodosLosUsuarios(ArrayList<Usuario> listaUsuarios) throws IOException{
+        try(FileOutputStream fos = new FileOutputStream(archivoUsers, false);
+            ObjectOutputStream oos = new ObjectOutputStream(fos)){
+            
+            for(Usuario u : listaUsuarios){
+                oos.writeObject(oos);
+            }
+            
+        } catch(FileNotFoundException e){
+            System.err.println("Archivo users,ins no encontrado para reescritura");
+            throw e;
+        }
+    }
 }

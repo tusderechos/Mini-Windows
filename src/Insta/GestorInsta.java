@@ -113,4 +113,70 @@ public class GestorInsta {
         }
         return instasEncontrados;
     }
+    
+    public static boolean actualizarEstadoCuenta(String username) throws IOException{
+        ArrayList<Usuario> listaUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+        
+        boolean estadoCambiado = false;
+        boolean nuevoEstado = false;
+        
+        for(Usuario u : listaUsuarios){
+            if(u.getUsername().equalsIgnoreCase(username)){
+                if(u.isActivo()){
+                    u.setActivo(false);
+                    nuevoEstado =  false;
+                    System.out.println("Cuenta de "+username+" Desactivada");
+                } else{
+                    u.setActivo(true);
+                    nuevoEstado = true;
+                    System.out.println("Cuenta de "+username+" Activada automaticamente");
+                }
+                estadoCambiado = true;
+                break;
+            }
+        }
+        if(!estadoCambiado){
+            throw new IOException("Usuario no encontrado para la actualizacion");
+        }
+        ManejoArchivosBinarios.reescribirTodosLosUsuarios(listaUsuarios);
+        return nuevoEstado;
+    }
+    
+    public static int contarFollows(String username, boolean esFollowing){
+        ArrayList<Follow> lista = ManejoArchivosBinarios.leerListaFollows(username, esFollowing);
+        int contador = 0;
+        
+        for(Follow f : lista){
+            if(f.isActivo()){
+                contador++;
+            }
+        }
+        return contador;
+    }
+    
+    public static ArrayList<Usuario> buscarPersonas(String textoBusqueda, String usuarioLogueado){
+        ArrayList<Usuario> resultados = new ArrayList<>();
+        String busqueda = textoBusqueda.toLowerCase();
+        
+        try{
+            ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+            
+            ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(usuarioLogueado, true);
+            
+            for(Usuario u : todosLosUsuarios){
+                boolean contieneTexto = u.getUsername().toLowerCase().contains(busqueda);
+                
+                boolean estaActivo = u.isActivo();
+                boolean diferenteUser = !u.getUsername().equalsIgnoreCase(usuarioLogueado);
+                
+                if(contieneTexto && estaActivo && diferenteUser){
+                    resultados.add(u);
+                }
+            }
+            
+        } catch(IOException e){
+            System.err.println("Error al leer los usuarios para la busqueda: "+e.getMessage());
+        }
+        return resultados;
+    }
 }
