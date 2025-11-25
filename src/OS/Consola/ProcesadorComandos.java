@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import OS.Archivos.*;
+import OS.Archivos.Buscar.*;
+import java.util.ArrayList;
 
 public class ProcesadorComandos {
     
@@ -63,6 +65,26 @@ public class ProcesadorComandos {
     }
     
     /*
+        Relativiza ruta a la raiz del usuario (pa que se imprima todo tumbado todo tuani)
+    */
+    private String RelativizarARutaUsuario(String abs) {
+        String ruta = norm(SistemaArchivo.getRutaUsuario());
+        String nabs = norm(abs);
+        
+        if (nabs.startsWith(ruta)) {
+            String relativizar = nabs.substring(ruta.length());
+            
+            if (relativizar.startsWith(File.separator)) {
+                relativizar = relativizar.substring(1);
+            }
+            
+            return relativizar.isEmpty() ? "." : relativizar;
+        }
+        
+        return nabs;
+    }
+    
+    /*
         Ejecuta un comando estilo cmd y devuelve el texto a imprimir
     */
     public String Ejecutar(String linea) {
@@ -90,13 +112,19 @@ public class ProcesadorComandos {
                     return LocalDate.now().toString();
                 case "time":
                     return LocalTime.now().withNano(0).toString();
+                case "search":
+                    return cmdSearch(argumento);
+                case "copy":
+                    return cmdCopy(argumento);
+                case "move":
+                    return cmdMove(argumento);
                 default:
                     return "Comando desconocido: " + cmd;
             }
         } catch (IllegalStateException e) {
             return "Error: " + e.getMessage();
-        } catch (Exception e) { //AQUI DEBERIA DE HABER UNA IOEXCEPTION
-            return "IO Error: " + e.getMessage();
+        } catch (Exception e) { 
+            return "Error inesperado: " + e.getMessage();
         }
     }
     
@@ -179,5 +207,121 @@ public class ProcesadorComandos {
         }
         
         return sb.toString();
+    }
+    
+    private String cmdSearch(String argumento) {
+        if (argumento == null || argumento.isBlank()) {
+            return "Uso: search <patron> [/r | -r]";
+        }
+        
+        boolean recursivo = false;
+        String patron = argumento.trim();
+        
+        //Ahora el odioso y increiblemente innecesario paso de que se pueda soportar /r o -r en cualquier posicion
+        if (patron.contains(" /r")) {
+            patron = patron.replace(" /r", "");
+            recursivo = true;
+        }
+        if (patron.contains("/r ")) {
+            patron = patron.replace("/r ", "");
+            recursivo = true;
+        }
+        if (patron.endsWith("/r")) {
+            patron = patron.substring(0, patron.length() - 2).trim();
+            recursivo = true;
+        }
+        
+        if (patron.contains(" -r")) {
+            patron = patron.replace(" -r", "");
+            recursivo = true;
+        }
+        if (patron.contains("-r ")) {
+            patron = patron.replace("-r ", "");
+            recursivo = true;
+        }
+        if (patron.endsWith("-r")) {
+            patron = patron.substring(0, patron.length() - 2).trim();
+            recursivo = true;
+        }
+        
+        //Quitar las comillas si vienen
+        patron = unquote(patron);
+        
+        ResultadoBusqueda res = BuscadorArchivos.Buscar(CurrentDir, patron, recursivo);
+        
+        ArrayList<String> lista = res.getCoincidencias();
+        
+        if (lista.isEmpty()) {
+            return "No se encontraron coincidencias";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("Resultados (").append(lista.size()).append(")").append(recursivo ? " [recursivo]" : "").append(":\n");
+        
+        for (String abs : lista) {
+            sb.append(" - ").append(RelativizarARutaUsuario(abs)).append("\n");
+        }
+        
+        return sb.toString();
+    }
+    
+    private String cmdCopy(String argumentos) {
+        if (argumentos == null || argumentos.isBlank()) {
+            return "Uso: copy <origen> <destino>";
+        }
+        
+        String[] partes = argumentos.split("\\s+");
+        
+        if (partes.length < 2) {
+            return "Uso: copy <origen> <destino>";
+        }
+        
+        String origen = Resolver(partes[0]);
+        String destino = Resolver(partes[1]);
+        
+        try {
+            boolean ok = SistemaArchivo.Copiar(origen, destino);
+            
+            return ok ? "" : "No se pudo copiar.";
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+    
+    private String cmdMove(String argumento) {
+        if (argumento == null || argumento.isBlank()) {
+            return "Uso: move <origen> <destino>";
+        }
+        
+        String[] partes = argumento.split("\\s+");
+        
+        if (partes.length < 2) {
+            return "Uso: move <origen> <destino>";
+        }
+        
+        String origen = Resolver(partes[0]);
+        String destino = Resolver(partes[1]);
+        
+        try {
+            boolean ok = SistemaArchivo.Mover(origen, destino);
+            
+            return ok ? "" : "No se pudo mover";
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+    
+    private String unquote(String s) {
+        if (s == null) {
+            return null;
+        }
+        
+        s = s.trim();
+        
+        if ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"))) {
+            return s.substring(1, s.length() - 1);
+        }
+        
+        return s;
     }
 }
