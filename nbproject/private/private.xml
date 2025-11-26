@@ -3,20 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/Insta/Insta.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/Insta/Usuario.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/SistemaArchivo.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/ResultadoListado.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Consola/ProcesadorComandos.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/CriterioOrden.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/ComparadorNombreCarpeta.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/ComparadorNombreArchivo.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/ComparadorFechaArchivo.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/ComparadorTipoArchivo.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/ComparadorTamanoArchivo.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Archivos/Orden/Ordenadores.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/utils/RutaUtils.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/apps/editor/ArchivoTexto.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/CrearCuenta.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/Launcher.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/Login.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Core/GestorCarpetasUsuario.java</file>
         </group>
     </open-files>
 </project-private>
