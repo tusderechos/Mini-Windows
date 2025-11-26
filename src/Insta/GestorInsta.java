@@ -218,4 +218,15 @@ public class GestorInsta {
         
         return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
     }
+    
+    public static final int MAX_CARACTERES_INSTA = 140;
+    
+    public static void publicarInsta(String username, String contenido) throws LongitudInstaInvalida, IOException{
+        if(contenido.length() > MAX_CARACTERES_INSTA){
+            throw new LongitudInstaInvalida("El contenido excede el maximo permitido. Limite: "+MAX_CARACTERES_INSTA, MAX_CARACTERES_INSTA);
+        }
+        
+        Insta nuevoInsta = new Insta(username, contenido, "");
+        ManejoArchivosBinarios.escribirInsta(nuevoInsta);
+    }
 }
