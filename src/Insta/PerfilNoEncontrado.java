@@ -8,15 +8,11 @@ package Insta;
  *
  * @author HP
  */
-public class UsernameYaExiste extends Exception{
-    //exception 1
-    //vaina de la exception, despues creo las otras 2 :D
+public class PerfilNoEncontrado extends Exception{
+    //exception 2
     
-    public UsernameYaExiste(String mensaje){
+    public PerfilNoEncontrado(String mensaje){
         super(mensaje);
     }
     
-    public UsernameYaExiste(){
-        super("El nombre de usuario ya esta registrado en el sistema");
-    }
 }

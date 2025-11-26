@@ -179,4 +179,43 @@ public class GestorInsta {
         }
         return resultados;
     }
+    
+    public static boolean estaSiguiendo(String seguidor, String seguido){
+        ArrayList<Follow> listaFollowing = ManejoArchivosBinarios.leerListaFollows(seguido, true);
+        
+        for(Follow f : listaFollowing){
+            if(f.getUsername().equalsIgnoreCase(seguido) && f.isActivo()){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static DatosPerfil obtenerPefilCompleto(String perfilUsername, String usuarioLogueado)throws PerfilNoEncontrado, IOException{
+        Usuario perfil = null;
+        ArrayList<Usuario> todos = ManejoArchivosBinarios.leerTodosLosUsuarios();
+        
+        for(Usuario u : todos){
+            if(u.getUsername().equalsIgnoreCase(perfilUsername) && u.isActivo()){
+                perfil = u;
+                break;
+            }
+        }
+        if(perfil == null){
+            throw new PerfilNoEncontrado("El perfil de "+perfilUsername+" no existe o esta desactivado");
+        }
+        
+        int seguidores = contarFollows(perfilUsername, false);
+        int seguidos = contarFollows(perfilUsername, true);
+        
+        boolean loSigue = false;
+        if(!perfilUsername.equalsIgnoreCase(usuarioLogueado)){
+            loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
+        }
+        
+        ArrayList<Insta> instas = ManejoArchivosBinarios.leerInstasDeUsuario(perfilUsername);
+        java.util.Collections.sort(instas);
+        
+        return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
+    }
 }
