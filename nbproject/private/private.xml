@@ -3,6 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Usuario.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Insta.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Follow.java</file>
@@ -15,6 +16,12 @@
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/PerfilNoEncontrado.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/GestorDeSesion.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/LongitudInstaInvalida.java</file>
+=======
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/CrearCuenta.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/Launcher.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/Login.java</file>
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/Core/GestorCarpetasUsuario.java</file>
+>>>>>>> efc4f1635c73c1640d10a5268c4a97115f936b10
         </group>
     </open-files>
 </project-private>

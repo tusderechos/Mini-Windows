@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import OS.Core.SesionActual;
 import Compartidas.Constantes;
 import Compartidas.Usuario;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class SistemaArchivo {
     
@@ -274,5 +276,110 @@ public class SistemaArchivo {
         } while (candidato.exists());
         
         return candidato;
+    }
+    
+    /*
+        Copiar un archivo o carpeta dentro de DestinoCarpeta
+    */
+    public static boolean Copiar(String origen, String destinocarpeta) throws IllegalStateException, IOException {
+        SesionRequerida();
+        
+        File src = file(origen);
+        File dirdestino = file(destinocarpeta);
+        
+        if (!src.exists() || !dirdestino.exists() || !dirdestino.isDirectory()) {
+            return false;
+        }
+        
+        File destino = new File(dirdestino, src.getName());
+        destino = src.isDirectory() ? EvitarColisionDirectorio(destino) : EvitarColision(destino);
+        
+        return CopiarRec(src, destino);
+    }
+    
+    private static boolean CopiarRec(File src, File destino) throws IOException {
+        if (src.isDirectory()) {
+            
+            if (!destino.exists() && !destino.mkdirs()) {
+                return false;
+            }
+            
+            File[] hijos = src.listFiles();
+            
+            if (hijos != null) {
+                for (File hijo : hijos) {
+                    File nd = new File(destino, hijo.getName());
+                    
+                    if (hijo.isFile() && nd.exists()) {
+                        nd = EvitarColision(nd);
+                    }
+                    
+                    if (!CopiarRec(hijo, nd)) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        } else {
+            //Archivo
+            if (destino.exists()) {
+                destino = EvitarColision(destino);
+            }
+            
+            Files.copy(src.toPath(), destino.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+            return true;
+        }
+    }
+    
+    /*
+        Evita colision para directorios
+        como el otro, crea "Nombre (1)", "Nombre (2) y etc etc
+    */
+    private static File EvitarColisionDirectorio(File destino) {
+        if (!destino.exists()) {
+            return destino;
+        }
+        
+        String base = destino.getName();
+        File carpeta = destino.getParentFile();
+        int i = 1;
+        File candidato;
+        
+        do {            
+            candidato = new File(carpeta, base + " (" + i + ")");
+            i++;
+        } while (candidato.exists());
+        
+        return candidato;
+    }
+    
+    /*
+        Mueve un archivo o carpeta, usando renameTo y un fallback a copiar + eliminar
+    */
+    public static boolean Mover(String origen, String destinocarpeta) throws IllegalStateException, IOException {
+        SesionRequerida();
+        
+        File src = file(origen);
+        File dirdestino = file(destinocarpeta);
+        
+        if (!src.exists() || !dirdestino.exists() || !dirdestino.isDirectory()) {
+            return false;
+        }
+        
+        File destino = new File(dirdestino, src.getName());
+        destino = src.isDirectory() ? EvitarColisionDirectorio(destino) : EvitarColision(destino);
+        
+        //Intento rapido (con el mismo volumen)
+        if (src.renameTo(destino)) {
+            return true;
+        }
+        
+        //Fallback cross-volume (copiar y luego borrar)
+        if (!CopiarRec(src, destino)) {
+            return false;
+        }
+        
+        return BorrarRec(src);
     }
 }

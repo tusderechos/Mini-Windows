@@ -11,7 +11,7 @@ package OS.Core;
 
 import Compartidas.ManejoUsuarios;
 import Compartidas.Usuario;
-import MiniWindows.Core.GestorCarpetasUsuario;
+import OS.Core.GestorCarpetasUsuario;
 
 import javax.swing.JOptionPane;
 
@@ -23,12 +23,17 @@ public class SistemaOperativo {
     public SistemaOperativo() {
         manejoUsuarios = new ManejoUsuarios();
         UsuarioActual = null;
+        AsegurarAdminInicial();
     }
     
     /*
         Registra un nuevo usuario en el sistema
     */
     public Usuario RegistrarUsuario(String NombreCompleto, char Genero, String Usuario, String Contrasena, int Edad, String RutaFotoPerfil) {
+        if (!esAdminActual()) {
+            throw new SecurityException("Solo el administrador puede crear cuentas");
+        }
+        
         if (NombreCompleto == null || NombreCompleto.isBlank() || Usuario == null || Usuario.isBlank() || Contrasena == null || Contrasena.isBlank()) {
             JOptionPane.showMessageDialog(null, "Error:\nNombre, Usuario y Contraseña son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
             return null;
@@ -40,13 +45,13 @@ public class SistemaOperativo {
         }
         
         //Crear el nuevo usuario
-        Usuario nuevo = new Usuario(NombreCompleto, Genero, Usuario, Contrasena, Edad, (RutaFotoPerfil == null || RutaFotoPerfil.isBlank()) ? null : RutaFotoPerfil);
+        Usuario nuevo = new Usuario(NombreCompleto, Genero, Usuario, Contrasena, Edad, (RutaFotoPerfil == null || RutaFotoPerfil.isBlank()) ? null : RutaFotoPerfil, false);
         
         //Agregar el nuevo usuario
         boolean usuarioagregado = manejoUsuarios.Agregar(nuevo);
         
         if (!usuarioagregado) {
-            JOptionPane.showMessageDialog(null, "Error:\nNo se pudo agregar el usuario a users.ins", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error:\nNo se pudo agregar el usuario", "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
         
@@ -98,5 +103,21 @@ public class SistemaOperativo {
     */
     public ManejoUsuarios getManejoUsuarios() {
         return manejoUsuarios;
+    }
+    
+    private void AsegurarAdminInicial() {
+        //Si no existe el administrador por alguna razon, se crea
+        if (manejoUsuarios.UsernameDisponible("admin")) {
+            Usuario admin = new Usuario("Administrador del sistema", 'M', "admin", "admin123", 18, null, true);
+            manejoUsuarios.Agregar(admin);
+            
+            //Crear su estructura de carpetas tambien
+            GestorCarpetasUsuario.CrearEstructuraUsuario("admin");
+            System.out.println("Admin creado\nuser: admin\npass: admin123");
+        }
+    }
+    
+    private boolean esAdminActual() {
+        return UsuarioActual != null && UsuarioActual.isAdministrador();
     }
 }

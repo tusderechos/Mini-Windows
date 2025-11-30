@@ -22,14 +22,17 @@ public class Usuario implements Serializable {
     private int Edad;
     private boolean Activo;
     private String RutaFotoPerfil;
+    
+    private boolean Administrador;
 
-    public Usuario(String NombreUsuario, char Genero, String Usuario, String Contrasena, int Edad, String RutaFotoPerfil) {
+    public Usuario(String NombreUsuario, char Genero, String Usuario, String Contrasena, int Edad, String RutaFotoPerfil, boolean Administrador) {
         this.NombreUsuario = NombreUsuario;
         this.Genero = Genero;
         this.Usuario = Usuario;
         this.Contrasena = Contrasena;
         this.Edad = Edad;
         this.RutaFotoPerfil = RutaFotoPerfil;
+        this.Administrador = Administrador;
         
         Activo = true;
         FechaEntrada = LocalDate.now();
@@ -89,6 +92,14 @@ public class Usuario implements Serializable {
 
     public void setRutaFotoPerfil(String RutaFotoPerfil) {
         this.RutaFotoPerfil = RutaFotoPerfil;
+    }
+
+    public boolean isAdministrador() {
+        return Administrador;
+    }
+
+    public void setAdministrador(boolean Administrador) {
+        this.Administrador = Administrador;
     }
     
     @Override
