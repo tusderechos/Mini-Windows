@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @author HP
  */
 public class GestorInsta {
-    public static boolean crearNuevaCuenta(Usuario nuevoUsuario) throws UsernameYaExiste, IOException{
+    public static void crearNuevaCuenta(Usuario nuevoUsuario) throws UsernameYaExiste, IOException{
         String username = nuevoUsuario.getUsername();
         if(ManejoArchivosBinarios.existeUsername(username)){
             throw new UsernameYaExiste("El usernanme "+username+" no esta disponible");
@@ -22,15 +22,15 @@ public class GestorInsta {
             ManejoArchivosBinarios.escribirUsuario(nuevoUsuario);
         }catch(IOException e){
             System.err.println("Error al guardar el usuario: "+e.getMessage());
-            throw e;
+            throw new IOException("Fallo la registrat usuario en users.ins");
         }
         
         boolean estructuraCreada = GestorSistemaArchivos.crearEstructuraUsuario(username);
         
         if(!estructuraCreada){
             System.err.println("Error al crear estructura de carpetas para "+username);
+            throw new IOException("La creacion de carpetas (Z:\\"+username+") ha fallado.");
         }
-        return true;
     }
     
     public static void agregarFollow(String seguidor, String seguido) throws IOException {
