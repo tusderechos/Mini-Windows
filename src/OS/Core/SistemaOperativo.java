@@ -12,6 +12,7 @@ package OS.Core;
 import Compartidas.ManejoUsuarios;
 import Compartidas.Usuario;
 import OS.Core.GestorCarpetasUsuario;
+import java.io.File;
 
 import javax.swing.JOptionPane;
 
@@ -23,6 +24,8 @@ public class SistemaOperativo {
     public SistemaOperativo() {
         manejoUsuarios = new ManejoUsuarios();
         UsuarioActual = null;
+        
+        GestorCarpetasUsuario.AsegurarBase();
         AsegurarAdminInicial();
     }
     
@@ -67,16 +70,19 @@ public class SistemaOperativo {
         Intenta iniciar sesion con el usuario y la contrasena
     */
     public boolean IniciarSesion(String usuario, String contrasena) {
-        Usuario usuariousuario = manejoUsuarios.ValidarLogin(usuario, contrasena);
+        Usuario usuariousuario = manejoUsuarios.Buscar(usuario);
         
-        if (usuariousuario != null) {
+        if (usuariousuario != null && usuariousuario.getContrasena().equals(contrasena)) {
             UsuarioActual = usuariousuario;
+            
+            //Garantiza que existia Z/<usuario> aunque el usuario ya existiera
+            GestorCarpetasUsuario.ValidarOCrearEstructuraUsuario(usuariousuario.getUsuario());
+            
             JOptionPane.showMessageDialog(null, "Login exitoso.\nBienvenido, " + usuariousuario.getNombreUsuario());
             return true;
-        } else {
-            JOptionPane.showMessageDialog(null, "Login fallido.\nVerifica tus credenciales o si la cuenta esta activa");
-            return false;
         }
+        
+        return false;
     }
     
     /*
@@ -112,8 +118,13 @@ public class SistemaOperativo {
             manejoUsuarios.Agregar(admin);
             
             //Crear su estructura de carpetas tambien
-            GestorCarpetasUsuario.CrearEstructuraUsuario("admin");
+            GestorCarpetasUsuario.CrearEstructuraUsuario("admin"); //Crea Z/admin + subcarpetas
+            
             System.out.println("Admin creado\nuser: admin\npass: admin123");
+            System.out.println("admin creado en: " + new File(Compartidas.Constantes.RUTA_BASE, "admin").getAbsolutePath());
+        } else {
+            //Si ya existia el usuario admin, siemp se garantiza su carpeta
+            GestorCarpetasUsuario.ValidarOCrearEstructuraUsuario("admin");
         }
     }
     
