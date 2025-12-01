@@ -36,21 +36,22 @@ public class GestorInsta {
     }
     
     public static void agregarFollow(String seguidor, String seguido) throws IOException {
-        String rutaFollowing = "Z\\"+seguidor+"\\following.ins";
+        String rutaFollowing = Constantes.RUTA_BASE+seguidor+"\\following.ins";
         Follow followNuevo = new Follow(seguido);
         ManejoArchivosBinarios.escribirFollow(rutaFollowing, followNuevo);
         
-        String rutaFollowers = "Z\\"+seguido+"\\followers.ins";
+        String rutaFollowers = Constantes.RUTA_BASE+seguido+"\\followers.ins";
         Follow followerNuevo = new Follow(seguidor);
         ManejoArchivosBinarios.escribirFollow(rutaFollowers, followerNuevo);
         
         System.out.println(seguidor+" ahora sigue a "+seguido);
     }
     
-    public static ArrayList<Insta> generarTimeLine(String usuarioActual){
+    public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException{
         ArrayList<Insta> timeLine = new ArrayList<>();
         
-        ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(usuarioActual, true);
+        String rutaFollowing = Constantes.RUTA_BASE+usuarioActual+"\\following.ins";
+        ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
         
         for(Follow f : seguidos){
             if(f.isActivo()){
@@ -144,8 +145,11 @@ public class GestorInsta {
         return nuevoEstado;
     }
     
-    public static int contarFollows(String username, boolean esFollowing){
-        ArrayList<Follow> lista = ManejoArchivosBinarios.leerListaFollows(username, esFollowing);
+    public static int contarFollows(String username, boolean esFollowing) throws IOException{
+        String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
+        String rutaArchivo = Constantes.RUTA_BASE+username+"\\"+nombreArchivo;
+        ArrayList<Follow> lista = ManejoArchivosBinarios.leerListaFollows(rutaArchivo);
+        
         int contador = 0;
         
         for(Follow f : lista){
@@ -174,8 +178,8 @@ public class GestorInsta {
         
         ManejoArchivosBinarios.reescribirFollows(rutaFollowing, followsExistentes);
         
-        String rutaFollowers = Constantes.RUTA_BASE+seguidor+"\\followers.ins";
-        ArrayList<Follow> followersExistentes = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
+        String rutaFollowers = Constantes.RUTA_BASE+seguido+"\\followers.ins";
+        ArrayList<Follow> followersExistentes = ManejoArchivosBinarios.leerListaFollows(rutaFollowers);
         for(Follow f : followersExistentes){
             if(f.getUsername().equals(seguidor)){
                 f.setActivo(estado);
@@ -192,7 +196,8 @@ public class GestorInsta {
         try{
             ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
             
-            ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(usuarioLogueado, true);
+            String rutaFollowing = Constantes.RUTA_BASE+usuarioLogueado+"\\following.ins";
+            ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
             
             for(Usuario u : todosLosUsuarios){
                 boolean contieneTexto = u.getUsername().toLowerCase().contains(busqueda);
@@ -211,8 +216,9 @@ public class GestorInsta {
         return resultados;
     }
     
-    public static boolean estaSiguiendo(String seguidor, String seguido){
-        ArrayList<Follow> listaFollowing = ManejoArchivosBinarios.leerListaFollows(seguido, true);
+    public static boolean estaSiguiendo(String seguidor, String seguido)throws IOException{
+        String rutaFollowing = Constantes.RUTA_BASE+seguidor+"\\following.ins";
+        ArrayList<Follow> listaFollowing = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
         
         for(Follow f : listaFollowing){
             if(f.getUsername().equalsIgnoreCase(seguido) && f.isActivo()){
@@ -259,5 +265,24 @@ public class GestorInsta {
         
         Insta nuevoInsta = new Insta(username, contenido, "");
         ManejoArchivosBinarios.escribirInsta(nuevoInsta);
+    }
+    
+    public static Usuario logIn(String username, String password) throws CredencialesInvalidas, IOException{
+        ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+        
+        for(Usuario u : todosLosUsuarios){
+            if(u.getUsername().equalsIgnoreCase(username)){
+                if(u.getPassword().equalsIgnoreCase(password)){
+                    if(u.isActivo()){
+                        return u;
+                    }else{
+                        throw new CredencialesInvalidas("La cuenta de "+username+" esta desactivada.");
+                    }
+                }else{
+                    throw new CredencialesInvalidas("Credenciales invalidas: Uusario o contraseña incorrectos.");
+                }
+            }
+        }
+        throw new CredencialesInvalidas("Credenciales invalidas: Uusario o contraseña incorrectos.");
     }
 }

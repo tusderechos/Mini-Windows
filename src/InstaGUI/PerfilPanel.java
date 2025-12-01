@@ -77,7 +77,7 @@ public class PerfilPanel extends JPanel {
         if (usernamePerfil.equalsIgnoreCase(usuarioLogueado)) {
             //aqui es que el user esta viendo su propio perfil
             btnAccion = new JButton("EDITAR PERFIL");
-            btnAccion.addActionListener(e -> mostratOpcionesEdicion(datos.getDatosGenerales()));
+            btnAccion.addActionListener(e -> mostrarOpcionesEdicion(datos.getDatosGenerales()));
         } else {
             //aqui el user esta viendo otro perfil
             if (datos.getloSigueElUsuarioActual()) { //isLoSigueElUsuarioActual
@@ -123,7 +123,7 @@ public class PerfilPanel extends JPanel {
         return new JScrollPane(grid);
     }
 
-    private void mostratOpcionesEdicion(Usuario usuario) {
+    private void mostrarOpcionesEdicion(Usuario usuario) {
         String[] opciones = {"Buscar Personas", "Desactivar/Activar Cuenta", "Agregar Foto de Perfil"};
 
         String estadoActual = usuario.isActivo() ? "(ACTIVA)" : "(DESACTIVA)";
