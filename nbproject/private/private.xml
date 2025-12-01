@@ -2,6 +2,26 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+<<<<<<< HEAD
         <group/>
+=======
+        <group>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Usuario.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Insta.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Follow.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/ManejoArchivosBinarios.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/AppendingObjectOutputStream.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/GestorSistemaArchivos.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/UsernameYaExiste.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/GestorInsta.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/DatosPerfil.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/PerfilNoEncontrado.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/GestorDeSesion.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/LongitudInstaInvalida.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/SesionManager.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/vtnRegistro.java</file>
+            <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/PerfilPanel.java</file>
+        </group>
+>>>>>>> f9f299192512dbc8936ff7b35f199d1b66026097
     </open-files>
 </project-private>

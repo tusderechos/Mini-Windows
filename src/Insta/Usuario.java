@@ -21,7 +21,7 @@ public class Usuario implements Serializable{
     private boolean activo;
     private String rutaFotoPerfil;
     
-    public Usuario(String username ,String nombre, String password, char genero, int edad){
+    public Usuario(String username ,String nombre, String password, char genero, int edad, String rutaFotoPerfil){
         this.username = username;
         this.nombre = nombre;
         this.password = password;
