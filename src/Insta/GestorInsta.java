@@ -4,6 +4,8 @@
  */
 package Insta;
 
+import Compartidas.Constantes;
+import static Compartidas.Constantes.RUTA_BASE;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -152,6 +154,35 @@ public class GestorInsta {
             }
         }
         return contador;
+    }
+    
+    public static void actualizarEstadoFollow(String seguidor, String seguido, boolean estado) throws IOException{
+        String rutaFollowing = Constantes.RUTA_BASE+seguidor+"\\following.ins";
+        ArrayList<Follow> followsExistentes = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
+        
+        boolean encontrado = false;
+        for(Follow f : followsExistentes){
+            if(f.getUsername().equals(seguido)){
+                f.setActivo(estado);
+                encontrado = true;
+                break;
+            }
+        }
+        if(!encontrado && !estado){
+            
+        }
+        
+        ManejoArchivosBinarios.reescribirFollows(rutaFollowing, followsExistentes);
+        
+        String rutaFollowers = Constantes.RUTA_BASE+seguidor+"\\followers.ins";
+        ArrayList<Follow> followersExistentes = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
+        for(Follow f : followersExistentes){
+            if(f.getUsername().equals(seguidor)){
+                f.setActivo(estado);
+                break;
+            }
+        }
+        ManejoArchivosBinarios.reescribirFollows(rutaFollowers, followersExistentes);
     }
     
     public static ArrayList<Usuario> buscarPersonas(String textoBusqueda, String usuarioLogueado){

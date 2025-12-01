@@ -74,7 +74,7 @@ public class ManejoArchivosBinarios {
 
     public static void escribirInsta(Insta nuevoInsta) throws IOException {
         String username = nuevoInsta.getAutorUsername();
-        String rutaArchivo = "Z\\" + username + "\\insta.ins";
+        String rutaArchivo = "Z:\\" + username + "\\insta.ins";
 
         try (FileOutputStream fos = new FileOutputStream(rutaArchivo, true); 
              AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
@@ -89,7 +89,7 @@ public class ManejoArchivosBinarios {
     
     public static ArrayList<Insta> leerInstasDeUsuario(String username){
         ArrayList<Insta> instas = new ArrayList<>();
-        String rutaArchivo = "Z\\"+username+"\\insta.ins";
+        String rutaArchivo = "Z:\\"+username+"\\insta.ins";
         File archivo = new File(rutaArchivo);
         
         if(!archivo.exists() || archivo.length()==0){
@@ -127,10 +127,10 @@ public class ManejoArchivosBinarios {
         }
     }
     
-    public static ArrayList<Follow> leerListaFollows(String username, boolean esFollowing){
+    public static ArrayList<Follow> leerListaFollows(String rutaArchivo){
         ArrayList<Follow> follows = new ArrayList();
-        String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
-        String rutaArchivo = "Z\\"+username+"\\"+nombreArchivo;
+        /*String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
+        String rutaArchivo = "Z:\\"+username+"\\"+nombreArchivo;*/
         
         File archivo = new File(rutaArchivo);
         if(!archivo.exists() || archivo.length()==0){
@@ -146,6 +146,8 @@ public class ManejoArchivosBinarios {
                     follows.add(follow);
                 }catch(EOFException e){
                     break;
+                }catch(ClassNotFoundException e){
+                    throw new IOException("Error de formato en archivo binario: "+e.getMessage(), e);
                 }
             }
             
@@ -155,27 +157,11 @@ public class ManejoArchivosBinarios {
         return follows;
     }
     
-    public static void actualizarEstadoFollow(String usuarioQueModifica, String objetivoUsername, boolean esFollowing) throws IOException {
-        ArrayList<Follow> listaActual = leerListaFollows(usuarioQueModifica, esFollowing);
-        boolean encontrado = false;
-        
-        for(Follow f : listaActual){
-            if(f.getUsername().equalsIgnoreCase(objetivoUsername)){
-                f.setActivo(false);
-                encontrado = true;
-                break;
-            }
-        }
-        
-        if(!encontrado) return;
-        
-        String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
-        String rutaArchivo = "Z\\"+usuarioQueModifica+"\\"+nombreArchivo;
-        
-        try(FileOutputStream fos = new FileOutputStream(rutaArchivo, false); 
+    public static void reescribirFollos(String rutaArchivo, ArrayList<Follow> follows) throws IOException{
+        try(FileOutputStream fos = new FileOutputStream(rutaArchivo, false);
             ObjectOutputStream oos = new ObjectOutputStream(fos)){
             
-            for(Follow f : listaActual){
+            for(Follow f : follows){
                 oos.writeObject(f);
             }
         }
