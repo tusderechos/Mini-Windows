@@ -72,18 +72,17 @@ public class ManejoArchivosBinarios {
         }
     }
 
-    public static void escribirInsta(Insta nuevoInsta) throws IOException {
-        String username = nuevoInsta.getAutorUsername();
-        String rutaArchivo = "Z:\\" + username + "\\insta.ins";
-
-        try (FileOutputStream fos = new FileOutputStream(rutaArchivo, true); 
-             AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
+    public static void escribirInsta(Insta nuevoInsta, String rutaArchivo) throws IOException {
+        File archivo = new File(rutaArchivo);
+        
+        if(!archivo.exists() || archivo.length() == 0){
+            try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))){
             oos.writeObject(nuevoInsta);
-            System.out.println("Insta de "+username+" publicado exitosamente");
-
-        } catch (FileNotFoundException e) {
-            System.err.println("Archivo insta.ins no encontrado para "+username+": "+e.getMessage());
-            throw e;
+            }
+        }else{
+            try(AppendingObjectOutputStream aoos = new AppendingObjectOutputStream(new FileOutputStream(archivo, true))){
+            aoos.writeObject(nuevoInsta);
+            }
         }
     }
     

@@ -264,7 +264,8 @@ public class GestorInsta {
         }
         
         Insta nuevoInsta = new Insta(username, contenido, "");
-        ManejoArchivosBinarios.escribirInsta(nuevoInsta);
+        String rutaCompletaArchivo = Constantes.RUTA_BASE+username+"\\instas.ins";
+        ManejoArchivosBinarios.escribirInsta(nuevoInsta, rutaCompletaArchivo);
     }
     
     public static Usuario logIn(String username, String password) throws CredencialesInvalidas, IOException{
@@ -284,5 +285,16 @@ public class GestorInsta {
             }
         }
         throw new CredencialesInvalidas("Credenciales invalidas: Uusario o contraseña incorrectos.");
+    }
+    
+    public static void crearInsta(Insta nuevoPost) throws LongitudInstaInvalida, IOException{
+        final int LONGITUD_MAXIMA = 140;
+        if(nuevoPost.getTexto().length() > LONGITUD_MAXIMA){
+            throw new LongitudInstaInvalida("El texto es demasiado largo."+nuevoPost.getTexto().length(), LONGITUD_MAXIMA);
+        }
+        
+        String autor = nuevoPost.getAutorUsername();
+        String rutaArchivoInstas = Constantes.RUTA_BASE+autor+"\\instas.ins";
+        ManejoArchivosBinarios.escribirInsta(nuevoPost, rutaArchivoInstas);
     }
 }
