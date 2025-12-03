@@ -16,12 +16,14 @@ public class Insta implements Serializable, Comparable<Insta>{
     private Date fechaPublicacion;
     private String contenido;
     private String rutaImg;
+    private String texto;
     
     public Insta(String autorUsername, String contenido, String rutaImg){
         this.autorUsername = autorUsername;
         this.fechaPublicacion = new Date();
         this.contenido = contenido;
         this.rutaImg = rutaImg;
+        this.texto = texto;
     }
     
     public int compareTo(Insta otroInsta){
@@ -42,5 +44,9 @@ public class Insta implements Serializable, Comparable<Insta>{
     
    public String getRutaImg(){
        return rutaImg;
+   }
+   
+   public String getTexto(){
+       return texto;
    }
 }

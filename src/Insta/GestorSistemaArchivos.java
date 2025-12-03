@@ -4,6 +4,7 @@
  */
 package Insta;
 
+import Compartidas.Constantes;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.io.IOException;
  * @author HP
  */
 public class GestorSistemaArchivos {
-    private static final String rutaRaiz = "Z:\\";
+    private static final String rutaRaiz = Constantes.RUTA_BASE;
     
     public static boolean crearEstructuraUsuario(String username){
         String rutaBaseUsuario = rutaRaiz+username;

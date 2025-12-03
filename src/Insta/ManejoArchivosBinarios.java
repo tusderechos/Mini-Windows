@@ -72,24 +72,23 @@ public class ManejoArchivosBinarios {
         }
     }
 
-    public static void escribirInsta(Insta nuevoInsta) throws IOException {
-        String username = nuevoInsta.getAutorUsername();
-        String rutaArchivo = "Z:\\" + username + "\\insta.ins";
-
-        try (FileOutputStream fos = new FileOutputStream(rutaArchivo, true); 
-             AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
+    public static void escribirInsta(Insta nuevoInsta, String rutaArchivo) throws IOException {
+        File archivo = new File(rutaArchivo);
+        
+        if(!archivo.exists() || archivo.length() == 0){
+            try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))){
             oos.writeObject(nuevoInsta);
-            System.out.println("Insta de "+username+" publicado exitosamente");
-
-        } catch (FileNotFoundException e) {
-            System.err.println("Archivo insta.ins no encontrado para "+username+": "+e.getMessage());
-            throw e;
+            }
+        }else{
+            try(AppendingObjectOutputStream aoos = new AppendingObjectOutputStream(new FileOutputStream(archivo, true))){
+            aoos.writeObject(nuevoInsta);
+            }
         }
     }
     
-    public static ArrayList<Insta> leerInstasDeUsuario(String username){
+    public static ArrayList<Insta> leerInstasDeUsuario(String username) throws IOException{
         ArrayList<Insta> instas = new ArrayList<>();
-        String rutaArchivo = "Z:\\"+username+"\\insta.ins";
+        String rutaArchivo = "Z:\\"+username+"\\instas.ins";
         File archivo = new File(rutaArchivo);
         
         if(!archivo.exists() || archivo.length()==0){
@@ -105,19 +104,19 @@ public class ManejoArchivosBinarios {
                     instas.add(insta);
                 }catch(EOFException e){
                     break;
+                }catch(ClassNotFoundException e){
+                    throw new IOException("Error de formato al leer Insta: "+e.getMessage(), e);
                 }
             }
         } catch(FileNotFoundException e){
-            System.err.println("El archivo insta.ins para "+username+" no se encuentra");
+            throw e;
         } catch(IOException e){
-            System.err.println("Error de lectura para "+username+": "+e.getMessage());
-        } catch(ClassNotFoundException e){
-            System.err.println("Clase Insta no encontrada");
+            throw e;
         }
         return instas;
     }
     
-    public static void escribirFollow(String rutaArchivo, Follow follow) throws IOException{
+    /*public static void escribirFollow(String rutaArchivo, Follow follow) throws IOException{
         try(FileOutputStream fos = new FileOutputStream(rutaArchivo, true);
             AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
             oos.writeObject(follow);
@@ -125,12 +124,10 @@ public class ManejoArchivosBinarios {
             System.err.println("Archivo de follow no encontrado: "+e.getMessage());
             throw e;
         }
-    }
+    }*/
     
-    public static ArrayList<Follow> leerListaFollows(String rutaArchivo){
+    public static ArrayList<Follow> leerListaFollows(String rutaArchivo) throws IOException{
         ArrayList<Follow> follows = new ArrayList();
-        /*String nombreArchivo = esFollowing ? "following.ins" : "followers.ins";
-        String rutaArchivo = "Z:\\"+username+"\\"+nombreArchivo;*/
         
         File archivo = new File(rutaArchivo);
         if(!archivo.exists() || archivo.length()==0){
@@ -151,13 +148,11 @@ public class ManejoArchivosBinarios {
                 }
             }
             
-        }catch(Exception e){
-            System.err.println("Error a leer lista de follows: "+e.getMessage());
         }
         return follows;
     }
     
-    public static void reescribirFollos(String rutaArchivo, ArrayList<Follow> follows) throws IOException{
+    public static void reescribirFollows(String rutaArchivo, ArrayList<Follow> follows) throws IOException{
         try(FileOutputStream fos = new FileOutputStream(rutaArchivo, false);
             ObjectOutputStream oos = new ObjectOutputStream(fos)){
             
@@ -172,11 +167,11 @@ public class ManejoArchivosBinarios {
             ObjectOutputStream oos = new ObjectOutputStream(fos)){
             
             for(Usuario u : listaUsuarios){
-                oos.writeObject(oos);
+                oos.writeObject(u);
             }
             
         } catch(FileNotFoundException e){
-            System.err.println("Archivo users,ins no encontrado para reescritura");
+            System.err.println("Archivo users.ins no encontrado para reescritura");
             throw e;
         }
     }

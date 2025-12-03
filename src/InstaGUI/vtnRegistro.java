@@ -11,7 +11,7 @@ package InstaGUI;
 import Insta.GestorInsta;
 import Insta.SesionManager;
 import Insta.UsernameYaExiste;
-import Insta.Usuario;  
+import Insta.Usuario;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,20 +21,21 @@ import java.util.Date;
 import java.io.IOException;
 
 public class vtnRegistro extends JDialog {
-    
+
     private JTextField txtNombre, txtUsername, txtPassword, txtEdad;
     private JRadioButton rbMasculino, rbFemenino;
     private JLabel rutaFoto;
     private String rutaFotoSeleccionada = "";
-    
+
     public vtnRegistro(JFrame parent) {
-        super(parent, "INSTA - Crear Cuenta", true); 
+        setTitle("INSTA - Crear Cuenta");
+        //super(parent, "INSTA - Crear Cuenta", true);
         setSize(450, 450);
         setLayout(new BorderLayout(10, 10));
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(null);
         inicializarComponentes();
     }
-    
+
     private void inicializarComponentes() {
         JPanel panelFormulario = new JPanel(new GridLayout(8, 2, 5, 5));
 
@@ -47,7 +48,7 @@ public class vtnRegistro extends JDialog {
         panelFormulario.add(txtUsername);
 
         panelFormulario.add(new JLabel("Password:"));
-        txtPassword = new JTextField();
+        txtPassword = new JPasswordField();
         panelFormulario.add(txtPassword);
 
         panelFormulario.add(new JLabel("Edad:"));
@@ -69,7 +70,7 @@ public class vtnRegistro extends JDialog {
         JButton btnSeleccionarFoto = new JButton("Seleccionar Foto");
         rutaFoto = new JLabel("Ninguna seleccionada");
         btnSeleccionarFoto.addActionListener(e -> seleccionarFoto());
-        
+
         JPanel panelFoto = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelFoto.add(btnSeleccionarFoto);
         panelFoto.add(rutaFoto);
@@ -82,29 +83,29 @@ public class vtnRegistro extends JDialog {
                 registrarUsuario();
             }
         });
-        
+
         add(panelFormulario, BorderLayout.CENTER);
         add(btnRegistrar, BorderLayout.SOUTH);
     }
-    
+
     private void seleccionarFoto() {
         JFileChooser fileChooser = new JFileChooser();
         int resultado = fileChooser.showOpenDialog(this);
-        
+
         if (resultado == JFileChooser.APPROVE_OPTION) {
             File archivo = fileChooser.getSelectedFile();
             rutaFotoSeleccionada = archivo.getAbsolutePath();
             rutaFoto.setText(archivo.getName());
         }
     }
-    
+
     private void registrarUsuario() {
-        
+
         String nombre = txtNombre.getText();
         String username = txtUsername.getText();
         String password = txtPassword.getText();
-        int edad = Integer.parseInt(txtEdad.getText());
-        
+        String edad = txtEdad.getText();
+
         char genero = 'N'; // N = No especificado
         if (rbMasculino.isSelected()) {
             genero = 'M';
@@ -112,23 +113,23 @@ public class vtnRegistro extends JDialog {
             genero = 'F';
         }
 
-        if (nombre.isEmpty() || username.isEmpty() || password.isEmpty() || genero == 'N') {
+        if (nombre.isEmpty() || username.isEmpty() || password.isEmpty() || genero == 'N' || edad.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Debe llenar todos los campos.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Usuario nuevoUsuario = new Usuario(
-                username, nombre, password, genero, edad, rutaFotoSeleccionada
-        );
-        
         try {
+            int Edad = Integer.parseInt(edad);
+            Usuario nuevoUsuario = new Usuario(
+                    username, nombre, password, genero, Edad, rutaFotoSeleccionada
+            );
             GestorInsta.crearNuevaCuenta(nuevoUsuario);
-            SesionManager.setUsuarioActual(nuevoUsuario); 
+            SesionManager.setUsuarioActual(nuevoUsuario);
             JOptionPane.showMessageDialog(this, "Usuario " + username + " creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
-            dispose(); 
+
+            dispose();
             System.out.println("Cuenta creada, debe abrir la ventana principal de INSTA.");
-            
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "La Edad debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (UsernameYaExiste e) {
@@ -139,4 +140,9 @@ public class vtnRegistro extends JDialog {
             JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    /*public static void main(String[] args) {
+        vtnRegistro r = new vtnRegistro();
+        r.setVisible(true);
+    }*/
 }
