@@ -9,13 +9,15 @@ package Compartidas;
  * @author Hp
  */
 
+import OS.Archivos.SistemaArchivo;
+import OS.Core.GestorCarpetasUsuario;
 import java.util.ArrayList;
 import java.io.*;
 import javax.swing.JOptionPane;
 
 public class ManejoUsuarios {
     
-    private File Archivo;
+    private final File Archivo;
     private ArrayList<Usuario> Lista;
     
     public ManejoUsuarios() {
@@ -40,6 +42,7 @@ public class ManejoUsuarios {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al cargar users.ins");
+            Lista = new ArrayList<>();
         }
     }
     
@@ -78,9 +81,79 @@ public class ManejoUsuarios {
             return false; //Por si ya existe
         }
         
+        usuario.setActivo(true);
+        
         Lista.add(usuario);
         Guardar();
         
+        try {
+            GestorCarpetasUsuario.CrearEstructuraUsuario(usuario.getUsuario());
+        } catch (Throwable ignorar) {
+        }
+        
+        return true;
+    }
+    
+    /*
+        Actualiza los datos de un usuario existente
+    */
+    public boolean Actualizar(Usuario actualizado) {
+        for (int i = 0; i < Lista.size(); i++) {
+            if (Lista.get(i).getUsuario().equalsIgnoreCase(actualizado.getUsuario())) {
+                Lista.set(i, actualizado);
+                Guardar();
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /*
+        Elimina el usuario segun su username
+    */
+    public boolean Eliminar(String username) {
+        Usuario usuario = Buscar(username);
+        
+        if (usuario == null) {
+            return false;
+        }
+        
+        Lista.remove(usuario);
+        Guardar();
+        
+        SistemaArchivo.EliminarCarpetaUsuario(username);
+        
+        return true;
+    }
+    
+    /*
+        Activa/Desactiva usuario segun su username
+    */
+    public boolean ToggleActivo(String username) {
+        Usuario usuario = Buscar(username);
+        
+        if (usuario == null) {
+            return false;
+        }
+        
+        usuario.setActivo(!usuario.isActivo());
+        Guardar();
+        return true;
+    }
+    
+    /*
+        Cambia la contrasena del usuario
+    */
+    public boolean CambiarContrasena(String username, String nuevacontrasena) {
+        Usuario usuario = Buscar(username);
+        
+        if (usuario != null) {
+            return false;
+        }
+        
+        usuario.setContrasena(nuevacontrasena);
+        Guardar();
         return true;
     }
     

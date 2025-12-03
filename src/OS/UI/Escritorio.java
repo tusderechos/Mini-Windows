@@ -114,13 +114,15 @@ public class Escritorio extends JFrame {
         btnconsola.addActionListener(e -> new Consola().setVisible(true));
         btnarchivos.addActionListener(e -> new NavegadorArchivos().setVisible(true));
         btneditor.addActionListener(e -> new EditorTexto().setVisible(true));
+        
         btnusuarios.addActionListener(e -> {
             if (!esadmin) {
                 JOptionPane.showMessageDialog(this, "Solo el administrador puede gestionar usuarios");
                 return;
             }
             
-            new CrearCuenta(SO, this).setVisible(true);
+            Usuario actual = SesionActual.getUsuario();
+            new UsuariosUI(actual).setVisible(true);
         });
         
         btnfull.addActionListener(e -> FullscreenHelper.toggle(this));

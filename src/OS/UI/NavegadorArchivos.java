@@ -30,21 +30,27 @@ import OS.UI.util.NodoArchivo;
 import OS.UI.util.RendererTreeOscuro;
 import OS.Archivos.Archivo;
 import OS.Archivos.Carpeta;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class NavegadorArchivos extends JFrame {
+    
+    private final String RUTA;
     
     private JTree Arbol;
     private DefaultTreeModel ModeloArbol;
     private JSplitPane Split;
     
-    private static final String F_DOCS = "Documentos";
-    private static final String F_INGS = "Imagenes";
-    private static final String F_AUDIO = "Musica";
+    private JTextField TxtRuta;
+    private JPopupMenu MenuTabla;
     
     private String DirActual;
     private final JLabel LblRuta = new JLabel();
@@ -73,7 +79,8 @@ public class NavegadorArchivos extends JFrame {
     private final DefaultTableCellRenderer sizerenderer;
     
     public NavegadorArchivos() {
-        DirActual = SistemaArchivo.getRutaUsuario();
+        RUTA = Normalizar(SistemaArchivo.getRutaUsuario());
+        DirActual = RUTA;
         
         setTitle("Mini-Windows - Archivos");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -86,39 +93,29 @@ public class NavegadorArchivos extends JFrame {
         
         //Barra arriba
         JPanel top = new JPanel();
-        top.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        top.setBackground(TemaOscuro.BG);
+        top.setLayout(new BorderLayout(8, 8));
+        top.setBackground(TemaOscuro.BAR);
+        
+        JPanel acciones = new JPanel();
+        acciones.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        acciones.setBackground(TemaOscuro.BAR);
         
         JButton BtnUp = BotonStyle("Arriba");
-        JButton BtnAbrir = BotonStyle("Abrir");
-        JButton BtnMkdir = BotonStyle("Nueva carpeta");
-        JButton BtnMktxt = BotonStyle("Nuevo .txt");
-        JButton BtnRenombrar = BotonStyle("Renombrar");
-        JButton BtnBorrar = BotonStyle("Eliminar");
-        JButton BtnCopiar = BotonStyle("Copiar a...");
-        JButton BtnMover = BotonStyle("Mover a...");
-        JButton BtnOrganizar = BotonStyle("Organizar por tipo");
         JButton BtnRefrescar = BotonStyle("Refrescar");
         
-        top.add(BtnUp);
-        top.add(BtnAbrir);
-        top.add(BtnMkdir);
-        top.add(BtnMktxt);
-        top.add(BtnRenombrar);
-        top.add(BtnBorrar);
-        top.add(BtnCopiar);
-        top.add(BtnMover);
-        top.add(BtnOrganizar);
-        top.add(BtnRefrescar);
+        acciones.add(BtnUp);
+        acciones.add(BtnRefrescar);
         
-        tabla = new JTable(modelo);
-        tabla.setBackground(TemaOscuro.BG);
-        tabla.setForeground(TemaOscuro.TEXTO);
-        tabla.setGridColor(TemaOscuro.LINEA);
-        tabla.setSelectionBackground(TemaOscuro.CARD);
-        tabla.setSelectionForeground(TemaOscuro.TEXTO);
-        tabla.setRowHeight(22);
-        tabla.setFillsViewportHeight(true);
+        TxtRuta = new JTextField(DirActual);
+        TxtRuta.setBackground(TemaOscuro.CARD);
+        TxtRuta.setForeground(TemaOscuro.TEXTO);
+        TxtRuta.setCaretColor(TemaOscuro.TEXTO);
+        TxtRuta.setBorder(BorderFactory.createLineBorder(TemaOscuro.LINEA));
+        
+        top.add(acciones, BorderLayout.WEST);
+        top.add(TxtRuta, BorderLayout.CENTER);
+        
+        add(top, BorderLayout.NORTH);
         
         sizerenderer = new DefaultTableCellRenderer() {
             @Override
@@ -145,24 +142,14 @@ public class NavegadorArchivos extends JFrame {
         };
         daterenderer.setOpaque(false);
         
-        Sorter = new TableRowSorter<>(modelo);
-        tabla.setRowSorter(Sorter);
-        
-        Sorter.setComparator(1, (a, b) -> {
-            String s1 = (String) a;
-            String s2 = (String) b;
-            boolean d1 = s1.equalsIgnoreCase("<DIR>");
-            boolean d2 = s2.equalsIgnoreCase("<DIR>");
-            
-            if (d1 && !d2) {
-                return -1;
-            }
-            if (!d1 && d2) {
-                return 1;
-            }
-            
-            return s1.compareToIgnoreCase(s2);
-        });
+        tabla = new JTable(modelo);
+        tabla.setBackground(TemaOscuro.BG);
+        tabla.setForeground(TemaOscuro.TEXTO);
+        tabla.setGridColor(TemaOscuro.LINEA);
+        tabla.setSelectionBackground(TemaOscuro.CARD);
+        tabla.setSelectionForeground(TemaOscuro.TEXTO);
+        tabla.setRowHeight(22);
+        tabla.setFillsViewportHeight(true);
         
         JScrollPane scrolltabla = new JScrollPane(tabla);
         scrolltabla.getViewport().setBackground(TemaOscuro.BG);
@@ -171,18 +158,88 @@ public class NavegadorArchivos extends JFrame {
         tabla.getColumnModel().getColumn(2).setCellRenderer(sizerenderer);
         tabla.getColumnModel().getColumn(3).setCellRenderer(daterenderer);
         
+        tabla.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    AbrirSeleccion();
+                }
+            }
+        });
+        
+        tabla.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {    
+                    AbrirSeleccion();
+                    e.consume();
+                }
+            }
+        });
+        
+        MenuTabla = new JPopupMenu();
+        JMenuItem MiAbrir = new JMenuItem("Abrir");
+        JMenuItem MiRenombrar = new JMenuItem("Renombrar");
+        JMenuItem MiMover = new JMenuItem("Mover a...");
+        JMenuItem MiCopiar = new JMenuItem("Copiar a...");
+        JMenuItem MiEliminar = new JMenuItem("Eliminar");
+        JMenuItem MiNuevoTxt = new JMenuItem("Nuevo .txt");
+        JMenuItem MiNuevaCarpeta = new JMenuItem("Nueva Carpeta");
+        
+        MenuTabla.add(MiAbrir);
+        MenuTabla.add(MiRenombrar);
+        MenuTabla.add(MiMover);
+        MenuTabla.add(MiCopiar);
+        MenuTabla.add(MiEliminar);
+        MenuTabla.add(MiNuevoTxt);
+        MenuTabla.add(MiNuevaCarpeta);
+        
+        tabla.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                show(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                show(e);
+            }
+            
+            private void show(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int r = tabla.rowAtPoint(e.getPoint());
+                    
+                    if (r >= 0) {
+                        tabla.setRowSelectionInterval(r, r);
+                    }
+                    
+                    MenuTabla.show(tabla, e.getX(), e.getY());
+                }
+            }
+        });
+        
+        MiAbrir.addActionListener(e -> AbrirSeleccion());
+        MiRenombrar.addActionListener(e -> Renombrar());
+        MiMover.addActionListener(e -> CopiarMover(false));
+        MiCopiar.addActionListener(e -> CopiarMover(true));
+        MiEliminar.addActionListener(e -> Borrar());
+        MiNuevoTxt.addActionListener(e -> CrearTxt());
+        MiNuevaCarpeta.addActionListener(e -> CrearCarpeta());
+        
         File raiz = new File(SistemaArchivo.getRutaUsuario());
         NodoArchivo nodoruta = new NodoArchivo(raiz);
+        
         ModeloArbol = new DefaultTreeModel(nodoruta);
         Arbol = new JTree(ModeloArbol);
-        Arbol.setRootVisible(true);
-        Arbol.setShowsRootHandles(true);
+        
         Arbol.setBackground(TemaOscuro.BG);
+        Arbol.setRootVisible(true);
         Arbol.setRowHeight(22);
+        Arbol.setShowsRootHandles(true);
         Arbol.setCellRenderer(new RendererTreeOscuro());
         
         CargarHijos(nodoruta);
         
+        //Expandir al abrir nodo
         Arbol.addTreeWillExpandListener(new TreeWillExpandListener() {
             @Override
             public void treeWillExpand(TreeExpansionEvent event) {
@@ -198,12 +255,30 @@ public class NavegadorArchivos extends JFrame {
             }
         });
         
-        Arbol.addTreeSelectionListener((TreeSelectionListener) e -> {
+        //Seleccion = navegar
+        Arbol.addTreeSelectionListener(e -> {
             NodoArchivo nodo = (NodoArchivo) Arbol.getLastSelectedPathComponent();
             
             if (nodo != null) {
-                DirActual = nodo.file.getAbsolutePath();
-                Refrescar();
+                Navegar(nodo.file.getAbsolutePath());
+            }
+        });
+        
+        //Doble click = navegar
+        Arbol.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    TreePath path = Arbol.getClosestPathForLocation(e.getX(), e.getY());
+                    
+                    if (path != null) {
+                        NodoArchivo nodo = (NodoArchivo) path.getLastPathComponent();
+                        
+                        if (nodo.file.isDirectory()) {
+                            Navegar(nodo.file.getAbsolutePath());
+                        }
+                    }
+                }
             }
         });
         
@@ -216,6 +291,8 @@ public class NavegadorArchivos extends JFrame {
         Split.setDividerLocation(260);
         Split.setBorder(BorderFactory.createEmptyBorder());
         
+        add(Split, BorderLayout.CENTER);
+        
         JPanel barraruta = new JPanel();
         barraruta.setLayout(new BorderLayout());
         barraruta.setBackground(TemaOscuro.BAR);
@@ -224,30 +301,32 @@ public class NavegadorArchivos extends JFrame {
         LblRuta.setForeground(TemaOscuro.SUTIL);
         barraruta.add(LblRuta, BorderLayout.CENTER);
                 
-        add(top, BorderLayout.NORTH);
-        add(Split, BorderLayout.CENTER);
         add(barraruta, BorderLayout.SOUTH);
         
         BtnUp.addActionListener(e -> GoUp());
-        BtnAbrir.addActionListener(e -> AbrirSeleccion());
-        BtnMkdir.addActionListener(e -> CrearCarpeta());
-        BtnMktxt.addActionListener(e -> CrearTxt());
-        BtnRenombrar.addActionListener(e -> Renombrar());
-        BtnBorrar.addActionListener(e -> Borrar());
-        BtnCopiar.addActionListener(e -> CopiarMover(true));
-        BtnMover.addActionListener(e -> CopiarMover(false));
-        BtnOrganizar.addActionListener(e -> {
-            try {
-                SistemaArchivo.OrganizarPorTipo(DirActual);
-                Refrescar();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error al organizar", "Error", JOptionPane.ERROR_MESSAGE);
+        BtnRefrescar.addActionListener(e -> Refrescar());
+        
+        TxtRuta.addActionListener(e -> {
+            String entrada = TxtRuta.getText().trim();
+            
+            if (entrada.isEmpty()) {
+                return;
+            }
+            
+            File file = entrada.startsWith(File.separator) ? new File(RUTA + entrada) : new File(entrada);
+            String destino = ClampToRoot(file.getAbsolutePath());
+            
+            if (new File(destino).isDirectory()) {
+                Navegar(file.getAbsolutePath());
+            } else {
+                JOptionPane.showMessageDialog(this, "Ruta invalida");
+                TxtRuta.setText(DirActual);
             }
         });
-        BtnRefrescar.addActionListener(e -> Refrescar());
         
         Arbol.setSelectionPath(new TreePath(nodoruta.getPath()));
         Refrescar();
+        SeleccionarNodoEnArbol(DirActual);
     }
     
     private void GoUp() {
@@ -258,44 +337,19 @@ public class NavegadorArchivos extends JFrame {
             return;
         }
         
-        String ruta = SistemaArchivo.getRutaUsuario().replace("\\", File.separator).replace("/", File.separator);
-        String siguiente = padre.getAbsolutePath();
+        String siguiente = ClampToRoot(padre.getAbsolutePath());
         
-        if (!siguiente.startsWith(ruta)) {
-            DirActual = ruta;
-        } else {
-            DirActual = siguiente;
-        }
-        
-        Refrescar();
+        Navegar(siguiente);
     }
     
     private void AbrirSeleccion() {
-        int fila = tabla.getSelectedRow();
+        int filavista = tabla.getSelectedRow();
         
-        if (fila < 0) {
+        if (filavista < 0) {
             return;
         }
         
-        String nombre = (String) modelo.getValueAt(fila, 0);
-        String tipo = (String) modelo.getValueAt(fila, 1);
-        File destino = new File(DirActual, nombre);
-        
-        if (tipo.equals("<DIR>")) {
-            
-            if (destino.exists() && destino.isDirectory()) {
-                DirActual = destino.getAbsolutePath();
-                Refrescar();
-            }
-        } else {
-            String lower = destino.getName().toLowerCase();
-            
-            if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
-                new VisorImagenes(destino).setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(this, "No hay aplicacion para abrir este archivo");
-            }
-        }
+        AbrirItemDobleClick(filavista);
     }
     
     private void CrearCarpeta() {
@@ -382,28 +436,82 @@ public class NavegadorArchivos extends JFrame {
     }
     
     private void CopiarMover(boolean copiar) {
-        int fila = tabla.getSelectedRow();
+        int filavista = tabla.getSelectedRow();
         
-        if (fila < 0) {
+        if (filavista < 0) {
             return;
         }
+        
+        //Converir indice si hay orter
+        int fila = tabla.convertRowIndexToModel(filavista); 
         
         String nombre = (String) modelo.getValueAt(fila, 0);
         File origen = new File(DirActual, nombre);
-        String destino = JOptionPane.showInputDialog(this, "Carpeta destino:", DirActual);
         
-        if (destino == null || destino.isBlank()) {
+        String input = JOptionPane.showInputDialog(this, "Carpeta destino:", DirActual);
+
+        if (input == null || input.isBlank()) {
             return;
         }
         
-        //Resolver el destino relativo al DirActual
+        //Resolver destino
         String separador = File.separator;
-        String ruta = SistemaArchivo.getRutaUsuario().replace("\\", separador).replace("/", separador);
-        String dentro = destino.replace("\\", separador).replace("/", separador);
-        String destinoresuelto = dentro.startsWith(ruta) ? dentro : (dentro.startsWith(separador) ? ruta + dentro : DirActual + separador + dentro);
+        String destinoraw;
+        
+        if (input.startsWith("\\") || input.startsWith("/")) {
+            destinoraw = RUTA + input; //Relativo a raiz
+        } else if (new File(input).isAbsolute()) {
+            destinoraw = input; //Absoluto
+        } else {
+            destinoraw = DirActual + separador + input; //Relativo al dir actual
+        }
+        
+        String destinoresuelto = ClampToRoot(destinoraw);
+        File destinodir = new File(destinoresuelto);
+        
+        //Debe ser carpeta (crear si no existe)
+        if (!destinodir.exists()) {
+            int r = JOptionPane.showConfirmDialog(this, "La carpeta no existe. Crear?", "Crear destino", JOptionPane.YES_NO_OPTION);
+            
+            if (r == JOptionPane.YES_OPTION) {
+                if (!destinodir.mkdirs()) {
+                    JOptionPane.showMessageDialog(this, "No se pudo crear el destino");
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        
+        if (!destinodir.isDirectory()) {
+            JOptionPane.showMessageDialog(this, "El destino debe ser una carpeta");
+            return;
+        }
+        
+        //Validaciones de seguridad
+        String origenabs = Normalizar(origen.getAbsolutePath());
+        String destinoabs = Normalizar(destinodir.getAbsolutePath());
+        
+        //No salir de la raiz
+        if (!isDentroRuta(destinoabs)) {
+            JOptionPane.showMessageDialog(this, "Destino fuer de Z:\\usuario\\");
+            return;
+        }
+        
+        //No copiar/mover a si mismo
+        if (origenabs.equals(destinoabs)) {
+            JOptionPane.showMessageDialog(this, "Origen y destino son el mismo");
+            return;
+        }
+        
+        //No mover/copiar carpeta dentro de si misma
+        if (origen.isDirectory() && destinoabs.startsWith(origenabs + separador)) {
+            JOptionPane.showMessageDialog(this, "No puedes colocar una carpeta dentro de si misma");
+            return;
+        }
         
         try {
-            boolean ok = copiar ? SistemaArchivo.Copiar(origen.getAbsolutePath(), destinoresuelto) : SistemaArchivo.Mover(origen.getAbsolutePath(), destinoresuelto);
+            boolean ok = copiar ? SistemaArchivo.Copiar(origenabs, destinoabs) : SistemaArchivo.Mover(origenabs, destinoabs);
             
             if (!ok) {
                 JOptionPane.showMessageDialog(this, (copiar ? "No se pudo copiar" : "No se pudo mover"));
@@ -416,39 +524,25 @@ public class NavegadorArchivos extends JFrame {
     }
     
     private void Refrescar() {
-        File dir = new File(DirActual);
-        
         modelo.setRowCount(0);
         
-        File[] listado = dir.listFiles();
-        
-        if (listado == null) {
-            return;
-        }
-        
-        for (File file : listado) {
-            final String nombre = file.getName();
-            final boolean esdir = file.isDirectory();
-            final String tipo = esdir ? "<DIR>" : getExtension(nombre);
-            final long tamano = esdir ? 0L : file.length();
-            final long mod = file.lastModified();
-
-            modelo.addRow(new Object[]{nombre, tipo, tamano, mod});
-        }
-        
-        LblRuta.setText(DirActual);
         ResultadoListado rl = SistemaArchivo.ListarContenido(DirActual);
         
         //Carpetas primero
         for (Carpeta carpeta : rl.getCarpetas()) {
             File file = new File(carpeta.getRutaAbsoluta());
-            modelo.addRow(new Object[]{ file.getName(), "<DIR>", "" });
+            modelo.addRow(new Object[]{ file.getName(), "<DIR>", 0L, file.lastModified() });
         }
         
         //Archivos
         for (Archivo archivo : rl.getArchivos()) {
             File file = new File(archivo.getRutaAbsoluta());
-            modelo.addRow(new Object[]{ file.getName(), "Archivo", file.length() });
+            modelo.addRow(new Object[]{ file.getName(), getExtension(file.getName()), file.length() });
+        }
+        
+        LblRuta.setText(DirActual);
+        if (TxtRuta != null && !DirActual.equals(TxtRuta.getText())) {
+            TxtRuta.setText(DirActual);
         }
     }
     
@@ -507,7 +601,114 @@ public class NavegadorArchivos extends JFrame {
         String pre = "KMGTPE".charAt(exp - 1) + "";
         
         return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(1024, exp), pre);
-}
+    }
+    
+    private void AbrirItemDobleClick(int filavista) {
+        int fila = tabla.convertRowIndexToModel(filavista);
+        String nombre = (String) modelo.getValueAt(fila, 0);
+        File file = new File(DirActual, nombre);
+        
+        if (file.isDirectory()) {
+            Navegar(file.getAbsolutePath());
+            return;
+        }
+        
+        String ext = getExtension(file.getName());
+        
+        switch (ext) {
+            case "txt":
+            case "rtf":
+                SwingUtilities.invokeLater(() -> {
+                    new EditorTexto(file).setVisible(true);
+                });
+                break;
+                
+            case "jpg":
+            case "jpeg":
+            case "png":
+                SwingUtilities.invokeLater(() -> {
+                    new VisorImagenes(file).setVisible(true);
+                });
+                break;
+                
+            default:
+                JOptionPane.showMessageDialog(this, "Tipo de archivo no soportado actualmente: ." + (ext.isEmpty() ? "(sin extension)" : ext), "Error abriendo archivo", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    private void Navegar(String ruta) {
+        if (ruta == null) {
+            return;
+        }
+        
+        String destino = ClampToRoot(ruta);
+        File dir = new File(destino);
+        
+        if (!dir.isDirectory()) {
+            return;
+        }
+        
+        DirActual = dir.getAbsolutePath();
+        Refrescar();
+        SeleccionarNodoEnArbol(DirActual);
+        TreePath path = Arbol.getSelectionPath();
+        
+        if (path != null) {
+            Arbol.expandPath(path);
+        }
+    }
+    
+    private void SeleccionarNodoEnArbol(String ruta) {
+        DefaultTreeModel modeloarbol = (DefaultTreeModel) Arbol.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) modeloarbol.getRoot();
+        TreePath path = BuscarRuta(root, ruta);
+        
+        if (path != null) {
+            Arbol.setSelectionPath(path);
+            Arbol.scrollPathToVisible(path);
+            Arbol.expandPath(path);
+        }
+    }
+    
+    private TreePath BuscarRuta(DefaultMutableTreeNode nodo, String ruta) {
+        File file = ((NodoArchivo) nodo).file;
+        
+        if (file.getAbsolutePath().equalsIgnoreCase(ruta)) {
+            return new TreePath(nodo.getPath());
+        }
+        
+        for (int i = 0; i < nodo.getChildCount(); i++) {
+            TreePath resultado = BuscarRuta((DefaultMutableTreeNode) nodo.getChildAt(i), ruta);
+            
+            if (resultado != null) {
+                return resultado;
+            }
+        }
+        
+        return null;
+    }
+    
+    private String Normalizar(String path) {
+        if (path == null) {
+            return "";
+        }
+        
+        File file = new File(path);
+        
+        String norm = file.getAbsoluteFile().toPath().normalize().toString();
+        
+        return norm.replace("/", File.separator).replace("\\", File.separator);
+    }
+    
+    private boolean isDentroRuta(String path) {
+        String p = Normalizar(path);
+        return p.equals(RUTA) || p.startsWith(RUTA + File.separator);
+    }
+    
+    private String ClampToRoot(String path) {
+        String p = Normalizar(path);
+        return isDentroRuta(path) ? p : RUTA;
+    }
     
     private JButton BotonStyle(String texto) {
         JButton boton = new JButton(texto);

@@ -10,6 +10,9 @@ package OS.apps.editor;
  */
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class EditorTextoCore {
     
@@ -44,7 +47,7 @@ public class EditorTextoCore {
     */
     public static boolean GuardarComoTxt(ArchivoTexto doc) {
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(doc.getRutaAbsoluta()));
+            BufferedWriter bw = Files.newBufferedWriter(Path.of(doc.getRutaAbsoluta()), StandardCharsets.UTF_8);
             bw.write(doc.getContenido());
             return true;
         } catch (IOException e) {
@@ -56,22 +59,21 @@ public class EditorTextoCore {
         Abre un .txt plano a un ArchivoTexto nuevo (formato por defecto)
     */
     public static ArchivoTexto AbrirTxt(String rutatxt, String nombre) {
-        StringBuilder sb = new StringBuilder();
-        
         try {
-            BufferedReader br = new BufferedReader(new FileReader(rutatxt));
+            BufferedReader br = Files.newBufferedReader(Path.of(rutatxt), StandardCharsets.UTF_8);
+            StringBuilder sb = new StringBuilder();
             String linea;
             
             while((linea = br.readLine()) != null) {
                 sb.append(linea).append(System.lineSeparator());
             }
+            
+            ArchivoTexto at = new ArchivoTexto(nombre, rutatxt);
+            at.setContenido(sb.toString());
+            return at;
+            
         } catch (IOException e) {
             return null;
         }
-        
-        ArchivoTexto at = new ArchivoTexto(nombre, rutatxt);
-        at.setContenido(sb.toString());
-        
-        return at;
     }
 }

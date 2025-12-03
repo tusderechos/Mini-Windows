@@ -16,8 +16,12 @@ import java.util.ArrayList;
 import OS.Core.SesionActual;
 import Compartidas.Constantes;
 import Compartidas.Usuario;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class SistemaArchivo {
     
@@ -46,13 +50,58 @@ public class SistemaArchivo {
         osea la de Z:/(usuario xyz)
     */
     public static String getRutaUsuario() throws IllegalStateException {
-        Usuario usuario = SesionActual.getUsuario();
-        
-        String user = (usuario != null) ? usuario.getUsuario() : "admin";
-        
-        return new File(Constantes.RUTA_BASE, user).getAbsolutePath();
+        return new File(Constantes.RUTA_BASE, SesionActual.getUsuario().getUsuario()).getAbsolutePath();
     }
     
+    /*
+        Devuelve Z\
+    */
+    public static String getRutaBaseUsuarios(){
+        return Constantes.RUTA_BASE;
+    }
+    
+    public static File getCarpetaUsuario(String username) {
+        return new File(Constantes.RUTA_BASE, username);
+    }
+    
+    /*
+        Elimina la carpeta fisica del usuario
+    */
+    public static boolean EliminarCarpetaUsuario(String username) {
+        File objetivo = getCarpetaUsuario(username).getAbsoluteFile();
+        File base = new File(Constantes.RUTA_BASE).getAbsoluteFile();
+        
+        try {
+            if (!objetivo.toPath().startsWith(base.toPath().normalize())) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        
+        if (!objetivo.exists()) {
+            return true;
+        }
+        
+        try {
+            Files.walkFileTree(objetivo.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes atributos) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exception) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
     
     /*
         Crea una carpeta dentro de la ruta Padre (solamente si existe y si es un directorio)
