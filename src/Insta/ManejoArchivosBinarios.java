@@ -88,7 +88,7 @@ public class ManejoArchivosBinarios {
     
     public static ArrayList<Insta> leerInstasDeUsuario(String username) throws IOException{
         ArrayList<Insta> instas = new ArrayList<>();
-        String rutaArchivo = "Z:\\"+username+"\\insta.ins";
+        String rutaArchivo = "Z:\\"+username+"\\instas.ins";
         File archivo = new File(rutaArchivo);
         
         if(!archivo.exists() || archivo.length()==0){
@@ -116,7 +116,7 @@ public class ManejoArchivosBinarios {
         return instas;
     }
     
-    public static void escribirFollow(String rutaArchivo, Follow follow) throws IOException{
+    /*public static void escribirFollow(String rutaArchivo, Follow follow) throws IOException{
         try(FileOutputStream fos = new FileOutputStream(rutaArchivo, true);
             AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
             oos.writeObject(follow);
@@ -124,7 +124,7 @@ public class ManejoArchivosBinarios {
             System.err.println("Archivo de follow no encontrado: "+e.getMessage());
             throw e;
         }
-    }
+    }*/
     
     public static ArrayList<Follow> leerListaFollows(String rutaArchivo) throws IOException{
         ArrayList<Follow> follows = new ArrayList();

@@ -1,4 +1,4 @@
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -159,6 +159,12 @@ public class PerfilPanel extends JPanel {
                     GestorInsta.actualizarEstadoCuenta(usuario.getUsername());
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
+                    
+                    Window vtnActual = SwingUtilities.getWindowAncestor(this);
+                    if(vtnActual != null){
+                        vtnActual.dispose();
+                    }
+                    new vtnLogin().setVisible(true);
                 }
             } else {
                 GestorInsta.actualizarEstadoCuenta(usuario.getUsername());
@@ -183,7 +189,7 @@ public class PerfilPanel extends JPanel {
                     cargarDatosYRenderizar();
                 }
             } else {
-                GestorInsta.agregarFollow(seguidor, seguido);
+                GestorInsta.actualizarEstadoFollow(seguidor, seguido, true);
                 JOptionPane.showMessageDialog(this, "Ahora sigues a " + seguido + ".");
                 cargarDatosYRenderizar();
             }

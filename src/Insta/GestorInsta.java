@@ -35,7 +35,7 @@ public class GestorInsta {
         }
     }
     
-    public static void agregarFollow(String seguidor, String seguido) throws IOException {
+    /*public static void agregarFollow(String seguidor, String seguido) throws IOException {
         String rutaFollowing = Constantes.RUTA_BASE+seguidor+"\\following.ins";
         Follow followNuevo = new Follow(seguido);
         ManejoArchivosBinarios.escribirFollow(rutaFollowing, followNuevo);
@@ -45,7 +45,7 @@ public class GestorInsta {
         ManejoArchivosBinarios.escribirFollow(rutaFollowers, followerNuevo);
         
         System.out.println(seguidor+" ahora sigue a "+seguido);
-    }
+    }*/
     
     public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException{
         ArrayList<Insta> timeLine = new ArrayList<>();
@@ -55,8 +55,10 @@ public class GestorInsta {
         
         for(Follow f : seguidos){
             if(f.isActivo()){
-                ArrayList<Insta> instasSeguido = ManejoArchivosBinarios.leerInstasDeUsuario(f.getUsername());
-                timeLine.addAll(instasSeguido);
+                /*ArrayList<Insta> instasSeguido = ManejoArchivosBinarios.leerInstasDeUsuario(f.getUsername());
+                timeLine.addAll(instasSeguido);*/
+                
+                timeLine.addAll(ManejoArchivosBinarios.leerInstasDeUsuario(f.getUsername()));
             }
         }
         
@@ -172,20 +174,27 @@ public class GestorInsta {
                 break;
             }
         }
-        if(!encontrado && !estado){
-            
+        if(!encontrado && estado){
+            followsExistentes.add(new Follow(seguido));
         }
         
         ManejoArchivosBinarios.reescribirFollows(rutaFollowing, followsExistentes);
         
         String rutaFollowers = Constantes.RUTA_BASE+seguido+"\\followers.ins";
         ArrayList<Follow> followersExistentes = ManejoArchivosBinarios.leerListaFollows(rutaFollowers);
+        
+        encontrado = false;
         for(Follow f : followersExistentes){
             if(f.getUsername().equals(seguidor)){
                 f.setActivo(estado);
+                encontrado = true;
                 break;
             }
         }
+        if(!encontrado && estado){
+            followsExistentes.add(new Follow(seguidor));
+        }
+        
         ManejoArchivosBinarios.reescribirFollows(rutaFollowers, followersExistentes);
     }
     
