@@ -137,7 +137,7 @@ public class CrearCuenta extends JFrame {
             return;
         }
         
-        Usuario usu = SO.RegistrarUsuario(nombre, genero, usuario, contra, edad, null);
+        Usuario usu = SO.RegistrarUsuario(nombre, genero, usuario, contra, edad);
         
         if (usu == null) {
             LblEstado.setText("No se pudo crear el usuario.\nPuede ser que ya exista el usuario");

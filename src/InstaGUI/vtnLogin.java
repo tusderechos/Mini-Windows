@@ -22,7 +22,6 @@ public class vtnLogin extends JDialog {
     private JPasswordField txtPassword;
 
     public vtnLogin() {
-        //super(parent, "INSTA - Iniciar Sesion", true);
         setTitle("INSTA - Inicar Sesion");
         setSize(350, 250);
         setLayout(new GridLayout(4, 1, 10, 10));
@@ -74,8 +73,8 @@ public class vtnLogin extends JDialog {
         pr ej, clase llamada 'vtnInstaPrincipal' o algo asi, nose
         vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado); 
         p.setVisible(true);  despues miro qpdo*/
-            vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado); 
-        p.setVisible(true); 
+            vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado);
+            p.setVisible(true);
             this.dispose();
 
         } catch (CredencialesInvalidas e) {

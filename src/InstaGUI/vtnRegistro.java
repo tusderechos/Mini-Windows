@@ -29,7 +29,6 @@ public class vtnRegistro extends JDialog {
 
     public vtnRegistro(JFrame parent) {
         setTitle("INSTA - Crear Cuenta");
-        //super(parent, "INSTA - Crear Cuenta", true);
         setSize(450, 450);
         setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(null);
@@ -122,12 +121,12 @@ public class vtnRegistro extends JDialog {
             int Edad = Integer.parseInt(edad);
             Usuario nuevoUsuario = new Usuario(
                     //username, nombre, password, genero, Edad, rutaFotoSeleccionada
-                    username, genero, nombre, password, Edad, rutaFotoSeleccionada, false
+                    username, genero, nombre, password, Edad, false
             );
             GestorInsta.crearNuevaCuenta(nuevoUsuario);
             SesionManager.setUsuarioActual(nuevoUsuario);
             JOptionPane.showMessageDialog(this, "Usuario " + username + " creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
+            
             dispose();
             System.out.println("Cuenta creada, debe abrir la ventana principal de INSTA.");
 

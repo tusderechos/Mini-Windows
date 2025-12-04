@@ -78,9 +78,6 @@ public class vtnInstaPrincipal extends JFrame {
         
         add(panelControlSuperior, BorderLayout.NORTH);
         
-        /*panelResultadoBusqueda = new JPanel();
-        panelResultadoBusqueda.setLayout(new BoxLayout(panelResultadoBusqueda, BoxLayout.Y_AXIS));*/
-
         add(scrollTimeLine, BorderLayout.CENTER);
     }
     
@@ -121,23 +118,23 @@ public class vtnInstaPrincipal extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(10, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
-        JLabel labelUsername = new JLabel("<html><b><a href='#'>@" + usuarioEncontrado.getNombreUsuario() + "</a></b> (" + usuarioEncontrado.getUsuario() + ")</html>");
+        JLabel labelUsername = new JLabel("<html><b><a href='#'>@" + usuarioEncontrado.getUsuario() + "</a></b> (" + usuarioEncontrado.getUsuario() + ")</html>");
         labelUsername.setCursor(new Cursor(Cursor.HAND_CURSOR));
         labelUsername.addMouseListener(new java.awt.event.MouseAdapter(){
             public void mouseClicked(java.awt.event.MouseEvent evt){
                 dialogoBusqueda.dispose();
-                abrirPerfilUsuario(usuarioEncontrado.getNombreUsuario());
+                abrirPerfilUsuario(usuarioEncontrado.getUsuario());
             }
         });
         
         panel.add(labelUsername, BorderLayout.WEST);
         
         JButton btnFollow = new JButton();
-        boolean esSiguiendo = GestorInsta.estaSiguiendo(usuarioActual.getNombreUsuario(), usuarioEncontrado.getNombreUsuario());
+        boolean esSiguiendo = GestorInsta.estaSiguiendo(usuarioActual.getUsuario(), usuarioEncontrado.getUsuario());
         btnFollow.setText(esSiguiendo ? "Dejar de Seguir" : "Seguir");
         
         btnFollow.addActionListener(e -> {
-            manejarFollow(usuarioEncontrado.getNombreUsuario(), !esSiguiendo, btnFollow, dialogoBusqueda);
+            manejarFollow(usuarioEncontrado.getUsuario(), !esSiguiendo, btnFollow, dialogoBusqueda);
         });
         
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -148,7 +145,7 @@ public class vtnInstaPrincipal extends JFrame {
     }
     
     private void abrirPerfilUsuario(String username){
-        if(username.equalsIgnoreCase(usuarioActual.getNombreUsuario())){
+        if(username.equalsIgnoreCase(usuarioActual.getUsuario())){
             vtnPerfil p = new vtnPerfil(usuarioActual);
             p.setVisible(true);
         }else{
@@ -157,7 +154,7 @@ public class vtnInstaPrincipal extends JFrame {
     }
     
     private void manejarFollow(String seguido, boolean nuevoEstado, JButton btnFollow, JDialog dialogoBusqueda) {
-        String seguidor = usuarioActual.getNombreUsuario();
+        String seguidor = usuarioActual.getUsuario();
         
         try {
             if (!nuevoEstado) {
@@ -191,7 +188,7 @@ public class vtnInstaPrincipal extends JFrame {
         panelContenido.removeAll();
         
         try {
-            ArrayList<Insta> timeLine = GestorInsta.generarTimeLine(usuarioActual.getNombreUsuario());
+            ArrayList<Insta> timeLine = GestorInsta.generarTimeLine(usuarioActual.getUsuario());
             
             if (timeLine.isEmpty()) {
                 panelContenido.add(new JLabel("Aun no sigues a nadie o no hay post para mostrar."));

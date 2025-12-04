@@ -10,26 +10,28 @@ package OS.Core;
  */
 
 import Compartidas.ManejoUsuarios;
+import Compartidas.Repos;
 import Compartidas.Usuario;
-import OS.Core.GestorCarpetasUsuario;
+import java.io.File;
 
 import javax.swing.JOptionPane;
 
 public class SistemaOperativo {
     
-    private ManejoUsuarios manejoUsuarios;
+    private ManejoUsuarios manejoUsuarios = Repos.USUARIOS;
     private Usuario UsuarioActual;
     
     public SistemaOperativo() {
-        manejoUsuarios = new ManejoUsuarios();
         UsuarioActual = null;
+        
+        GestorCarpetasUsuario.AsegurarBase();
         AsegurarAdminInicial();
     }
     
     /*
         Registra un nuevo usuario en el sistema
     */
-    public Usuario RegistrarUsuario(String NombreCompleto, char Genero, String Usuario, String Contrasena, int Edad, String RutaFotoPerfil) {
+    public Usuario RegistrarUsuario(String NombreCompleto, char Genero, String Usuario, String Contrasena, int Edad) {
         if (!esAdminActual()) {
             throw new SecurityException("Solo el administrador puede crear cuentas");
         }
@@ -45,7 +47,7 @@ public class SistemaOperativo {
         }
         
         //Crear el nuevo usuario
-        Usuario nuevo = new Usuario(NombreCompleto, Genero, Usuario, Contrasena, Edad, (RutaFotoPerfil == null || RutaFotoPerfil.isBlank()) ? null : RutaFotoPerfil, false);
+        Usuario nuevo = new Usuario(NombreCompleto, Genero, Usuario, Contrasena, Edad, false);
         
         //Agregar el nuevo usuario
         boolean usuarioagregado = manejoUsuarios.Agregar(nuevo);
@@ -69,14 +71,20 @@ public class SistemaOperativo {
     public boolean IniciarSesion(String usuario, String contrasena) {
         Usuario usuariousuario = manejoUsuarios.ValidarLogin(usuario, contrasena);
         
-        if (usuariousuario != null) {
-            UsuarioActual = usuariousuario;
-            JOptionPane.showMessageDialog(null, "Login exitoso.\nBienvenido, " + usuariousuario.getNombreUsuario());
-            return true;
-        } else {
-            JOptionPane.showMessageDialog(null, "Login fallido.\nVerifica tus credenciales o si la cuenta esta activa");
+        if (usuariousuario == null) {
             return false;
         }
+        
+        UsuarioActual = usuariousuario;
+        
+        try {
+            GestorCarpetasUsuario.ValidarOCrearEstructuraUsuario(usuariousuario.getUsuario());
+        } catch (Throwable ignorar) {
+        }
+        
+        JOptionPane.showMessageDialog(null, "Login exitoso.\nBienvenido, " + usuariousuario.getUsuario());
+        
+        return true;
     }
     
     /*
@@ -108,12 +116,17 @@ public class SistemaOperativo {
     private void AsegurarAdminInicial() {
         //Si no existe el administrador por alguna razon, se crea
         if (manejoUsuarios.UsernameDisponible("admin")) {
-            Usuario admin = new Usuario("Administrador del sistema", 'M', "admin", "admin123", 18, null, true);
+            Usuario admin = new Usuario("Administrador del sistema", 'M', "admin", "admin123", 19, true);
             manejoUsuarios.Agregar(admin);
             
             //Crear su estructura de carpetas tambien
-            GestorCarpetasUsuario.CrearEstructuraUsuario("admin");
+            GestorCarpetasUsuario.CrearEstructuraUsuario("admin"); //Crea Z/admin + subcarpetas
+            
             System.out.println("Admin creado\nuser: admin\npass: admin123");
+            System.out.println("admin creado en: " + new File(Compartidas.Constantes.RUTA_BASE, "admin").getAbsolutePath());
+        } else {
+            //Si ya existia el usuario admin, siemp se garantiza su carpeta
+            GestorCarpetasUsuario.ValidarOCrearEstructuraUsuario("admin");
         }
     }
     

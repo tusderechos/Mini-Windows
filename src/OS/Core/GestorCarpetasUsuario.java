@@ -14,31 +14,38 @@ import Compartidas.Constantes;
 
 public class GestorCarpetasUsuario {
     
+    public static void AsegurarBase() {
+        File base = new File(Constantes.RUTA_BASE);
+        if (!base.exists()) {
+            base.mkdirs();
+        }
+    }
+    
     /*
         Aqui se crea Z:/username y las demas carpetas basicas
     */
     public static void CrearEstructuraUsuario(String username) {
-        //La base Z:/
-        File Base = new File(Constantes.RUTA_BASE);
-        
-        if (!Base.exists()) {
-            Base.mkdirs();
-        }
-        
         //Carpetas del usuario: Z:/username
-        File CarpetaUsuario = new File(Base, username);
+        File baseusuario = new File(Constantes.RUTA_BASE, username);
         
-        if (!CarpetaUsuario.exists()) {
-            CarpetaUsuario.mkdirs();
+        if (!baseusuario.exists()) {
+            baseusuario.mkdirs();
         }
         
         //Carpetas - Mis Documentos, Musica, Mis Imagenes
         for (String NombreCarpeta : Constantes.CARPETAS_PREDETERMINADAS) {
-            File sub = new File(CarpetaUsuario, NombreCarpeta);
-            
-            if (!sub.exists()) {
-                sub.mkdirs();
-            }
+            new File(baseusuario, NombreCarpeta).mkdirs();
+        }
+    }
+    
+    /*
+        Por si el usuario ya existai pero no su carpeta
+    */
+    public static void ValidarOCrearEstructuraUsuario(String username) {
+        File baseusuario = new File(Constantes.RUTA_BASE, username);
+        
+        if (!baseusuario.exists() || baseusuario.listFiles() == null || baseusuario.listFiles().length == 0) {
+            CrearEstructuraUsuario(username);
         }
     }
 }

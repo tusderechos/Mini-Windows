@@ -16,8 +16,12 @@ import java.util.ArrayList;
 import OS.Core.SesionActual;
 import Compartidas.Constantes;
 import Compartidas.Usuario;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class SistemaArchivo {
     
@@ -46,17 +50,58 @@ public class SistemaArchivo {
         osea la de Z:/(usuario xyz)
     */
     public static String getRutaUsuario() throws IllegalStateException {
-        Usuario usuario = SesionRequerida();
-        String separador = File.separator;
-        String base = Constantes.RUTA_BASE.replace("\\", separador).replace("/", separador);
-        
-        if (!base.endsWith(separador)) {
-            base += separador;
-        }
-        
-        return base + usuario.getUsuario();
+        return new File(Constantes.RUTA_BASE, SesionActual.getUsuario().getUsuario()).getAbsolutePath();
     }
     
+    /*
+        Devuelve Z\
+    */
+    public static String getRutaBaseUsuarios(){
+        return Constantes.RUTA_BASE;
+    }
+    
+    public static File getCarpetaUsuario(String username) {
+        return new File(Constantes.RUTA_BASE, username);
+    }
+    
+    /*
+        Elimina la carpeta fisica del usuario
+    */
+    public static boolean EliminarCarpetaUsuario(String username) {
+        File objetivo = getCarpetaUsuario(username).getAbsoluteFile();
+        File base = new File(Constantes.RUTA_BASE).getAbsoluteFile();
+        
+        try {
+            if (!objetivo.toPath().startsWith(base.toPath().normalize())) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        
+        if (!objetivo.exists()) {
+            return true;
+        }
+        
+        try {
+            Files.walkFileTree(objetivo.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes atributos) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exception) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
     
     /*
         Crea una carpeta dentro de la ruta Padre (solamente si existe y si es un directorio)
@@ -69,9 +114,19 @@ public class SistemaArchivo {
             return false;
         }
         
-        File nueva = new File(padre, nombre);
+        String limpio = (nombre == null) ? "" : nombre.trim();
         
-        return nueva.exists() ? false : nueva.mkdirs();
+        if (limpio.isEmpty()) {
+            return false;
+        }
+        
+        File nueva = new File(padre, limpio);
+        
+        if (nueva.exists()) {
+            return false; //Porque la carpeta ya existe
+        }
+        
+        return nueva.mkdirs();
     }
     
     /*
@@ -205,7 +260,7 @@ public class SistemaArchivo {
         }
         
         File[] hijos = dir.listFiles();
-        if (hijos == null) {
+        if (hijos == null || hijos.length == 0) {
             return;
         }
         
@@ -215,39 +270,53 @@ public class SistemaArchivo {
         File videos = new File(dir, "Videos");
         File otros = new File(dir, "Otros");
         
-        docs.mkdirs();
-        imgs.mkdirs();
-        musica.mkdirs();
-        videos.mkdirs();
-        otros.mkdirs();
+        int movidos = 0;
+        int saltados = 0;
         
         for (File hijo : hijos) {
             if (!hijo.isFile()) {
-                return;
+                continue;
+            }
+            
+            File padre = hijo.getParentFile();
+            
+            if (padre.equals(docs) ||padre.equals(imgs) || padre.equals(musica) || padre.equals(videos) || padre.equals(otros)) {
+                continue;
             }
             
             Archivo archivo = new Archivo(hijo.getAbsolutePath());
-            File destino;
+            File destinobase;
             
             switch (archivo.getTipo()) {
                 case DOCUMENTO:
-                    destino = new File(docs, hijo.getName());
+                    destinobase = docs;
                     break;
                 case IMAGEN:
-                    destino = new File(imgs, hijo.getName());
+                    destinobase = imgs;
                     break;
                 case MUSICA:
-                    destino = new File(musica, hijo.getName());
+                    destinobase = musica;
                     break;
                 case VIDEO:
-                    destino = new File(videos, hijo.getName());
+                    destinobase = videos;
                     break;
                 default:
-                    destino = new File(otros, hijo.getName());
+                    destinobase = otros;
             }
             
+            if (!destinobase.exists()) {
+                destinobase.mkdirs();
+            }
+            
+            File destino = new File(destinobase, hijo.getName());
             destino = EvitarColision(destino);
-            hijo.renameTo(destino);
+            
+            try {
+                Files.move(hijo.toPath(), destino.toPath());
+                movidos++;
+            } catch (Exception e) {
+                saltados++;
+            }
         }
     }
     

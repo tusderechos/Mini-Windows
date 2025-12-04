@@ -86,8 +86,8 @@ public class vtnPerfil extends JDialog {
 
     private void cargarDatosPerfil() {
         try {
-            int followings = GestorInsta.contarFollows(usuarioActual.getNombreUsuario(), true); //true para labelFollowings
-            int followers = GestorInsta.contarFollows(usuarioActual.getNombreUsuario(), false); //false para los labelFollowers
+            int followings = GestorInsta.contarFollows(usuarioActual.getUsuario(), true); //true para labelFollowings
+            int followers = GestorInsta.contarFollows(usuarioActual.getUsuario(), false); //false para los labelFollowers
 
             labelFollowings.setText("Siguiendo: " + followings);
             labelFollowers.setText("Seguidores: " + followers);
@@ -99,7 +99,7 @@ public class vtnPerfil extends JDialog {
         panelPostPropios.removeAll();
 
         try {
-            ArrayList<Insta> postPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual.getNombreUsuario());
+            ArrayList<Insta> postPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual.getUsuario());
 
             if (postPropios.isEmpty()) {
                 panelPostPropios.add(new JLabel("Aun no tienes post publicados."));
@@ -170,7 +170,6 @@ public class vtnPerfil extends JDialog {
 
         if (seleccion != null) {
             if (seleccion.contains("Buscar Personas")) {
-                // Si tienes una vtnBusqueda: new vtnBusqueda().setVisible(true);
                 System.out.println("abrir vtn de busqueda personas");
             } else if (seleccion.contains("Desactivar/Activar Cuenta")) {
                 manejarDesactivacion(usuario);
@@ -187,7 +186,7 @@ public class vtnPerfil extends JDialog {
                         "¿Estas seguro? Su cuenta no aparecera en busquedas.", "Confirmar Desactivacion", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
+                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
@@ -195,7 +194,7 @@ public class vtnPerfil extends JDialog {
                     new vtnLogin().setVisible(true); 
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
+                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosPerfil();
             }

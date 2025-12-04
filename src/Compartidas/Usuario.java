@@ -20,18 +20,15 @@ public class Usuario implements Serializable {
     private String Contrasena;
     private LocalDate FechaEntrada;
     private int Edad;
-    private boolean Activo;
-    private String RutaFotoPerfil;
-    
+    private boolean Activo;    
     private boolean Administrador;
 
-    public Usuario(String NombreUsuario, char Genero, String Usuario, String Contrasena, int Edad, String RutaFotoPerfil, boolean Administrador) {
+    public Usuario(String NombreUsuario, char Genero, String Usuario, String Contrasena, int Edad, boolean Administrador) {
         this.NombreUsuario = NombreUsuario;
         this.Genero = Genero;
         this.Usuario = Usuario;
         this.Contrasena = Contrasena;
         this.Edad = Edad;
-        this.RutaFotoPerfil = RutaFotoPerfil;
         this.Administrador = Administrador;
         
         Activo = true;
@@ -66,10 +63,6 @@ public class Usuario implements Serializable {
         return Activo;
     }
 
-    public String getRutaFotoPerfil() {
-        return RutaFotoPerfil;
-    }
-
     public void setNombreUsuario(String NombreUsuario) {
         this.NombreUsuario = NombreUsuario;
     }
@@ -88,10 +81,6 @@ public class Usuario implements Serializable {
 
     public void setActivo(boolean Activo) {
         this.Activo = Activo;
-    }
-
-    public void setRutaFotoPerfil(String RutaFotoPerfil) {
-        this.RutaFotoPerfil = RutaFotoPerfil;
     }
 
     public boolean isAdministrador() {

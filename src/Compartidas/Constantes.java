@@ -8,10 +8,13 @@ package Compartidas;
  *
  * @author Hp
  */
+
+import java.io.File;
+
 public class Constantes {
     
     //Ruta base del sistema operativo
-    public static final String RUTA_BASE = "Z:/";
+    public static final String RUTA_BASE = new File(System.getProperty("user.dir"), "Z").getAbsolutePath();
     
     //Archivo donde se van a guardar todos los usuarios del sistema
     public static final String ARCHIVO_USUARIOS = "users.ins";

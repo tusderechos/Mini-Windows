@@ -34,7 +34,7 @@ public class PerfilPanel extends JPanel {
     private void cargarDatosYRenderizar() {
         removeAll();
         try {
-            String usuarioLogueado = SesionManager.getUsuarioActual().getNombreUsuario();
+            String usuarioLogueado = SesionManager.getUsuarioActual().getUsuario();
             DatosPerfil datos = GestorInsta.obtenerPefilCompleto(usernamePerfil, usuarioLogueado);
             add(crearEncabezadoPerfil(datos, usuarioLogueado), BorderLayout.NORTH);
             add(crearGridPublicaciones(datos.getInstasPropios()), BorderLayout.CENTER);
@@ -56,7 +56,7 @@ public class PerfilPanel extends JPanel {
         //panel izquierdo: el username y ft
         JPanel panelIzquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelIzquierdo.add(new JLabel(new ImageIcon("default_profile.png")));
-        username = new JLabel(datos.getDatosGenerales().getNombreUsuario());
+        username = new JLabel(datos.getDatosGenerales().getUsuario());
         username.setFont(new Font("Arial", Font.BOLD, 24));
         panelIzquierdo.add(username);
         panel.add(panelIzquierdo, BorderLayout.WEST);
@@ -156,7 +156,7 @@ public class PerfilPanel extends JPanel {
                         "¿Estas seguro? Su cuenta no aparecera en busquedas.", "Confirmar Desactivacion", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
+                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
                     
@@ -167,7 +167,7 @@ public class PerfilPanel extends JPanel {
                     new vtnLogin().setVisible(true);
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
+                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosYRenderizar();
             }

@@ -16,13 +16,14 @@ import java.io.IOException;
 public class GestorSistemaArchivos {
     private static final String rutaRaiz = Constantes.RUTA_BASE;
     
-    public static boolean crearEstructuraUsuario(String username){
+    public static boolean crearEstructuraUsuario(String username) throws IOException{
         String rutaBaseUsuario = rutaRaiz+username;
         
         File directorioUsuario = new File(rutaBaseUsuario);
         if(!directorioUsuario.mkdirs()){
             System.err.println("Error al crear el directorio base del usuario: "+rutaBaseUsuario);
-            return false;
+            throw new IOException("Fallo la creación del directorio base: " + rutaBaseUsuario); 
+            //return false;
         }
         
         String[] carpetasBasicas = {"Mis Documentos", "Musica", "Mis Imagenes"};

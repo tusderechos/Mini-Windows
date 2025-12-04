@@ -36,7 +36,7 @@ public class vtnCrearInsta extends JDialog {
         JPanel panelForm = new JPanel(new GridLayout(3, 1, 5, 5));
 
         //aqui va para escibir el caption
-        panelForm.add(new JLabel("Escribe uan descripcion:"));
+        panelForm.add(new JLabel("Escribe una descripcion:"));
         txtCaption = new JTextArea(5, 40);
         txtCaption.setLineWrap(true);
         txtCaption.setWrapStyleWord(true);
@@ -81,7 +81,7 @@ public class vtnCrearInsta extends JDialog {
         }
 
         try {
-            String autor = SesionManager.getUsuarioActual().getNombreUsuario();
+            String autor = SesionManager.getUsuarioActual().getUsuario();
             Insta nuevoPost = new Insta(autor, caption, rutaFotoSeleccionada);
 
             GestorInsta.crearInsta(nuevoPost);

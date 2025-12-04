@@ -136,7 +136,7 @@ public class ProcesadorComandos {
         
         boolean ok = SistemaArchivo.CrearCarpeta(CurrentDir, nombre.trim());
         
-        return ok ? "" : "No se pudo crear la carpeta";
+        return ok ? "Carpeta creada: " + nombre.trim() : "No se pudo crear la carpeta";
     }
     
     private String cmdRm(String nombre) {
@@ -147,7 +147,7 @@ public class ProcesadorComandos {
         String objetivo = Resolver(nombre.trim());
         boolean ok = SistemaArchivo.Eliminar(objetivo);
         
-        return ok ? "" : "No se pudo eliminar: " + objetivo;
+        return ok ? "Eliminado: " + nombre.trim() : "No se pudo eliminar: " + objetivo;
     }
     
     private String cmdCd(String carpeta) {
@@ -282,7 +282,7 @@ public class ProcesadorComandos {
         try {
             boolean ok = SistemaArchivo.Copiar(origen, destino);
             
-            return ok ? "" : "No se pudo copiar.";
+            return ok ? "Copiado" : "No se pudo copiar.";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
@@ -305,7 +305,7 @@ public class ProcesadorComandos {
         try {
             boolean ok = SistemaArchivo.Mover(origen, destino);
             
-            return ok ? "" : "No se pudo mover";
+            return ok ? "Movido" : "No se pudo mover";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
