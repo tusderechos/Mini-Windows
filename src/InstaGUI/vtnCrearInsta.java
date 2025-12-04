@@ -81,7 +81,7 @@ public class vtnCrearInsta extends JDialog {
         }
 
         try {
-            String autor = SesionManager.getUsuarioActual().getUsername();
+            String autor = SesionManager.getUsuarioActual().getNombreUsuario();
             Insta nuevoPost = new Insta(autor, caption, rutaFotoSeleccionada);
 
             GestorInsta.crearInsta(nuevoPost);

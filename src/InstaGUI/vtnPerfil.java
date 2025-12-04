@@ -5,7 +5,7 @@
 package InstaGUI;
 
 import Insta.GestorInsta;
-import Insta.Usuario;
+import Compartidas.Usuario;
 import Insta.Insta;
 import Insta.ManejoArchivosBinarios;
 import Insta.SesionManager;
@@ -25,7 +25,7 @@ public class vtnPerfil extends JDialog {
     private JPanel panelPostPropios;
 
     public vtnPerfil(Usuario usuario) {
-        setTitle("INSTA - Perfil de @ " + usuario.getUsername());
+        setTitle("INSTA - Perfil de @ " + usuario.getUsuario());
         this.usuarioActual = usuario;
         setSize(700, 700);
         setLocationRelativeTo(null);
@@ -42,8 +42,8 @@ public class vtnPerfil extends JDialog {
         panelInfo.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         //datos personales
-        panelInfo.add(new JLabel("<html><h1>@" + usuarioActual.getUsername() + "</h1></html>"));
-        panelInfo.add(new JLabel("Nombre: " + usuarioActual.getNombre()));
+        panelInfo.add(new JLabel("<html><h1>@" + usuarioActual.getNombreUsuario() + "</h1></html>"));
+        panelInfo.add(new JLabel("Nombre: " + usuarioActual.getUsuario()));
         panelInfo.add(new JLabel("Edad: " + usuarioActual.getEdad()));
         panelInfo.add(new JLabel("Genero: " + usuarioActual.getGenero()));
 
@@ -86,8 +86,8 @@ public class vtnPerfil extends JDialog {
 
     private void cargarDatosPerfil() {
         try {
-            int followings = GestorInsta.contarFollows(usuarioActual.getUsername(), true); //true para labelFollowings
-            int followers = GestorInsta.contarFollows(usuarioActual.getUsername(), false); //false para los labelFollowers
+            int followings = GestorInsta.contarFollows(usuarioActual.getNombreUsuario(), true); //true para labelFollowings
+            int followers = GestorInsta.contarFollows(usuarioActual.getNombreUsuario(), false); //false para los labelFollowers
 
             labelFollowings.setText("Siguiendo: " + followings);
             labelFollowers.setText("Seguidores: " + followers);
@@ -99,7 +99,7 @@ public class vtnPerfil extends JDialog {
         panelPostPropios.removeAll();
 
         try {
-            ArrayList<Insta> postPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual.getUsername());
+            ArrayList<Insta> postPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual.getNombreUsuario());
 
             if (postPropios.isEmpty()) {
                 panelPostPropios.add(new JLabel("Aun no tienes post publicados."));
@@ -187,7 +187,7 @@ public class vtnPerfil extends JDialog {
                         "¿Estas seguro? Su cuenta no aparecera en busquedas.", "Confirmar Desactivacion", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getUsername());
+                    GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
@@ -195,7 +195,7 @@ public class vtnPerfil extends JDialog {
                     new vtnLogin().setVisible(true); 
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getUsername());
+                GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosPerfil();
             }

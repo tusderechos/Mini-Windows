@@ -11,7 +11,6 @@ package InstaGUI;
 import Insta.GestorInsta;
 import Insta.SesionManager;
 import Insta.UsernameYaExiste;
-import Insta.Usuario;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Date;
 import java.io.IOException;
+import Compartidas.Usuario;
 
 public class vtnRegistro extends JDialog {
 
@@ -121,7 +121,8 @@ public class vtnRegistro extends JDialog {
         try {
             int Edad = Integer.parseInt(edad);
             Usuario nuevoUsuario = new Usuario(
-                    username, nombre, password, genero, Edad, rutaFotoSeleccionada
+                    //username, nombre, password, genero, Edad, rutaFotoSeleccionada
+                    username, genero, nombre, password, Edad, rutaFotoSeleccionada, false
             );
             GestorInsta.crearNuevaCuenta(nuevoUsuario);
             SesionManager.setUsuarioActual(nuevoUsuario);
@@ -140,9 +141,4 @@ public class vtnRegistro extends JDialog {
             JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
-    /*public static void main(String[] args) {
-        vtnRegistro r = new vtnRegistro();
-        r.setVisible(true);
-    }*/
 }

@@ -5,7 +5,7 @@
 package InstaGUI;
 
 import Insta.GestorInsta;
-import Insta.Usuario;
+import Compartidas.Usuario;
 import Insta.CredencialesInvalidas;
 import Insta.SesionManager;
 import java.io.IOException;
@@ -74,7 +74,8 @@ public class vtnLogin extends JDialog {
         pr ej, clase llamada 'vtnInstaPrincipal' o algo asi, nose
         vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado); 
         p.setVisible(true);  despues miro qpdo*/
-            
+            vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado); 
+        p.setVisible(true); 
             this.dispose();
 
         } catch (CredencialesInvalidas e) {
@@ -88,9 +89,4 @@ public class vtnLogin extends JDialog {
         vtnRegistro r = new vtnRegistro(null);
         r.setVisible(true);
     }
-
-    /*public static void main(String[] args) {
-        vtnLogin l = new vtnLogin();
-        l.setVisible(true);
-    }*/
 }

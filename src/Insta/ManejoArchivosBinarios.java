@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import Compartidas.Usuario;
 
 /**
  *
@@ -20,13 +21,13 @@ import java.util.ArrayList;
  */
 public class ManejoArchivosBinarios {
 
-    public static final String archivoUsers = "Z:\\users.ins";
+    public static final String archivoUsers = "users.ins";
 
     public static void escribirUsuario(Usuario nuevoUsuario) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(archivoUsers, true); AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)) {
 
             oos.writeObject(nuevoUsuario);
-            System.out.println("usuario " + nuevoUsuario.getUsername() + " escrito con exito");
+            System.out.println("usuario " + nuevoUsuario.getNombreUsuario() + " escrito con exito");
         } catch (FileNotFoundException e) {
             System.err.println("archivo no encontrado: " + e.getMessage());
             throw e;
@@ -61,7 +62,7 @@ public class ManejoArchivosBinarios {
         try {
             ArrayList<Usuario> listaUsuarios = leerTodosLosUsuarios();
             for (Usuario u : listaUsuarios) {
-                if (u.getUsername().equalsIgnoreCase(unsername)) {
+                if (u.getNombreUsuario().equalsIgnoreCase(unsername)) {
                     return true;
                 }
             }

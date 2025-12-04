@@ -9,7 +9,7 @@ import Insta.GestorInsta;
 import Insta.Insta;
 import Insta.PerfilNoEncontrado;
 import Insta.SesionManager;
-import Insta.Usuario;
+import Compartidas.Usuario;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class PerfilPanel extends JPanel {
     private void cargarDatosYRenderizar() {
         removeAll();
         try {
-            String usuarioLogueado = SesionManager.getUsuarioActual().getUsername();
+            String usuarioLogueado = SesionManager.getUsuarioActual().getNombreUsuario();
             DatosPerfil datos = GestorInsta.obtenerPefilCompleto(usernamePerfil, usuarioLogueado);
             add(crearEncabezadoPerfil(datos, usuarioLogueado), BorderLayout.NORTH);
             add(crearGridPublicaciones(datos.getInstasPropios()), BorderLayout.CENTER);
@@ -56,7 +56,7 @@ public class PerfilPanel extends JPanel {
         //panel izquierdo: el username y ft
         JPanel panelIzquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelIzquierdo.add(new JLabel(new ImageIcon("default_profile.png")));
-        username = new JLabel(datos.getDatosGenerales().getUsername());
+        username = new JLabel(datos.getDatosGenerales().getNombreUsuario());
         username.setFont(new Font("Arial", Font.BOLD, 24));
         panelIzquierdo.add(username);
         panel.add(panelIzquierdo, BorderLayout.WEST);
@@ -70,7 +70,7 @@ public class PerfilPanel extends JPanel {
 
         //panel inferior: nombre y btn de accion
         JPanel panelInferior = new JPanel(new BorderLayout());
-        nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getNombre());
+        nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getUsuario());
         panelInferior.add(nombre, BorderLayout.WEST);
 
         //logica del btn de accion
@@ -156,7 +156,7 @@ public class PerfilPanel extends JPanel {
                         "¿Estas seguro? Su cuenta no aparecera en busquedas.", "Confirmar Desactivacion", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getUsername());
+                    GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
                     
@@ -167,7 +167,7 @@ public class PerfilPanel extends JPanel {
                     new vtnLogin().setVisible(true);
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getUsername());
+                GestorInsta.actualizarEstadoCuenta(usuario.getNombreUsuario());
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosYRenderizar();
             }

@@ -6,7 +6,7 @@ package InstaGUI;
 
 import Insta.GestorInsta;
 import Insta.Insta;
-import Insta.Usuario;
+import Compartidas.Usuario;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class vtnInstaPrincipal extends JFrame {
     
     public vtnInstaPrincipal(Usuario usuario) {
         this.usuarioActual = usuario;
-        setTitle("INSTA - TimeLine de @" + usuario.getUsername());
+        setTitle("INSTA - TimeLine de @" + usuario.getNombreUsuario());
         setSize(600, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -92,7 +92,7 @@ public class vtnInstaPrincipal extends JFrame {
         }
         
         try {
-            ArrayList<Usuario> resultados = GestorInsta.buscarPersonas(texto, usuarioActual.getUsername());
+            ArrayList<Usuario> resultados = GestorInsta.buscarPersonas(texto, usuarioActual.getNombreUsuario());
             JDialog rd = new JDialog(this, "Resultados de Busqueda", true);
             rd.setSize(400, 500);
             rd.setLayout(new BorderLayout());
@@ -104,32 +104,40 @@ public class vtnInstaPrincipal extends JFrame {
                 panelLista.add(new JLabel("No se encontraron usuarios que coincidan con su busqueda."));
             } else {
                 for (Usuario u : resultados) {
-                    JPanel userPanel = crearPanelUsuario(u);
+                    JPanel userPanel = crearPanelUsuario(u, rd);
                     panelLista.add(userPanel);
                     panelLista.add(new JSeparator(SwingConstants.HORIZONTAL));
                 }
             }
             rd.add(new JScrollPane(panelLista), BorderLayout.CENTER);
+            rd.setLocationRelativeTo(this);
             rd.setVisible(true);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error de E/S al buscar usuarios: " + e.getMessage());
         }
     }
     
-    private JPanel crearPanelUsuario(Usuario usuarioEncontrado) throws IOException {
+    private JPanel crearPanelUsuario(Usuario usuarioEncontrado,JDialog dialogoBusqueda) throws IOException {
         JPanel panel = new JPanel(new BorderLayout(10, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
-        JLabel labelUsername = new JLabel("<html><b>@" + usuarioEncontrado.getUsername() + "</b> (" + usuarioEncontrado.getNombre() + ")</html>");
+        JLabel labelUsername = new JLabel("<html><b><a href='#'>@" + usuarioEncontrado.getNombreUsuario() + "</a></b> (" + usuarioEncontrado.getUsuario() + ")</html>");
+        labelUsername.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        labelUsername.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseClicked(java.awt.event.MouseEvent evt){
+                dialogoBusqueda.dispose();
+                abrirPerfilUsuario(usuarioEncontrado.getNombreUsuario());
+            }
+        });
+        
         panel.add(labelUsername, BorderLayout.WEST);
         
         JButton btnFollow = new JButton();
-        
-        boolean esSiguiendo = GestorInsta.estaSiguiendo(usuarioActual.getUsername(), usuarioEncontrado.getUsername());
+        boolean esSiguiendo = GestorInsta.estaSiguiendo(usuarioActual.getNombreUsuario(), usuarioEncontrado.getNombreUsuario());
         btnFollow.setText(esSiguiendo ? "Dejar de Seguir" : "Seguir");
         
         btnFollow.addActionListener(e -> {
-            manejarFollow(usuarioEncontrado.getUsername(), !esSiguiendo, btnFollow);
+            manejarFollow(usuarioEncontrado.getNombreUsuario(), !esSiguiendo, btnFollow, dialogoBusqueda);
         });
         
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -139,8 +147,17 @@ public class vtnInstaPrincipal extends JFrame {
         return panel;
     }
     
-    private void manejarFollow(String seguido, boolean nuevoEstado, JButton btnFollow) {
-        String seguidor = usuarioActual.getUsername();
+    private void abrirPerfilUsuario(String username){
+        if(username.equalsIgnoreCase(usuarioActual.getNombreUsuario())){
+            vtnPerfil p = new vtnPerfil(usuarioActual);
+            p.setVisible(true);
+        }else{
+            new vtnOtroPerfil(username, this);
+        }
+    }
+    
+    private void manejarFollow(String seguido, boolean nuevoEstado, JButton btnFollow, JDialog dialogoBusqueda) {
+        String seguidor = usuarioActual.getNombreUsuario();
         
         try {
             if (!nuevoEstado) {
@@ -154,6 +171,7 @@ public class vtnInstaPrincipal extends JFrame {
             }
             
             GestorInsta.actualizarEstadoFollow(seguidor, seguido, nuevoEstado);
+            dialogoBusqueda.dispose();
             btnFollow.setText(nuevoEstado ? "Dejar de Seguir" : "Seguir");
             
             JOptionPane.showMessageDialog(this,
@@ -173,7 +191,7 @@ public class vtnInstaPrincipal extends JFrame {
         panelContenido.removeAll();
         
         try {
-            ArrayList<Insta> timeLine = GestorInsta.generarTimeLine(usuarioActual.getUsername());
+            ArrayList<Insta> timeLine = GestorInsta.generarTimeLine(usuarioActual.getNombreUsuario());
             
             if (timeLine.isEmpty()) {
                 panelContenido.add(new JLabel("Aun no sigues a nadie o no hay post para mostrar."));

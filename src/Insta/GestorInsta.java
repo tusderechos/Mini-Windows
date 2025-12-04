@@ -5,7 +5,9 @@
 package Insta;
 
 import Compartidas.Constantes;
+import Compartidas.Usuario;
 import static Compartidas.Constantes.RUTA_BASE;
+import Compartidas.ManejoUsuarios;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -15,17 +17,27 @@ import java.util.ArrayList;
  */
 public class GestorInsta {
     public static void crearNuevaCuenta(Usuario nuevoUsuario) throws UsernameYaExiste, IOException{
-        String username = nuevoUsuario.getUsername();
-        if(ManejoArchivosBinarios.existeUsername(username)){
+        String username = nuevoUsuario.getNombreUsuario();
+        ManejoUsuarios manager = new ManejoUsuarios();
+        if(!manager.UsernameDisponible(username)){
             throw new UsernameYaExiste("El usernanme "+username+" no esta disponible");
         }
+    
+        boolean guardadoExitoso = manager.Agregar(nuevoUsuario);
+        if(!guardadoExitoso){
+            throw new IOException("Fallo la registrar usuario en users.ins");
+        }
+        
+        /*if(ManejoArchivosBinarios.existeUsername(username)){
+            throw new UsernameYaExiste("El usernanme "+username+" no esta disponible");
+        } 
         
         try{
             ManejoArchivosBinarios.escribirUsuario(nuevoUsuario);
         }catch(IOException e){
             System.err.println("Error al guardar el usuario: "+e.getMessage());
-            throw new IOException("Fallo la registrat usuario en users.ins");
-        }
+            throw new IOException("Fallo la registrar usuario en users.ins");
+        }*/
         
         boolean estructuraCreada = GestorSistemaArchivos.crearEstructuraUsuario(username);
         
@@ -80,7 +92,7 @@ public class GestorInsta {
                 if(!u.isActivo()){
                     continue;
                 }
-                ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getUsername());
+                ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getNombreUsuario());
                 for(Insta i : instasDelUsuario){
                     if(i.getContenido().toLowerCase().contains(mencionBuscada)){
                         instasMencionados.add(i);
@@ -106,7 +118,7 @@ public class GestorInsta {
                 if(!u.isActivo()){
                     continue;
                 }
-                ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getUsername());
+                ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getNombreUsuario());
                 for(Insta i : instasDelUsuario){
                     if(i.getContenido().toLowerCase().contains(hashtagBuscado)){
                         instasEncontrados.add(i);
@@ -126,7 +138,7 @@ public class GestorInsta {
         boolean nuevoEstado = false;
         
         for(Usuario u : listaUsuarios){
-            if(u.getUsername().equalsIgnoreCase(username)){
+            if(u.getNombreUsuario().equalsIgnoreCase(username)){
                 if(u.isActivo()){
                     u.setActivo(false);
                     nuevoEstado =  false;
@@ -209,10 +221,10 @@ public class GestorInsta {
             ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
             
             for(Usuario u : todosLosUsuarios){
-                boolean contieneTexto = u.getUsername().toLowerCase().contains(busqueda);
+                boolean contieneTexto = u.getNombreUsuario().toLowerCase().contains(busqueda);
                 
                 boolean estaActivo = u.isActivo();
-                boolean diferenteUser = !u.getUsername().equalsIgnoreCase(usuarioLogueado);
+                boolean diferenteUser = !u.getNombreUsuario().equalsIgnoreCase(usuarioLogueado);
                 
                 if(contieneTexto && estaActivo && diferenteUser){
                     resultados.add(u);
@@ -242,7 +254,7 @@ public class GestorInsta {
         ArrayList<Usuario> todos = ManejoArchivosBinarios.leerTodosLosUsuarios();
         
         for(Usuario u : todos){
-            if(u.getUsername().equalsIgnoreCase(perfilUsername) && u.isActivo()){
+            if(u.getNombreUsuario().equalsIgnoreCase(perfilUsername) && u.isActivo()){
                 perfil = u;
                 break;
             }
@@ -281,8 +293,8 @@ public class GestorInsta {
         ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
         
         for(Usuario u : todosLosUsuarios){
-            if(u.getUsername().equalsIgnoreCase(username)){
-                if(u.getPassword().equalsIgnoreCase(password)){
+            if(u.getNombreUsuario().equalsIgnoreCase(username)){
+                if(u.getContrasena().equalsIgnoreCase(password)){
                     if(u.isActivo()){
                         return u;
                     }else{
@@ -299,7 +311,7 @@ public class GestorInsta {
     public static void crearInsta(Insta nuevoPost) throws LongitudInstaInvalida, IOException{
         final int LONGITUD_MAXIMA = 140;
         if(nuevoPost.getTexto().length() > LONGITUD_MAXIMA){
-            throw new LongitudInstaInvalida("El texto es demasiado largo."+nuevoPost.getTexto().length(), LONGITUD_MAXIMA);
+            throw new LongitudInstaInvalida("El texto es demasiado largo."+nuevoPost.getTexto().length(), nuevoPost.getTexto().length());
         }
         
         String autor = nuevoPost.getAutorUsername();

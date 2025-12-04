@@ -6,6 +6,7 @@ package Insta;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import Compartidas.Usuario;
 
 /**
  *
