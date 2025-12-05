@@ -1,4 +1,4 @@
- /*
+/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -22,7 +22,7 @@ import javax.swing.*;
 public class PerfilPanel extends JPanel {
 
     private String usernamePerfil;
-    private JLabel username, nombre, contadorPost, contadorFollowers, ContadorFollowing;
+    private JLabel username, nombre, edad, genero, contadorPost, contadorFollowers, ContadorFollowing;
     private JButton btnAccion;
 
     public PerfilPanel(String usernamePerfil) {
@@ -50,46 +50,86 @@ public class PerfilPanel extends JPanel {
     }
 
     private JPanel crearEncabezadoPerfil(DatosPerfil datos, String usuarioLogueado) {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        //panel izquierdo: el username y ft
-        JPanel panelIzquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelIzquierdo.add(new JLabel(new ImageIcon("default_profile.png")));
-        username = new JLabel(datos.getDatosGenerales().getUsuario());
-        username.setFont(new Font("Arial", Font.BOLD, 24));
-        panelIzquierdo.add(username);
-        panel.add(panelIzquierdo, BorderLayout.WEST);
+        JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
+        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        //panelcentral: contadores de post, followers y following
-        JPanel panelContadores = new JPanel(new GridLayout(1, 3));
+        JPanel panelInfoSuperior = new JPanel(new BorderLayout(30, 0));
+
+        // 1.1. Foto de Perfil (IZQUIERDA - BorderLayout.WEST)
+        JLabel labelFotoPerfil = new JLabel();
+        // Aquí deberías cargar la foto del perfil del usuario (usando datos.getDatosGenerales().getRutaFotoPerfil())
+        ImageIcon iconoDefault = new ImageIcon("default_profile.png");
+        // Redimensionar icono si es necesario
+        labelFotoPerfil.setIcon(iconoDefault);
+        labelFotoPerfil.setPreferredSize(new Dimension(150, 150));
+        labelFotoPerfil.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        panelInfoSuperior.add(labelFotoPerfil, BorderLayout.WEST);
+
+        JPanel panelDatosGenerales = new JPanel();
+        panelDatosGenerales.setLayout(new BoxLayout(panelDatosGenerales, BoxLayout.Y_AXIS));
+
+        // Username
+        username = new JLabel("<html><h1>@" + datos.getDatosGenerales().getUsuario() + "</h1></html>");
+        panelDatosGenerales.add(username);
+        panelDatosGenerales.add(Box.createVerticalStrut(5));
+
+        // Datos Personales
+        nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getNombreUsuario());
+        edad = new JLabel("Edad: " + datos.getDatosGenerales().getEdad());
+        genero = new JLabel("Genero: " + datos.getDatosGenerales().getGenero());
+
+        panelDatosGenerales.add(nombre);
+        panelDatosGenerales.add(edad);
+        panelDatosGenerales.add(genero);
+        panelDatosGenerales.add(Box.createVerticalGlue()); 
+
+        panelDatosGenerales.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panelInfoSuperior.add(panelDatosGenerales, BorderLayout.CENTER);
+
+        JPanel panelCentral = new JPanel();
+        panelCentral.setLayout(new BoxLayout(panelCentral, BoxLayout.Y_AXIS));
+
+        JSeparator separador = new JSeparator(SwingConstants.HORIZONTAL);
+        separador.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        panelCentral.add(separador);
+        panelCentral.add(Box.createVerticalStrut(20)); 
+
+        JPanel panelContadores = new JPanel(new GridLayout(1, 3, 20, 0));
         panelContadores.add(crearContador("Posts", datos.getInstasPropios().size()));
         panelContadores.add(crearContador("Followers", datos.getTotalSeguidores()));
         panelContadores.add(crearContador("Following", datos.getTotalSeguidos()));
-        panel.add(panelContadores, BorderLayout.CENTER);
 
-        //panel inferior: nombre y btn de accion
-        JPanel panelInferior = new JPanel(new BorderLayout());
-        nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getUsuario());
-        panelInferior.add(nombre, BorderLayout.WEST);
+        panelContadores.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelCentral.add(panelContadores);
+        panelCentral.add(Box.createVerticalStrut(20)); 
 
-        //logica del btn de accion
         if (usernamePerfil.equalsIgnoreCase(usuarioLogueado)) {
-            //aqui es que el user esta viendo su propio perfil
             btnAccion = new JButton("EDITAR PERFIL");
             btnAccion.addActionListener(e -> mostrarOpcionesEdicion(datos.getDatosGenerales()));
         } else {
-            //aqui el user esta viendo otro perfil
-            if (datos.getloSigueElUsuarioActual()) { //isLoSigueElUsuarioActual
+            if (datos.getloSigueElUsuarioActual()) {
                 btnAccion = new JButton("DEJAR DE SEGUIR");
             } else {
                 btnAccion = new JButton("SEGUIR");
             }
             btnAccion.addActionListener(e -> manejarFollow(usuarioLogueado, usernamePerfil, datos.getloSigueElUsuarioActual()));
         }
-        panelInferior.add(btnAccion, BorderLayout.EAST);
-        panel.add(panelInferior, BorderLayout.SOUTH);
-        return panel;
+
+        btnAccion.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelCentral.add(btnAccion);
+        panelCentral.add(Box.createVerticalStrut(20)); // Espacio al final
+        panelCentral.add(separador);
+
+        panelPrincipal.add(panelInfoSuperior, BorderLayout.NORTH);
+
+        panelPrincipal.add(panelCentral, BorderLayout.CENTER);
+
+        JPanel contenedorFinal = new JPanel(new BorderLayout());
+        contenedorFinal.add(panelPrincipal, BorderLayout.NORTH);
+
+        return contenedorFinal;
     }
 
     private JPanel crearContador(String titulo, int valor) {
@@ -159,9 +199,9 @@ public class PerfilPanel extends JPanel {
                     GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
-                    
+
                     Window vtnActual = SwingUtilities.getWindowAncestor(this);
-                    if(vtnActual != null){
+                    if (vtnActual != null) {
                         vtnActual.dispose();
                     }
                     new vtnLogin().setVisible(true);

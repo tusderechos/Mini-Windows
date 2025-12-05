@@ -22,6 +22,7 @@ public class Usuario implements Serializable {
     private int Edad;
     private boolean Activo;    
     private boolean Administrador;
+    private String rutaFotoPerfil;
 
     public Usuario(String NombreUsuario, char Genero, String Usuario, String Contrasena, int Edad, boolean Administrador) {
         this.NombreUsuario = NombreUsuario;
@@ -30,6 +31,7 @@ public class Usuario implements Serializable {
         this.Contrasena = Contrasena;
         this.Edad = Edad;
         this.Administrador = Administrador;
+        this.rutaFotoPerfil = null;
         
         Activo = true;
         FechaEntrada = LocalDate.now();
@@ -89,6 +91,14 @@ public class Usuario implements Serializable {
 
     public void setAdministrador(boolean Administrador) {
         this.Administrador = Administrador;
+    }
+    
+     public String getRutaFotoPerfil() {
+        return rutaFotoPerfil;
+    }
+
+    public void setRutaFotoPerfil(String rutaFotoPerfil) {
+        this.rutaFotoPerfil = rutaFotoPerfil;
     }
     
     @Override

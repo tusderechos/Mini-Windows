@@ -18,6 +18,7 @@ import javax.swing.*;
  */
 public class vtnInstaPrincipal extends JFrame {
     
+    //3 vtn
     private final Usuario usuarioActual;
     private final JScrollPane scrollTimeLine;
     private final JPanel panelContenido;
@@ -27,7 +28,7 @@ public class vtnInstaPrincipal extends JFrame {
     public vtnInstaPrincipal(Usuario usuario) {
         this.usuarioActual = usuario;
         setTitle("INSTA - TimeLine de @" + usuario.getNombreUsuario());
-        setSize(600, 800);
+        setSize(550, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -184,7 +185,7 @@ public class vtnInstaPrincipal extends JFrame {
         }
     }
     
-    private void cargarTimeLine() {
+    public void cargarTimeLine() {
         panelContenido.removeAll();
         
         try {

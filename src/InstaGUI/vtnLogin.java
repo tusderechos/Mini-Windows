@@ -18,12 +18,13 @@ import java.awt.*;
  */
 public class vtnLogin extends JDialog {
 
+    //1 vtn
     private JTextField txtUsername;
     private JPasswordField txtPassword;
 
     public vtnLogin() {
         setTitle("INSTA - Inicar Sesion");
-        setSize(350, 250);
+        setSize(550, 800);
         setLayout(new GridLayout(4, 1, 10, 10));
         setLocationRelativeTo(null);
         inicializarComponentes();
@@ -68,11 +69,6 @@ public class vtnLogin extends JDialog {
 
             JOptionPane.showMessageDialog(this, "¡Sesion inciado como " + username + "!");
 
-            /*Aquí debe abrirse la ventana principal de INSTA (ej. el TimeLine)
-        la ventana principal de INSTA (donde se muestra el TimeLine) debería abrirse aquí.
-        pr ej, clase llamada 'vtnInstaPrincipal' o algo asi, nose
-        vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado); 
-        p.setVisible(true);  despues miro qpdo*/
             vtnInstaPrincipal p = new vtnInstaPrincipal(usuarioLogueado);
             p.setVisible(true);
             this.dispose();
@@ -85,7 +81,7 @@ public class vtnLogin extends JDialog {
     }
 
     private void abrirRegistro() {
-        vtnRegistro r = new vtnRegistro(null);
+        vtnRegistro r = new vtnRegistro();
         r.setVisible(true);
     }
 }

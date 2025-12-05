@@ -11,10 +11,12 @@ import java.awt.*;
  * @author HP
  */
 public class vtnOtroPerfil extends JDialog{
+    
+    //otro perfil
     public vtnOtroPerfil(String usernameOtro, Frame owner){
-        setTitle("INST - Perfil de @ "+usernameOtro);
+        setTitle("INST - Perfil de @"+usernameOtro);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(750, 600);
+        setSize(550, 800);
         setLocationRelativeTo(null);
         
         PerfilPanel panelOtro = new PerfilPanel(usernameOtro);

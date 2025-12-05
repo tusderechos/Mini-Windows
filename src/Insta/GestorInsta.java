@@ -9,7 +9,11 @@ import Compartidas.Usuario;
 //import static Compartidas.Constantes.RUTA_BASE;
 import Compartidas.ManejoUsuarios;
 import OS.Core.GestorCarpetasUsuario;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
@@ -295,17 +299,39 @@ public class GestorInsta {
         if (todosLosUsuarios.isEmpty()) {
             System.err.println("La lista de usuarios está vacía.");
         }
-        
+
         for (Compartidas.Usuario u : todosLosUsuarios) {
             if (u.getNombreUsuario().equalsIgnoreCase(username)
                     && u.getContrasena().equals(password)
                     && u.isActivo()) {
 
-                return u; 
+                return u;
             }
         }
         throw new CredencialesInvalidas("Credenciales inválidas: Usuario no encontrado.");
 
+    }
+
+    public static String copiarFotoPerfil(String username, String rutaOriginal, String extension) throws IOException {
+        if (rutaOriginal == null || rutaOriginal.isEmpty()) {
+            return null;
+        }
+
+        String rutaDestinoCarpeta = "Z"+File.separator+ username;
+
+        File carpeta = new File(rutaDestinoCarpeta);
+        if (!carpeta.exists()) {
+            carpeta.mkdirs();
+        }
+
+        String nombreBase = "perfil";
+        String nombreFinal = nombreBase + extension;
+        Path origen = new File(rutaOriginal).toPath();
+        Path destino = new File(rutaDestinoCarpeta + File.separator + nombreFinal).toPath();
+
+        Files.copy(origen, destino, StandardCopyOption.REPLACE_EXISTING);
+
+        return rutaDestinoCarpeta + File.separator + nombreFinal;
     }
 
     public static void crearInsta(Insta nuevoPost) throws LongitudInstaInvalida, IOException {

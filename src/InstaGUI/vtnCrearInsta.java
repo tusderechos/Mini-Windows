@@ -19,13 +19,17 @@ import javax.swing.*;
  */
 public class vtnCrearInsta extends JDialog {
 
+    //publicar
     private JTextArea txtCaption;
     private JLabel rutaFoto;
     private String rutaFotoSeleccionada = "";
+    private vtnInstaPrincipal vtnP;
 
-    public vtnCrearInsta(JFrame parent) {
-        setTitle("INSTA - Crear Nuevo Post");
-        setLocationRelativeTo(null);
+    public vtnCrearInsta(vtnInstaPrincipal parent) {
+        super(parent, "INSTA - Crear Nuevo Post", true);
+        this.vtnP = parent;
+        setSize(400, 350);
+        setLocationRelativeTo(parent);
         inicializarComponentes();
     }
 
@@ -87,10 +91,9 @@ public class vtnCrearInsta extends JDialog {
             GestorInsta.crearInsta(nuevoPost);
             JOptionPane.showMessageDialog(this, "¡Post publicado exitosamente!");
             
-            /*Refrescar el TimeLine de la ventana principal
-            if (getParent() instanceof vtnInstaPrincipal) {
-            ((vtnInstaPrincipal) getParent()).cargarTimeLine();*/
-            
+            if (vtnP != null) {
+                vtnP.cargarTimeLine();
+            }
             dispose();
 
         } catch(LongitudInstaInvalida e) {
