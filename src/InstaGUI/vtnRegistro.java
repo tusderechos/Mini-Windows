@@ -31,7 +31,7 @@ public class vtnRegistro extends JDialog {
 
     public vtnRegistro() {
         setTitle("INSTA - Crear Cuenta");
-        setSize(550, 800);
+        setSize(600, 800);
         setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(null);
         inicializarComponentes();
@@ -130,7 +130,6 @@ public class vtnRegistro extends JDialog {
         try {
             int Edad = Integer.parseInt(edad);
             Usuario nuevoUsuario = new Usuario(
-                    //username, nombre, password, genero, Edad, rutaFotoSeleccionada
                     username, genero, nombre, password, Edad, false
             );
             if (!rutaFotoSeleccionada.isEmpty()) {

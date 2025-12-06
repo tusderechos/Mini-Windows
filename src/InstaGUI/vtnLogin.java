@@ -24,7 +24,7 @@ public class vtnLogin extends JDialog {
 
     public vtnLogin() {
         setTitle("INSTA - Inicar Sesion");
-        setSize(550, 800);
+        setSize(600, 800);
         setLayout(new GridLayout(4, 1, 10, 10));
         setLocationRelativeTo(null);
         inicializarComponentes();

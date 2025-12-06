@@ -23,12 +23,11 @@ public class vtnInstaPrincipal extends JFrame {
     private final JScrollPane scrollTimeLine;
     private final JPanel panelContenido;
     private JTextField txtBusqueda;
-    //private JPanel panelResultadoBusqueda; //aqui se van a mostrar los usuarios
     
     public vtnInstaPrincipal(Usuario usuario) {
         this.usuarioActual = usuario;
         setTitle("INSTA - TimeLine de @" + usuario.getNombreUsuario());
-        setSize(550, 800);
+        setSize(600, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         

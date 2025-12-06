@@ -6,7 +6,6 @@ package Insta;
 
 import Compartidas.Constantes;
 import Compartidas.Usuario;
-//import static Compartidas.Constantes.RUTA_BASE;
 import Compartidas.ManejoUsuarios;
 import OS.Core.GestorCarpetasUsuario;
 import java.io.File;
@@ -55,17 +54,6 @@ public class GestorInsta {
         System.out.println("Cuenta creada, debe abrir la ventana principal de INSTA.");
     }
 
-    /*public static void agregarFollow(String seguidor, String seguido) throws IOException {
-        String rutaFollowing = Constantes.RUTA_BASE+seguidor+"\\following.ins";
-        Follow followNuevo = new Follow(seguido);
-        ManejoArchivosBinarios.escribirFollow(rutaFollowing, followNuevo);
-        
-        String rutaFollowers = Constantes.RUTA_BASE+seguido+"\\followers.ins";
-        Follow followerNuevo = new Follow(seguidor);
-        ManejoArchivosBinarios.escribirFollow(rutaFollowers, followerNuevo);
-        
-        System.out.println(seguidor+" ahora sigue a "+seguido);
-    }*/
     public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException {
         ArrayList<Insta> timeLine = new ArrayList<>();
 
@@ -130,7 +118,7 @@ public class GestorInsta {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error al acceder a lso archivos para buscar hashtags: " + e.getMessage());
+            System.err.println("Error al acceder a los archivos para buscar hashtags: " + e.getMessage());
         }
         return instasEncontrados;
     }
@@ -317,7 +305,7 @@ public class GestorInsta {
             return null;
         }
 
-        String rutaDestinoCarpeta = "Z"+File.separator+ username;
+        String rutaDestinoCarpeta = "Z" + File.separator + username;
 
         File carpeta = new File(rutaDestinoCarpeta);
         if (!carpeta.exists()) {
@@ -343,5 +331,42 @@ public class GestorInsta {
         String autor = nuevoPost.getAutorUsername();
         String rutaArchivoInstas = Constantes.RUTA_BASE + autor + "\\instas.ins";
         ManejoArchivosBinarios.escribirInsta(nuevoPost, rutaArchivoInstas);
+    }
+
+    public static void eliminarInsta(Insta postAEliminar) throws IOException {
+        String username = postAEliminar.getAutorUsername();
+
+        ArrayList<Insta> instasUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(username);
+
+        boolean eliminado = instasUsuario.removeIf(i
+                -> i.getFechaPublicacion().equals(postAEliminar.getFechaPublicacion())
+                && i.getRutaImg().equals(postAEliminar.getRutaImg()));
+
+        if (!eliminado) {
+            throw new IOException("No se encontró el post para eliminar.");
+        }
+
+        String rutaArchivoInstas = Constantes.RUTA_BASE + username + "\\instas.ins";
+        ManejoArchivosBinarios.reescribirInstas(instasUsuario, rutaArchivoInstas);
+    }
+    
+    public static void guardarComentario(Insta postComentado, Comentario nuevoComentario) throws IOException {
+        String rutaArchivoComentarios = Constantes.RUTA_BASE
+                + postComentado.getAutorUsername()
+                + "\\comentarios_"
+                + postComentado.getIdPost()
+                + ".ins";
+
+        ManejoArchivosBinarios.escribirComentario(nuevoComentario, rutaArchivoComentarios);
+    }
+    
+    public static ArrayList<Comentario> leerComentarios(Insta postComentado) {
+        String rutaArchivoComentarios = Constantes.RUTA_BASE
+                + postComentado.getAutorUsername()
+                + "\\comentarios_"
+                + postComentado.getIdPost()
+                + ".ins";
+
+        return ManejoArchivosBinarios.leerComentariosDePost(rutaArchivoComentarios);
     }
 }

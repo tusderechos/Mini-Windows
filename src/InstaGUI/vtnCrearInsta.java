@@ -79,8 +79,12 @@ public class vtnCrearInsta extends JDialog {
     private void publicarInsta() {
         String caption = txtCaption.getText();
 
+        if(caption.trim().isEmpty()){
+            caption = "";
+        }
+        
         if (rutaFotoSeleccionada.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar uan imagen para publicar.");
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una imagen para publicar.");
             return;
         }
 

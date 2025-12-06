@@ -5,7 +5,6 @@
 package Insta;
 
 import Compartidas.Constantes;
-//import static Compartidas.Constantes.ARCHIVO_USUARIOS;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +23,7 @@ import Compartidas.Usuario;
 public class ManejoArchivosBinarios {
 
     public static final String ARCHIVO_USUARIOS = "users.ins";
+
     public static void escribirUsuario(Usuario nuevoUsuario) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(ARCHIVO_USUARIOS, true); AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)) {
 
@@ -90,6 +90,13 @@ public class ManejoArchivosBinarios {
     public static void escribirInsta(Insta nuevoInsta, String rutaArchivo) throws IOException {
         File archivo = new File(rutaArchivo);
 
+        File directorioPadre = archivo.getParentFile();
+        if (directorioPadre != null && !directorioPadre.exists()) {
+            if (!directorioPadre.mkdirs()) {
+                throw new IOException("Fallo al crear la estructura de directorios para el post.");
+            }
+        }
+
         if (!archivo.exists() || archivo.length() == 0) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
                 oos.writeObject(nuevoInsta);
@@ -130,15 +137,6 @@ public class ManejoArchivosBinarios {
         return instas;
     }
 
-    /*public static void escribirFollow(String rutaArchivo, Follow follow) throws IOException{
-        try(FileOutputStream fos = new FileOutputStream(rutaArchivo, true);
-            AppendingObjectOutputStream oos = new AppendingObjectOutputStream(fos)){
-            oos.writeObject(follow);
-        } catch(FileNotFoundException e){
-            System.err.println("Archivo de follow no encontrado: "+e.getMessage());
-            throw e;
-        }
-    }*/
     public static ArrayList<Follow> leerListaFollows(String rutaArchivo) throws IOException {
         ArrayList<Follow> follows = new ArrayList();
 
@@ -185,16 +183,85 @@ public class ManejoArchivosBinarios {
             throw e;
         }
     }
-    
+
     public static void reescribirListaCompletaUsuarios(ArrayList<Usuario> listaUsuarios) throws IOException {
-    try (FileOutputStream fos = new FileOutputStream(ARCHIVO_USUARIOS, false); 
-         ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-        
-        oos.writeObject(listaUsuarios); 
-        
-    } catch (FileNotFoundException e) {
-        System.err.println("Archivo users.ins no encontrado para reescritura: " + e.getMessage());
-        throw e;
+        try (FileOutputStream fos = new FileOutputStream(ARCHIVO_USUARIOS, false); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+
+            oos.writeObject(listaUsuarios);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Archivo users.ins no encontrado para reescritura: " + e.getMessage());
+            throw e;
+        }
     }
-}
+
+    public static void reescribirInstas(ArrayList<Insta> instas, String rutaArchivo) throws IOException {
+        File archivo = new File(rutaArchivo);
+
+        if (instas.isEmpty()) {
+            if (archivo.exists()) {
+                archivo.delete();
+                System.out.println("Archivo de instas eliminado: " + rutaArchivo);
+            }
+            return;
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(archivo); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+
+            for (Insta post : instas) {
+                oos.writeObject(post);
+            }
+            System.out.println("Archivo de instas reescrito exitosamente: " + rutaArchivo);
+
+        } catch (IOException e) {
+            System.err.println("Error al reescribir la lista de Instas en " + rutaArchivo + ": " + e.getMessage());
+            throw e;
+        }
+    }
+
+    public static void escribirComentario(Comentario nuevoComentario, String rutaArchivoComentarios) throws IOException {
+        File archivo = new File(rutaArchivoComentarios);
+
+        boolean append = archivo.exists() && archivo.length() > 0;
+
+        try (FileOutputStream fos = new FileOutputStream(archivo, true); 
+                 ObjectOutputStream oos = append ? new AppendingObjectOutputStream(fos) : new ObjectOutputStream(fos)) {
+
+            oos.writeObject(nuevoComentario);
+            System.out.println("Comentario escrito en: " + rutaArchivoComentarios);
+
+        } catch (IOException e) {
+            System.err.println("Error al escribir el comentario en " + rutaArchivoComentarios + ": " + e.getMessage());
+            throw e;
+        }
+    }
+    
+    public static ArrayList<Comentario> leerComentariosDePost(String rutaArchivoComentarios) {
+        ArrayList<Comentario> comentarios = new ArrayList<>();
+        File archivo = new File(rutaArchivoComentarios);
+
+        if (!archivo.exists() || archivo.length() == 0) {
+            return comentarios;
+        }
+
+        try (FileInputStream fis = new FileInputStream(archivo); ObjectInputStream ois = new ObjectInputStream(fis)) {
+
+            while (true) {
+                try {
+                    Comentario comentario = (Comentario) ois.readObject();
+                    comentarios.add(comentario);
+                } catch (EOFException e) {
+                    break;
+                }
+            }
+            System.out.println("Comentarios leídos exitosamente de: " + rutaArchivoComentarios);
+
+        } catch (IOException e) {
+            System.err.println("Error de E/S al leer comentarios: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("Clase Comentario no encontrada: " + e.getMessage());
+        }
+
+        return comentarios;
+    }
 }

@@ -16,7 +16,7 @@ public class vtnOtroPerfil extends JDialog{
     public vtnOtroPerfil(String usernameOtro, Frame owner){
         setTitle("INST - Perfil de @"+usernameOtro);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(550, 800);
+        setSize(600, 800);
         setLocationRelativeTo(null);
         
         PerfilPanel panelOtro = new PerfilPanel(usernameOtro);
