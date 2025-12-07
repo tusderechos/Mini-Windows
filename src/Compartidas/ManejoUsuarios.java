@@ -122,7 +122,13 @@ public class ManejoUsuarios {
         Lista.remove(usuario);
         Guardar();
         
-        SistemaArchivo.EliminarCarpetaUsuario(username);
+        try {
+        String base = Constantes.RUTA_BASE;
+        File home = new File(base, username);
+        
+        SistemaArchivo.EliminarCarpetaUsuario(home.getAbsolutePath());
+        } catch (Exception e) {
+        }
         
         return true;
     }

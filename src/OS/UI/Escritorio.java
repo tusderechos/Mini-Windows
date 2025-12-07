@@ -12,134 +12,100 @@ package OS.UI;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
+import javax.swing.border.EmptyBorder;
+import java.io.File;
 
 import Compartidas.Usuario;
 import OS.Archivos.SistemaArchivo;
 import OS.Core.SistemaOperativo;
 import OS.Core.SesionActual;
 import OS.UI.util.FullscreenHelper;
+import OS.UI.util.IconTile;
 import OS.UI.util.TemaOscuro;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import OS.UI.util.BarraTareas;
+import OS.UI.util.BotonesBarra;
+import OS.UI.util.GradientWallpaper;
 
 public class Escritorio extends JFrame {
     
     private final SistemaOperativo SO;
-    private final JLabel LblUsuario = LabelStyle(" ", true);
+    private final JPanel Grid;
     
     public Escritorio(SistemaOperativo SO) {
         this.SO = SO;
         
         setTitle("Mini-Windows - Escritorio");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setMinimumSize(new Dimension(900, 600));
+        getContentPane().setBackground(TemaOscuro.BG);
         
         AplicarLook();
-        WireActions();
+        WireF11();
         
-        JPanel barra = new JPanel();
-        barra.setLayout(new BorderLayout());
-        barra.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
-        barra.setBackground(new Color(245, 247, 250));
+        GradientWallpaper fondo = new GradientWallpaper();
+        fondo.setGradient(Color.MAGENTA.darker().darker().darker(), Color.BLACK);
+        fondo.setLayout(new BorderLayout());
         
-        JPanel izquierda = new JPanel();
-        izquierda.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        izquierda.setOpaque(false);
+        JPanel centro = new JPanel();
+        centro.setLayout(new GridBagLayout());
+        centro.setOpaque(false);
         
-        JButton btnarchivos = BotonStyle("Archivos");
-        JButton btnconsola = BotonStyle("Consola");
-        JButton btneditor = BotonStyle("Editor");
-        JButton btnusuarios = BotonStyle("Usuarios");
-        JButton btnfull = BotonStyle("Pantalla Completa");
-        
-        izquierda.add(btnarchivos);
-        izquierda.add(btnconsola);
-        izquierda.add(btneditor);
-        izquierda.add(btnusuarios);
-        izquierda.add(btnfull);
-        
-        JPanel derecha = new JPanel();
-        derecha.setLayout(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        derecha.setOpaque(false);
-        
-        LblUsuario.setForeground(new Color(80, 80, 80));
-        
-        derecha.add(LblUsuario);
-        
-        barra.add(izquierda, BorderLayout.WEST);
-        barra.add(derecha, BorderLayout.EAST);
-        
-        JPanel centro = new JPanel(new GridBagLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.setColor(TemaOscuro.BG);
-                g.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        
-        centro.setBackground(TemaOscuro.BG);
-        
-        JPanel tiles = card();
-        tiles.setLayout(new GridLayout(2, 3, 14, 14));
-        tiles.add(tile("Archivos", e -> new NavegadorArchivos().setVisible(true)));
-        tiles.add(tile("Consola", e -> new Consola().setVisible(true)));
-        tiles.add(tile("Editor de Texto", e -> new EditorTexto().setVisible(true)));
-        tiles.add(tile("Fotos", e -> AbrirFoto()));
-        tiles.add(tile("Pantalla Completa", e -> FullscreenHelper.toggle(this)));
-        tiles.add(tile("Cerrar Sesion", e -> CerrarSesion()));
+        Grid = new JPanel();
+        Grid.setLayout(new GridLayout(2, 3, 18, 18));
+        Grid.setOpaque(false);
+        Grid.setBorder(new EmptyBorder(28, 28, 28, 28));
         
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
         
-        centro.add(tiles, gbc);
+        centro.add(Grid, gbc);
+        fondo.add(centro, BorderLayout.CENTER);
         
-        getContentPane().setBackground(TemaOscuro.BG);
-        setLayout(new BorderLayout());
-        add(barra, BorderLayout.NORTH);
-        add(centro, BorderLayout.CENTER);
+        //2 filas x 3 columnas
+        addTile("Archivos", "icons/folder.png", () -> new NavegadorArchivos().setVisible(true));
+        addTile("Consola", "icons/terminal.png", () -> new Consola().setVisible(true));
+        addTile("Editor de Texto", "icons/notepad.png", () -> new EditorTexto().setVisible(true));
         
-        Usuario usu = SesionActual.getUsuario();
+        addTile("Fotos", "icons/photos.png", this::AbrirFoto);
+        addTile("Intagran", "icons/instagram.png", () -> JOptionPane.showMessageDialog(this, "No he conectado el insta aun :/"));
+        addTile("Musica", "icons/music.png", () -> new ReproductorMusica().setVisible(true));
+        
+        BarraTareas taskbar = new BarraTareas();
+        taskbar.AnadirApp(new BotonesBarra("Archivos", "icons/folder.png", () -> new NavegadorArchivos().setVisible(true)));
+        taskbar.AnadirApp(new BotonesBarra("Consola", "icons/terminal.png", () -> new Consola().setVisible(true)));
+        taskbar.AnadirApp(new BotonesBarra("Editor de Texto", "icons/notepad.png", () -> new EditorTexto().setVisible(true)));
+        taskbar.AnadirApp(new BotonesBarra("Fotos", "icons/photos.png", () -> AbrirFoto()));
+        taskbar.AnadirApp(new BotonesBarra("Intagran", "icons/instagram.png", () -> JOptionPane.showMessageDialog(this, "No he conectado el insta aun :/")));
+        taskbar.AnadirApp(new BotonesBarra("Musica", "icons/music.png", () -> new ReproductorMusica().setVisible(true)));
+        
+        Usuario usu = SesionActual.getUsuario();        
         boolean esadmin = (usu != null && usu.isAdministrador());
         
-        LblUsuario.setText(usu != null ? ("Usuario: " + usu.getUsuario() + (esadmin ? " (admin)" : "")) : "Sin sesion");
-        btnusuarios.setVisible(esadmin);
+        if (esadmin) {
+            taskbar.AnadirApp(new BotonesBarra("Usuarios", "icons/users.png", () -> new UsuariosUI(SesionActual.getUsuario()).setVisible(true)));
+        }
         
-        btnconsola.addActionListener(e -> new Consola().setVisible(true));
-        btnarchivos.addActionListener(e -> new NavegadorArchivos().setVisible(true));
-        btneditor.addActionListener(e -> new EditorTexto().setVisible(true));
+        taskbar.setUsuario("Usuario: " + (usu != null ? usu.getUsuario() : "-") + (esadmin ? " (admin)" : ""));
         
-        btnusuarios.addActionListener(e -> {
-            if (!esadmin) {
-                JOptionPane.showMessageDialog(this, "Solo el administrador puede gestionar usuarios");
-                return;
-            }
-            
-            Usuario actual = SesionActual.getUsuario();
-            new UsuariosUI(actual).setVisible(true);
-        });
+        taskbar.setBotonCentro(new BotonesBarra("Cerrar Sesion", "icons/logout.png", this::CerrarSesion));
         
-        btnfull.addActionListener(e -> FullscreenHelper.toggle(this));
-        
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(key -> {
-            if (key.getID() == KeyEvent.KEY_PRESSED && key.getKeyCode() == KeyEvent.VK_F11) {
-                FullscreenHelper.toggle(this);
-                return true;
-            }
-            
-            return false;
-        });
+        fondo.add(taskbar, BorderLayout.SOUTH);
+        add(fondo, BorderLayout.CENTER);
     }
     
-    private void WireActions() {
-        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F11"), "toggleF5");
-        getRootPane().getActionMap().put("toggleF5", new AbstractAction() {
+    private void addTile(String titulo, String iconpath, Runnable action) {
+        IconTile tile = new IconTile(titulo, iconpath, action);
+        Grid.add(tile);
+    }
+    
+    private void WireF11() {
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "toggleFullscreen");
+        getRootPane().getActionMap().put("toggleFullscreen", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 FullscreenHelper.toggle(Escritorio.this);
@@ -147,53 +113,24 @@ public class Escritorio extends JFrame {
         });
     }
     
-    private JButton BotonStyle(String texto) {
-        JButton boton = new JButton(texto);
-        boton.setFocusPainted(true);
-        boton.setBackground(TemaOscuro.CARD);
-        boton.setForeground(TemaOscuro.TEXTO);
-        boton.setBorder(BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA), new EmptyBorder(8, 12, 8, 12)));
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
-        return boton;
-    }
-    
-    private JLabel LabelStyle(String texto, boolean sutil) {
-        JLabel label = new JLabel(texto);
-        label.setForeground(sutil ? TemaOscuro.SUTIL : TemaOscuro.TEXTO);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        
-        return label;
-    }
-    
-    private JPanel card() {
-        JPanel panel = new JPanel();
-        panel.setBackground(TemaOscuro.CARD);
-        panel.setBorder(new EmptyBorder(16, 16, 16, 16));
-        
-        return panel;
-    }
-    
-    private JButton tile(String texto, ActionListener e) {
-        JButton boton = new JButton(texto);
-        boton.setFocusPainted(false);
-        boton.setBackground(TemaOscuro.CARD);
-        boton.setForeground(TemaOscuro.TEXTO);
-        boton.setBorder(BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA), new EmptyBorder(18, 18, 18, 18)));
-        boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        boton.addActionListener(e);
-        
-        return boton;        
-    }
-    
     private void AbrirFoto() {
         JFileChooser fc = new JFileChooser(SistemaArchivo.getRutaUsuario());
+        fc.setDialogTitle("Abrir Imagen");
         int r = fc.showOpenDialog(this);
         
-        if (r == JFileChooser.APPROVE_OPTION) {
-            new VisorImagenes(fc.getSelectedFile()).setVisible(true);
+        if (r != JFileChooser.APPROVE_OPTION) {
+            return;
         }
+        
+        File file = fc.getSelectedFile();
+        String nombre = file.getName().toLowerCase();
+        
+        if (!(nombre.endsWith(".png") || nombre.endsWith(".jpg") || nombre.endsWith(".jpeg"))) {
+            JOptionPane.showMessageDialog(this, "Seleciona una imagen (.png/.jpg/.jpeg)");
+            return;
+        }
+        
+        new VisorImagenes(file).setVisible(true);
     }
     
     private void CerrarSesion() {

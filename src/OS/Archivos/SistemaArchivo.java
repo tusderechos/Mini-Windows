@@ -19,6 +19,7 @@ import Compartidas.Usuario;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -68,31 +69,43 @@ public class SistemaArchivo {
         Elimina la carpeta fisica del usuario
     */
     public static boolean EliminarCarpetaUsuario(String username) {
-        File objetivo = getCarpetaUsuario(username).getAbsoluteFile();
-        File base = new File(Constantes.RUTA_BASE).getAbsoluteFile();
-        
         try {
-            if (!objetivo.toPath().startsWith(base.toPath().normalize())) {
-                return false;
+            Path base = Paths.get(Constantes.RUTA_BASE).toAbsolutePath().normalize();
+            Path objetivo = base.resolve(username).toAbsolutePath().normalize();
+            
+            if (!objetivo.startsWith(base)) {
+                return false; //Para no salir de la raiz
             }
-        } catch (Exception e) {
-            return false;
-        }
-        
-        if (!objetivo.exists()) {
-            return true;
-        }
-        
-        try {
-            Files.walkFileTree(objetivo.toPath(), new SimpleFileVisitor<Path>() {
+            if (objetivo.equals(base)) {
+                return false; //Para no salir de la raiz
+            }
+            if (!Files.exists(objetivo)) {
+                return true; //Por si ya no existe
+            }
+            
+            Files.walkFileTree(objetivo, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes atributos) throws IOException {
-                    Files.delete(file);
+                    try {
+                        Files.deleteIfExists(file);
+                    } catch (IOException e) {
+                    }
+                    
                     return FileVisitResult.CONTINUE;
                 }
+                
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exception) throws IOException {
-                    Files.delete(dir);
+                public FileVisitResult postVisitDirectory(Path dir, IOException excepcion) throws IOException {
+                    try {
+                        Files.deleteIfExists(dir);
+                    } catch (IOException e) {
+                    }
+                
+                   return FileVisitResult.CONTINUE;
+                }
+                
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException excepcion) throws IOException {
                     return FileVisitResult.CONTINUE;
                 }
             });
