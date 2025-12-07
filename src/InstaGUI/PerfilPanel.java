@@ -25,7 +25,7 @@ public class PerfilPanel extends JPanel {
 
     //logica para el otro perfil
     private String usernamePerfil;
-    private JLabel username, nombre, edad, genero;
+    private JLabel username, nombre, edad, genero, fecha;
     private JButton btnAccion;
     private JPanel panelPosts;
 
@@ -94,10 +94,12 @@ public class PerfilPanel extends JPanel {
         nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getNombreUsuario());
         edad = new JLabel("Edad: " + datos.getDatosGenerales().getEdad());
         genero = new JLabel("Genero: " + datos.getDatosGenerales().getGenero());
+        fecha = new JLabel("Desde: "+datos.getDatosGenerales().getFechaEntrada());
 
         panelDatosGenerales.add(nombre);
         panelDatosGenerales.add(edad);
         panelDatosGenerales.add(genero);
+        panelDatosGenerales.add(fecha);
         panelDatosGenerales.add(Box.createVerticalGlue());
 
         panelDatosGenerales.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -108,7 +110,7 @@ public class PerfilPanel extends JPanel {
         panelCentral.setLayout(new BoxLayout(panelCentral, BoxLayout.Y_AXIS));
 
         JSeparator separador = new JSeparator(SwingConstants.HORIZONTAL);
-        separador.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        separador.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
         panelCentral.add(separador);
         panelCentral.add(Box.createVerticalStrut(20));
 
@@ -294,7 +296,7 @@ public class PerfilPanel extends JPanel {
     private void agregarComentario(Insta post, String texto, JTextArea areaComentarios, JTextField txtComentario) {
         if (!texto.trim().isEmpty()) {
             try {
-                String autor = SesionManager.getUsuarioActual().getUsuario();
+                String autor = SesionManager.getUsuarioActual().getNombreUsuario();
                 Comentario nuevoComentario = new Comentario(autor, texto);
 
                 GestorInsta.guardarComentario(post, nuevoComentario);

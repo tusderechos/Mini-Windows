@@ -14,24 +14,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 /**
  *
  * @author HP
  */
-public class vtnPerfil extends JDialog {
+public class vtnPerfil extends JPanel {
 
     //perfil propio
     private final Usuario usuarioActual;
     private JLabel labelFollowings, labelFollowers, labelPosts;
     private JPanel panelPostPropios;
     private JLabel labelFotoPerfil;
+    private final vtnInstaPrincipal vtnP;
 
-    public vtnPerfil(Usuario usuario) {
-        setTitle("INSTA - Perfil de @" + usuario.getNombreUsuario());
+    public vtnPerfil(Usuario usuario, vtnInstaPrincipal vtnP) {
+        //setTitle("INSTA - Perfil de @" + usuario.getNombreUsuario());
         this.usuarioActual = usuario;
+        this.vtnP = vtnP;
         setSize(600, 800);
-        setLocationRelativeTo(null);
+        //setLocationRelativeTo(null);
 
         inicializarComponentes();
         cargarDatosPerfil();
@@ -54,10 +57,11 @@ public class vtnPerfil extends JDialog {
         panelDatos.setLayout(new BoxLayout(panelDatos, BoxLayout.Y_AXIS));
 
         // Datos personales
-        panelDatos.add(new JLabel("<html><h1>@" + usuarioActual.getUsuario() + "</h1></html>"));
-        panelDatos.add(new JLabel("Nombre: " + usuarioActual.getNombreUsuario()));
+        panelDatos.add(new JLabel("<html><h1>@" + usuarioActual.getNombreUsuario() + "</h1></html>"));
+        panelDatos.add(new JLabel("Nombre: " + usuarioActual.getUsuario()));
         panelDatos.add(new JLabel("Edad: " + usuarioActual.getEdad()));
         panelDatos.add(new JLabel("Genero: " + usuarioActual.getGenero()));
+        panelDatos.add(new JLabel("Desde: "+usuarioActual.getFechaEntrada()));
 
         labelFotoPerfil.setAlignmentY(Component.TOP_ALIGNMENT);
         panelDatos.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -94,8 +98,19 @@ public class vtnPerfil extends JDialog {
         btnAccion.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panelStatsYAccion.add(btnAccion);
-        panelStatsYAccion.add(Box.createVerticalStrut(15)); // Espacio antes de los posts
-        panelStatsYAccion.add(new JLabel("<html><hr><h2>Tus Posts:</h2></html>", SwingConstants.CENTER));
+        panelStatsYAccion.add(Box.createVerticalStrut(15));
+        JSeparator separadorPrincipal = new JSeparator(SwingConstants.HORIZONTAL);
+        separadorPrincipal.setAlignmentX(Component.CENTER_ALIGNMENT);
+        separadorPrincipal.setMaximumSize(new Dimension(500, 2));
+        panelStatsYAccion.add(separadorPrincipal);
+        panelStatsYAccion.add(Box.createVerticalStrut(10));
+
+        JLabel labelTituloPosts = new JLabel("Tus Posts:", SwingConstants.CENTER);
+        labelTituloPosts.setFont(new Font("Arial", Font.BOLD, 16));
+        labelTituloPosts.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panelStatsYAccion.add(labelTituloPosts);
+        panelStatsYAccion.add(Box.createVerticalStrut(10));
 
         panelContenidoCentral.add(panelStatsYAccion, BorderLayout.NORTH);
 
@@ -103,7 +118,6 @@ public class vtnPerfil extends JDialog {
         panelPostPropios = new JPanel();
         panelPostPropios.setLayout(new BoxLayout(panelPostPropios, BoxLayout.Y_AXIS));
         JScrollPane scrollPosts = new JScrollPane(panelPostPropios);
-        scrollPosts.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         panelContenidoCentral.add(scrollPosts, BorderLayout.CENTER);
         add(panelContenidoCentral, BorderLayout.CENTER);
@@ -133,7 +147,7 @@ public class vtnPerfil extends JDialog {
         return labelDisplay;
     }
 
-    private void cargarDatosPerfil() {
+    public void cargarDatosPerfil() {
         int followings = 0;
         int followers = 0;
         ArrayList<Insta> postPropios = new ArrayList<>();
@@ -158,15 +172,26 @@ public class vtnPerfil extends JDialog {
 
         panelPostPropios.removeAll();
 
+        panelPostPropios.setLayout(new BoxLayout(panelPostPropios, BoxLayout.Y_AXIS));
+        panelPostPropios.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelPostPropios.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        final int anchoPost = 500;
+
         if (postPropios.isEmpty()) {
-            panelPostPropios.add(new JLabel("Aun no tienes post publicados."));
+            panelPostPropios.add(new JLabel("Aún no tiene posts publicados."));
         } else {
             for (Insta post : postPropios) {
-                JPanel postPanel = crearPanelPost(post);
-                panelPostPropios.add(postPanel);
-                panelPostPropios.add(new JSeparator(SwingConstants.HORIZONTAL));
+                JPanel panelPostCompleto = crearPanelPost(post);
+                panelPostCompleto.setMaximumSize(new Dimension(anchoPost, Integer.MAX_VALUE));
+                panelPostCompleto.setPreferredSize(new Dimension(anchoPost, panelPostCompleto.getPreferredSize().height));
+                panelPostCompleto.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                panelPostPropios.add(panelPostCompleto);
+                panelPostPropios.add(Box.createVerticalStrut(20));
             }
         }
+
         cargarFotoPerfil();
         panelPostPropios.revalidate();
         panelPostPropios.repaint();
@@ -198,7 +223,7 @@ public class vtnPerfil extends JDialog {
 
     private JPanel crearPanelPost(Insta post) {
         JPanel panel = new JPanel();
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
         panel.setLayout(new BorderLayout(10, 10));
 
         //encabezado: autor y fecha
@@ -216,39 +241,54 @@ public class vtnPerfil extends JDialog {
             btnEliminar.setForeground(Color.RED);
             btnEliminar.setToolTipText("Eliminar este post");
 
-            btnEliminar.addActionListener(e -> eliminarPost(post)); // Asignar la acción
+            btnEliminar.addActionListener(e -> eliminarPost(post));
 
             JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             panelBoton.add(btnEliminar);
             panelHeader.add(panelBoton, BorderLayout.EAST);
         }
 
-        //cuerpo: img y texto
         JPanel panelCuerpo = new JPanel();
         panelCuerpo.setLayout(new BoxLayout(panelCuerpo, BoxLayout.Y_AXIS));
 
-        //cargar la img
-        JLabel labelImg = crearLabelImagenPost(post.getRutaImg());
-        labelImg.setAlignmentX(Component.LEFT_ALIGNMENT);
-        labelImg.setPreferredSize(new Dimension(550, 400));
-        labelImg.setHorizontalAlignment(SwingConstants.CENTER);
-        labelImg.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        JLabel labelImg = new JLabel();
+        String rutaImg = post.getRutaImg();
+        if (rutaImg != null && !rutaImg.isEmpty() && new File(rutaImg).exists()) {
+            try {
+                ImageIcon icono = new ImageIcon(rutaImg);
+                Image img = icono.getImage();
+                int anchoMaximo = 490;
 
-        JLabel labelCaption = new JLabel("<html><b>" + post.getAutorUsername() + "</b> " + post.getContenido() + "</html>");
-        labelCaption.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
-        labelCaption.setAlignmentX(Component.LEFT_ALIGNMENT);
+                Image imagenEscalada = img.getScaledInstance(anchoMaximo, -1, Image.SCALE_SMOOTH);
+                labelImg.setIcon(new ImageIcon(imagenEscalada));
+                labelImg.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+            } catch (Exception e) {
+                labelImg.setText("Error al cargar imagen");
+            }
+        } else {
+            labelImg.setText("IMAGEN NO DISPONIBLE");
+        }
         panelCuerpo.add(labelImg);
+        panelCuerpo.add(Box.createVerticalStrut(5));
 
         if (post.getTexto() != null && !post.getTexto().trim().isEmpty()) {
-            panelCuerpo.add(labelCaption);
+            JTextArea areaTexto = new JTextArea(post.getTexto());
+            areaTexto.setEditable(false);
+            areaTexto.setLineWrap(true);
+            areaTexto.setWrapStyleWord(true);
+            areaTexto.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            areaTexto.setAlignmentX(Component.CENTER_ALIGNMENT);
+            areaTexto.setMaximumSize(new Dimension(480, areaTexto.getPreferredSize().height));
+            panelCuerpo.add(areaTexto);
         }
+
+        JPanel panelInteraccion = crearPanelInteraccion(post);
 
         panel.add(panelHeader, BorderLayout.NORTH);
         panel.add(panelCuerpo, BorderLayout.CENTER);
-
-        JPanel panelInteraccion = crearPanelInteraccion(post);
         panel.add(panelInteraccion, BorderLayout.SOUTH);
+
         return panel;
     }
 
@@ -283,25 +323,25 @@ public class vtnPerfil extends JDialog {
     }
 
     private void cargarComentariosEnArea(Insta post, JTextArea area) {
-            ArrayList<Comentario> comentarios = GestorInsta.leerComentarios(post);
+        ArrayList<Comentario> comentarios = GestorInsta.leerComentarios(post);
 
-            StringBuilder sb = new StringBuilder();
-            if (comentarios.isEmpty()) {
-                sb.append("Aún no hay comentarios.");
-            } else {
-                for (Comentario c : comentarios) {
-                    sb.append("@").append(c.getAutorUsername())
-                            .append(": ").append(c.getTexto()).append("\n");
-                }
+        StringBuilder sb = new StringBuilder();
+        if (comentarios.isEmpty()) {
+            sb.append("Aún no hay comentarios.");
+        } else {
+            for (Comentario c : comentarios) {
+                sb.append("@").append(c.getAutorUsername())
+                        .append(": ").append(c.getTexto()).append("\n");
             }
-            area.setText(sb.toString());
+        }
+        area.setText(sb.toString());
 
     }
 
     private void agregarComentario(Insta post, String texto) {
         if (!texto.trim().isEmpty()) {
             try {
-                String autor = SesionManager.getUsuarioActual().getUsuario();
+                String autor = SesionManager.getUsuarioActual().getNombreUsuario();
                 Comentario nuevoComentario = new Comentario(autor, texto);
 
                 GestorInsta.guardarComentario(post, nuevoComentario);
@@ -398,8 +438,10 @@ public class vtnPerfil extends JDialog {
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
-                    this.dispose();
-                    new vtnLogin().setVisible(true);
+                  if (vtnP != null) {
+                         vtnP.dispose();
+                         new vtnLogin().setVisible(true);
+                    }
                 }
             } else {
                 GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());

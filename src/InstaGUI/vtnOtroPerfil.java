@@ -10,7 +10,7 @@ import java.awt.*;
  *
  * @author HP
  */
-public class vtnOtroPerfil extends JDialog{
+public class vtnOtroPerfil extends JFrame{
     
     //otro perfil
     public vtnOtroPerfil(String usernameOtro, Frame owner){

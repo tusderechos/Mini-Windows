@@ -29,7 +29,7 @@ public class Insta implements Serializable, Comparable<Insta>{
     }
     
     public int compareTo(Insta otroInsta){
-        return otroInsta.getFechaPublicacion().compareTo(this.fechaPublicacion);
+        return this.getFechaPublicacion().compareTo(otroInsta.fechaPublicacion);
     }
     
     public String getAutorUsername(){

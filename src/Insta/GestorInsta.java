@@ -69,11 +69,11 @@ public class GestorInsta {
         ArrayList<Insta> instasPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual);
         timeLine.addAll(instasPropios);
 
-        java.util.Collections.sort(timeLine);
+        java.util.Collections.sort(timeLine, java.util.Collections.reverseOrder());
         return timeLine;
     }
 
-    public static ArrayList<Insta> obtenerInstasConMenciones(String usuarioActual) {
+    public static ArrayList<Insta> buscarPorMencion(String usuarioActual) throws IOException{
         ArrayList<Insta> instasMencionados = new ArrayList<>();
         String mencionBuscada = "@" + usuarioActual.toLowerCase();
 
@@ -86,7 +86,7 @@ public class GestorInsta {
                 }
                 ArrayList<Insta> instasDelUsuario = ManejoArchivosBinarios.leerInstasDeUsuario(u.getUsuario());
                 for (Insta i : instasDelUsuario) {
-                    if (i.getContenido().toLowerCase().contains(mencionBuscada)) {
+                    if (i.getTexto().toLowerCase().contains(mencionBuscada)) {
                         instasMencionados.add(i);
                     }
                 }
@@ -95,13 +95,16 @@ public class GestorInsta {
         } catch (IOException e) {
             System.err.println("Error al acceder a los archivos para buscar menciones: " + e.getMessage());
         }
-        java.util.Collections.sort(instasMencionados);
+        java.util.Collections.sort(instasMencionados, java.util.Collections.reverseOrder());
         return instasMencionados;
     }
 
-    public static ArrayList<Insta> buscarInstasPorHashtag(String hashtag) {
+    public static ArrayList<Insta> buscarPorHashtag(String hashtag) throws IOException{
         ArrayList<Insta> instasEncontrados = new ArrayList<>();
-        String hashtagBuscado = "#" + hashtag.toLowerCase();
+        String hashtagBuscado = hashtag.toLowerCase();
+        if(!hashtagBuscado.startsWith("#")){
+            hashtagBuscado = "#"+hashtagBuscado;
+        }
 
         try {
             ArrayList<Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
@@ -120,6 +123,7 @@ public class GestorInsta {
         } catch (IOException e) {
             System.err.println("Error al acceder a los archivos para buscar hashtags: " + e.getMessage());
         }
+        java.util.Collections.sort(instasEncontrados, java.util.Collections.reverseOrder());
         return instasEncontrados;
     }
 

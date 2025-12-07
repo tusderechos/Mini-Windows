@@ -20,9 +20,9 @@ import java.util.Date;
 import java.io.IOException;
 import Compartidas.Usuario;
 
-public class vtnRegistro extends JDialog {
+public class vtnRegistro extends JFrame {
 
-    //2 vtn
+    //1 vtn
     private JTextField txtNombre, txtUsername, txtPassword, txtEdad;
     private JRadioButton rbMasculino, rbFemenino;
     private JLabel rutaFoto;

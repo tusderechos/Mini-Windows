@@ -16,9 +16,9 @@ import java.awt.*;
  *
  * @author HP
  */
-public class vtnLogin extends JDialog {
+public class vtnLogin extends JFrame {
 
-    //1 vtn
+    //2 vtn
     private JTextField txtUsername;
     private JPasswordField txtPassword;
 
