@@ -17,17 +17,19 @@ public class Insta implements Serializable, Comparable<Insta>{
     private String contenido;
     private String rutaImg;
     private String texto;
+    private long idPost;
     
-    public Insta(String autorUsername, String contenido, String rutaImg){
+    public Insta(String autorUsername, String texto, String rutaImg){
         this.autorUsername = autorUsername;
         this.fechaPublicacion = new Date();
-        this.contenido = contenido;
+        this.contenido = texto;
         this.rutaImg = rutaImg;
         this.texto = texto;
+        this.idPost = this.fechaPublicacion.getTime();
     }
     
     public int compareTo(Insta otroInsta){
-        return otroInsta.getFechaPublicacion().compareTo(this.fechaPublicacion);
+        return this.getFechaPublicacion().compareTo(otroInsta.fechaPublicacion);
     }
     
     public String getAutorUsername(){
@@ -47,6 +49,13 @@ public class Insta implements Serializable, Comparable<Insta>{
    }
    
    public String getTexto(){
-       return texto;
+       if(this.texto == null){
+           return "";
+       }
+       return this.texto;
+   }
+   
+   public long getIdPost(){
+       return idPost;
    }
 }

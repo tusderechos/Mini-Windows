@@ -3,11 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Insta;
-
 /**
  *
  * @author HP
  */
+
+import Compartidas.Usuario;
 public class SesionManager {
     private static Usuario usuarioActual = null;
     

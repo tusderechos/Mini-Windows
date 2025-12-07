@@ -8,12 +8,13 @@ package Insta;
  *
  * @author HP
  */
+import Compartidas.Usuario;
 public class GestorDeSesion {
     private static Usuario usuarioActual = null;
     
     public static void setUsuarioActual(Usuario usuario){
         usuarioActual = usuario;
-        System.out.println("Sesion iniciada para: "+usuario.getUsername());
+        System.out.println("Sesion iniciada para: "+usuario.getUsuario());
     }
     
     public static Usuario getUsuarioActual(){
@@ -22,7 +23,7 @@ public class GestorDeSesion {
     
     public static boolean cerrarSesion(){
         if(usuarioActual != null){
-            String usernameCerrado = usuarioActual.getUsername();
+            String usernameCerrado = usuarioActual.getUsuario();
             usuarioActual = null;
             System.out.println("Sesion de "+usernameCerrado+" cerrada");
             return true;

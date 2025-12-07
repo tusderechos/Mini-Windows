@@ -30,4 +30,5 @@ public class Follow implements Serializable{
     public void setActivo(boolean activo){
         this.activo = activo;
     }
+
 }

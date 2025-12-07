@@ -11,7 +11,6 @@ package InstaGUI;
 import Insta.GestorInsta;
 import Insta.SesionManager;
 import Insta.UsernameYaExiste;
-import Insta.Usuario;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,18 +18,20 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Date;
 import java.io.IOException;
+import Compartidas.Usuario;
 
-public class vtnRegistro extends JDialog {
+public class vtnRegistro extends JFrame {
 
+    //1 vtn
     private JTextField txtNombre, txtUsername, txtPassword, txtEdad;
     private JRadioButton rbMasculino, rbFemenino;
     private JLabel rutaFoto;
     private String rutaFotoSeleccionada = "";
+    private String extensionFoto = "";
 
-    public vtnRegistro(JFrame parent) {
+    public vtnRegistro() {
         setTitle("INSTA - Crear Cuenta");
-        //super(parent, "INSTA - Crear Cuenta", true);
-        setSize(450, 450);
+        setSize(600, 800);
         setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(null);
         inicializarComponentes();
@@ -39,7 +40,7 @@ public class vtnRegistro extends JDialog {
     private void inicializarComponentes() {
         JPanel panelFormulario = new JPanel(new GridLayout(8, 2, 5, 5));
 
-        panelFormulario.add(new JLabel("Nombre Completo:"));
+        panelFormulario.add(new JLabel("Nombre :"));
         txtNombre = new JTextField();
         panelFormulario.add(txtNombre);
 
@@ -87,7 +88,7 @@ public class vtnRegistro extends JDialog {
         add(panelFormulario, BorderLayout.CENTER);
         add(btnRegistrar, BorderLayout.SOUTH);
     }
-
+    
     private void seleccionarFoto() {
         JFileChooser fileChooser = new JFileChooser();
         int resultado = fileChooser.showOpenDialog(this);
@@ -96,6 +97,14 @@ public class vtnRegistro extends JDialog {
             File archivo = fileChooser.getSelectedFile();
             rutaFotoSeleccionada = archivo.getAbsolutePath();
             rutaFoto.setText(archivo.getName());
+            
+             String nombreArchivoOriginal = archivo.getName();
+        int indicePunto = nombreArchivoOriginal.lastIndexOf('.');
+        if (indicePunto > 0) {
+            extensionFoto = nombreArchivoOriginal.substring(indicePunto); 
+        } else {
+            extensionFoto = ""; 
+        }
         }
     }
 
@@ -121,8 +130,16 @@ public class vtnRegistro extends JDialog {
         try {
             int Edad = Integer.parseInt(edad);
             Usuario nuevoUsuario = new Usuario(
-                    username, nombre, password, genero, Edad, rutaFotoSeleccionada
+                    username, genero, nombre, password, Edad, false
             );
+            if (!rutaFotoSeleccionada.isEmpty()) {
+                String rutaPermanente = GestorInsta.copiarFotoPerfil(username, rutaFotoSeleccionada, extensionFoto);
+
+                if (rutaPermanente != null) {
+                    nuevoUsuario.setRutaFotoPerfil(rutaPermanente);
+                }
+            }
+
             GestorInsta.crearNuevaCuenta(nuevoUsuario);
             SesionManager.setUsuarioActual(nuevoUsuario);
             JOptionPane.showMessageDialog(this, "Usuario " + username + " creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -135,14 +152,9 @@ public class vtnRegistro extends JDialog {
         } catch (UsernameYaExiste e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Username", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error de E/S al crear archivos: " + e.getMessage(), "Error de Sistema", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error de E/S al crear archivos o copar ft: " + e.getMessage(), "Error de Sistema", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
-    /*public static void main(String[] args) {
-        vtnRegistro r = new vtnRegistro();
-        r.setVisible(true);
-    }*/
 }
