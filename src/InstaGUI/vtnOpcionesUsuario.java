@@ -30,66 +30,6 @@ public class vtnOpcionesUsuario extends JDialog  implements ActionListener {
         inicializarComponentes();
         setSize(400, 300);
     }
-
-    /*private void inicializarComponentes() {
-        setLayout(new GridLayout(3, 1, 10, 10)); // 3 filas, 1 columna
-        
-        // 1. Opción: Buscar Cuenta / Entrar a Perfil
-        JButton btnBuscar = new JButton("1. Buscar Cuentas y Entrar a Perfil");
-        btnBuscar.addActionListener(e -> mostrarDialogoBusqueda());
-        add(btnBuscar);
-        
-        // 2. Opción: Desactivar/Activar Cuenta
-        JButton btnCambiarEstado = new JButton("2. Desactivar / Activar Mi Cuenta");
-        btnCambiarEstado.addActionListener(e -> cambiarEstadoCuenta());
-        add(btnCambiarEstado);
-        
-        // 3. Opción: Cerrar
-        JButton btnCerrar = new JButton("Cerrar Menú");
-        btnCerrar.addActionListener(e -> dispose());
-        add(btnCerrar);
-    }
-    
-    // --- LÓGICA DE FUNCIONALIDADES ---
-    
-    
-    private void mostrarDialogoBusqueda() {
-        new vtnBusquedaUsuarios(this, vtnP).setVisible(true); // Abre la nueva ventana de búsqueda
-    }
-    
-   
-    private void cambiarEstadoCuenta() {
-        boolean estadoActual = usuarioActual.isActivo();
-        String mensaje, titulo;
-        int confirmacion = JOptionPane.YES_OPTION;
-
-        if (estadoActual) {
-            // Desactivar
-            mensaje = "¿Estás seguro de que quieres desactivar tu cuenta? Dejarás de aparecer en búsquedas.";
-            titulo = "Confirmar Desactivación";
-            confirmacion = JOptionPane.showConfirmDialog(this, mensaje, titulo, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-            
-            if (confirmacion == JOptionPane.NO_OPTION) return;
-        } 
-        // Si está inactivo, el ingeniero pide activarla automáticamente sin preguntar (confirmacion == YES_OPTION si está activo)
-
-        try {
-            // Llama al método de GestorInsta que maneja la lógica de cambio de estado y reescritura.
-            boolean nuevoEstado = GestorInsta.actualizarEstadoCuenta(usuarioActual.getUsuario());
-            
-            if (nuevoEstado) {
-                JOptionPane.showMessageDialog(this, "Cuenta ACTIVADA exitosamente.", "Activación", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Cuenta DESACTIVADA. Debes iniciar sesión de nuevo para reactivarla.", "Desactivación", JOptionPane.INFORMATION_MESSAGE);
-                SesionManager.cerrarSesion();
-                // Aquí deberías cerrar vtnP y mostrar la ventana de Login
-                vtnP.dispose(); 
-            }
-            dispose(); // Cierra el JDialog de opciones
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error de I/O al guardar el estado de la cuenta.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }*/
     
      private void inicializarComponentes() {
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -114,7 +54,6 @@ public class vtnOpcionesUsuario extends JDialog  implements ActionListener {
     }
     
     private JPanel wrapInPanel(JComponent component) {
-        // Utilidad para centrar y darles un tamaño máximo
         JPanel panel = new JPanel();
         panel.add(component);
         return panel;
@@ -122,7 +61,6 @@ public class vtnOpcionesUsuario extends JDialog  implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnBuscar) {
-            // DELEGA la acción a // Asumo que vtnInstaPrincipal tiene un método mostrarBusqueda()
             manejarBusquedaCuentas();
 
         } else if (e.getSource() == btnEntrar) {
@@ -134,12 +72,7 @@ public class vtnOpcionesUsuario extends JDialog  implements ActionListener {
     }
     
     private void manejarBusquedaCuentas() {
-        dispose(); // Cierra el diálogo de opciones
-        
-        // Asumiendo que existe una clase llamada vtnBusquedaUsuarios (JDialog)
-        // que maneja la búsqueda y muestra los resultados.
-        // vtnP debe pasarse para que la ventana de búsqueda pueda llamar a vtnP.mostrarOtroPerfil().
-        
+        dispose(); 
         vtnBusquedaUsuarios b = new vtnBusquedaUsuarios(vtnP);
         b.setLocationRelativeTo(vtnP);
         b.setVisible(true);
@@ -154,17 +87,13 @@ public class vtnOpcionesUsuario extends JDialog  implements ActionListener {
         );
         
         if (usernameBuscado != null && !usernameBuscado.trim().isEmpty()) {
-            dispose(); // Cierra el diálogo de opciones
-            // Aquí llamas al método de navegación que implementaste en vtnInstaPrincipal
+            dispose(); 
             vtnP.mostrarOtroPerfil(usernameBuscado);
         }
     }
     
     private void manejarDesactivacion() {
-        // Lógica de desactivación/activación (puedes copiarla del método eliminado en vtnPerfil)
         if (usuarioActual.isActivo()) {
-            // ... (Lógica de confirmación y llamada a GestorInsta.actualizarEstadoCuenta(..., false)) ...
-            
             int confirmacion = JOptionPane.showConfirmDialog(this,
                 "¿Estás seguro? Su cuenta no aparecerá en búsquedas.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
 
@@ -182,15 +111,13 @@ public class vtnOpcionesUsuario extends JDialog  implements ActionListener {
             }
 
         } else {
-            // ... (Lógica de activación y llamada a GestorInsta.actualizarEstadoCuenta(..., true)) ...
             try {
-                GestorInsta.actualizarEstadoCuenta(usuarioActual.getUsuario(), true); // Marcar como activo
+                GestorInsta.actualizarEstadoCuenta(usuarioActual.getUsuario(), true); 
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
-                // No es necesario llamar a cargarDatosPerfil aquí, el método en vtnPerfil lo hará al cerrar.
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Error de E/S al activar la cuenta.");
             }
         }
-        dispose(); // Cierra el diálogo después de la acción.
+        dispose(); 
     }
 }

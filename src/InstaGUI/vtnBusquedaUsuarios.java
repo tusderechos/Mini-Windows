@@ -85,9 +85,6 @@ public class vtnBusquedaUsuarios extends JDialog{
     private JPanel panelResultados;
 
     public vtnBusquedaUsuarios(vtnInstaPrincipal vtnP) {
-        // La clase vtnOpcionesUsuario ya pasa el vtnP, pero solo necesitamos el vtnP.
-        // No necesitamos el 'Usuario usuario' en el constructor si usamos SesionManager
-        // para obtener el usuario actual, ya que el usuario que usa la búsqueda es el logueado.
         super(vtnP, "Buscar Cuentas", true);
         this.usuarioActual = SesionManager.getUsuarioActual();
         this.vtnP = vtnP;
@@ -95,11 +92,10 @@ public class vtnBusquedaUsuarios extends JDialog{
         setLayout(new BorderLayout());
         setSize(450, 400);
         inicializarComponentes();
-        setLocationRelativeTo(vtnP); // Centrar respecto a la ventana principal
+        setLocationRelativeTo(vtnP);
     }
 
     private void inicializarComponentes() {
-        // Panel de búsqueda (Input)
         JPanel panelInput = new JPanel(new BorderLayout(5, 5));
         txtBusqueda = new JTextField();
         JButton btnBuscar = new JButton("Buscar");
@@ -110,7 +106,6 @@ public class vtnBusquedaUsuarios extends JDialog{
         panelInput.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
         add(panelInput, BorderLayout.NORTH);
 
-        // Panel de resultados (Scrollable)
         panelResultados = new JPanel();
         panelResultados.setLayout(new BoxLayout(panelResultados, BoxLayout.Y_AXIS));
         JScrollPane scrollResultados = new JScrollPane(panelResultados);
@@ -127,7 +122,6 @@ public class vtnBusquedaUsuarios extends JDialog{
         if (texto.isEmpty()) {
             panelResultados.add(new JLabel("Ingrese un texto para buscar."));
         } else {
-            // GestorInsta.buscarPersonas ya tiene la lógica de ACTIVE y NO mostrar el usuario logueado
             ArrayList<Usuario> resultados = GestorInsta.buscarPersonas(texto, usuarioActual.getNombreUsuario());
 
             if (resultados.isEmpty()) {
@@ -147,37 +141,24 @@ public class vtnBusquedaUsuarios extends JDialog{
         panelResultados.revalidate();
         panelResultados.repaint();
     }
-    
-    // -------------------------------------------------------------------------
-    // *** NUEVO MÉTODO: Crea el panel de vista previa con botón SEGUIR ***
-    // -------------------------------------------------------------------------
-
-    /**
-     * Crea un JPanel para mostrar la vista previa de un usuario en los resultados de búsqueda.
-     * Incluye datos básicos, botón de seguimiento, y manejo de clic para navegar.
-     * @param usuarioEncontrado El objeto Usuario a mostrar.
-     * @return JPanel con la información básica y el botón SEGUIR.
-     */
+   
     private JPanel crearPanelUsuarioResultado(Usuario usuarioEncontrado) {
         JPanel panelUsuario = new JPanel();
         panelUsuario.setLayout(new BorderLayout(10, 5));
         panelUsuario.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         panelUsuario.setBackground(Color.WHITE);
 
-        // 1. Panel de datos (izquierda)
         JPanel panelDatos = new JPanel();
         panelDatos.setLayout(new BoxLayout(panelDatos, BoxLayout.Y_AXIS));
         panelDatos.setBackground(Color.WHITE);
         panelDatos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // Contenido basado en el boceto (Image of image_8fade0.png)
         panelDatos.add(new JLabel("<html><b>@" + usuarioEncontrado.getNombreUsuario() + "</b></html>"));
         panelDatos.add(new JLabel("Nombre: " + usuarioEncontrado.getUsuario()));
         panelDatos.add(new JLabel("Edad: " + usuarioEncontrado.getEdad()));
         panelDatos.add(new JLabel("Genero: " + usuarioEncontrado.getGenero()));
         panelDatos.add(new JLabel("Fecha Ingreso: " + usuarioEncontrado.getFechaEntrada()));
 
-        // 2. Panel de acción (derecha)
         JPanel panelAccion = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelAccion.setBackground(Color.WHITE);
         panelAccion.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
@@ -192,26 +173,17 @@ public class vtnBusquedaUsuarios extends JDialog{
         panelUsuario.add(panelDatos, BorderLayout.WEST);
         panelUsuario.add(panelAccion, BorderLayout.EAST);
 
-        // 3. LÓGICA DE NAVEGACIÓN (ENTRAR AL PERFIL COMPLETO al hacer clic en el panel de datos)
-        // Usamos un MouseListener en el panelDatos, no en el panelUsuario completo, para no interferir con el botón SEGUIR.
         panelDatos.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                dispose(); // Cierra esta ventana de búsqueda
+                dispose(); 
                 vtnP.mostrarOtroPerfil(usuarioEncontrado.getNombreUsuario());
             }
         });
 
         return panelUsuario;
     }
-    
-    // -------------------------------------------------------------------------
-    // *** LÓGICA DE SEGUIMIENTO ***
-    // -------------------------------------------------------------------------
-    
-    /**
-     * Revisa el estado de seguimiento y actualiza el texto y color del botón.
-     */
+   
     private void actualizarBotonFollow(JButton btnFollow, String usernameObjetivo) {
         boolean siguiendo = false;
         try{
@@ -230,9 +202,6 @@ public class vtnBusquedaUsuarios extends JDialog{
         }
     }
 
-    /**
-     * Ejecuta la acción de Seguir/Dejar de Seguir y actualiza el botón.
-     */
     private void manejarFollow(String usernameObjetivo, JButton btnFollow) {
         boolean siguiendo;
         boolean nuevoEstado;

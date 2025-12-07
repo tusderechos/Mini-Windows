@@ -407,33 +407,6 @@ public class vtnPerfil extends JPanel {
         return labelImg;
     }
     
-    /*private void manejarDesactivacion(Usuario usuario) {
-        try {
-            if (usuario.isActivo()) {
-                int confirmacion = JOptionPane.showConfirmDialog(this,
-                        "¿Estás seguro? Su cuenta no aparecerá en búsquedas ni sus comentarios.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
-
-                if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), false); // Marcar como inactivo
-                    SesionManager.cerrarSesion();
-                    JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
-
-                    if (vtnP != null) {
-                         vtnP.dispose();
-                         new vtnLogin().setVisible(true); // Asume que vtnLogin existe
-                    }
-                }
-            } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true); // Marcar como activo
-                JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
-                cargarDatosPerfil();
-            }
-
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error al actualizar el estado de la cuenta: " + e.getMessage(), "Error de E/S", JOptionPane.ERROR_MESSAGE);
-        }
-    }*/
-    
     private void manejarDesactivacion(Usuario usuario) {
         try {
             if (usuario.isActivo()) {
@@ -441,18 +414,17 @@ public class vtnPerfil extends JPanel {
                         "¿Estás seguro? Su cuenta no aparecerá en búsquedas ni sus comentarios.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), false); // Marcar como inactivo
+                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), false); 
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
                     if (vtnP != null) {
                         vtnP.dispose();
-                        // Asume que vtnLogin existe y es la clase que inicia el login
                         new vtnLogin().setVisible(true); 
                     }
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true); // Marcar como activo
+                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true);
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosPerfil();
             }
