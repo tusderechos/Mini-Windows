@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -30,11 +31,9 @@ public class vtnPerfil extends JPanel {
     private final vtnInstaPrincipal vtnP;
 
     public vtnPerfil(Usuario usuario, vtnInstaPrincipal vtnP) {
-        //setTitle("INSTA - Perfil de @" + usuario.getNombreUsuario());
         this.usuarioActual = usuario;
         this.vtnP = vtnP;
         setSize(600, 800);
-        //setLocationRelativeTo(null);
 
         inicializarComponentes();
         cargarDatosPerfil();
@@ -94,7 +93,7 @@ public class vtnPerfil extends JPanel {
 
         // Btn editar
         JButton btnAccion = new JButton("EDITAR PERFIL");
-        btnAccion.addActionListener(e -> mostrarOpcionesEdicion(usuarioActual));
+        btnAccion.addActionListener(e -> abrirOpciones(usuarioActual));
         btnAccion.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panelStatsYAccion.add(btnAccion);
@@ -123,6 +122,13 @@ public class vtnPerfil extends JPanel {
         add(panelContenidoCentral, BorderLayout.CENTER);
     }
 
+    private void abrirOpciones(Usuario usuario){
+        vtnOpcionesUsuario opc = new vtnOpcionesUsuario(usuario, vtnP);
+        opc.setLocationRelativeTo(this);
+        opc.setVisible(true);
+        cargarDatosPerfil();
+    }
+    
     private JLabel crearContador(String titulo, int valor) {
         JPanel p = new JPanel(new BorderLayout());
         JLabel labelValor = new JLabel(String.valueOf(valor));
@@ -400,51 +406,53 @@ public class vtnPerfil extends JPanel {
         }
         return labelImg;
     }
+    
+    /*private void manejarDesactivacion(Usuario usuario) {
+        try {
+            if (usuario.isActivo()) {
+                int confirmacion = JOptionPane.showConfirmDialog(this,
+                        "¿Estás seguro? Su cuenta no aparecerá en búsquedas ni sus comentarios.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
 
-    private void mostrarOpcionesEdicion(Usuario usuario) {
-        String[] opciones = {"Buscar Personas", "Desactivar/Activar Cuenta", "Agregar Foto de Perfil"};
+                if (confirmacion == JOptionPane.YES_OPTION) {
+                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), false); // Marcar como inactivo
+                    SesionManager.cerrarSesion();
+                    JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
-        String estadoActual = usuario.isActivo() ? "(ACTIVA)" : "(DESACTIVA)";
-        opciones[1] = opciones[1] + estadoActual;
-
-        String seleccion = (String) JOptionPane.showInputDialog(
-                this,
-                "Seleccione una opcion de Edicion:",
-                "Editar Profile",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                opciones,
-                opciones[0]);
-
-        if (seleccion != null) {
-            if (seleccion.contains("Buscar Personas")) {
-                System.out.println("abrir vtn de busqueda personas");
-            } else if (seleccion.contains("Desactivar/Activar Cuenta")) {
-                manejarDesactivacion(usuario);
-            } else if (seleccion.contains("Agregar Foto de Perfil")) {
-                System.out.println("abrir JFilechooser y llamar a guardarImagenEnSistema()");
+                    if (vtnP != null) {
+                         vtnP.dispose();
+                         new vtnLogin().setVisible(true); // Asume que vtnLogin existe
+                    }
+                }
+            } else {
+                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true); // Marcar como activo
+                JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
+                cargarDatosPerfil();
             }
-        }
-    }
 
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar el estado de la cuenta: " + e.getMessage(), "Error de E/S", JOptionPane.ERROR_MESSAGE);
+        }
+    }*/
+    
     private void manejarDesactivacion(Usuario usuario) {
         try {
             if (usuario.isActivo()) {
                 int confirmacion = JOptionPane.showConfirmDialog(this,
-                        "¿Estas seguro? Su cuenta no aparecera en busquedas.", "Confirmar Desactivacion", JOptionPane.YES_NO_OPTION);
+                        "¿Estás seguro? Su cuenta no aparecerá en búsquedas ni sus comentarios.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
+                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), false); // Marcar como inactivo
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
-                  if (vtnP != null) {
-                         vtnP.dispose();
-                         new vtnLogin().setVisible(true);
+                    if (vtnP != null) {
+                        vtnP.dispose();
+                        // Asume que vtnLogin existe y es la clase que inicia el login
+                        new vtnLogin().setVisible(true); 
                     }
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
+                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true); // Marcar como activo
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosPerfil();
             }

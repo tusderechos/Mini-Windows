@@ -18,19 +18,16 @@ import javax.swing.*;
  * @author HP
  */
 public class vtnCrearInsta extends JDialog {
+
     private JTextArea txtCaption;
     private JLabel labelImagen;
     private String rutaFotoSeleccionada = "";
     private final PostListener listener;
 
-    private static final int ANCHO_VENTANA = 600;
-    private static final int ALTO_VENTANA = 800;
-    private static final int ANCHO_IMAGEN_MAX = ANCHO_VENTANA - 40;
-
     public vtnCrearInsta(PostListener listener) {
         setTitle("INSTA - Crear Nuevo Post");
         this.listener = listener;
-        setSize(ANCHO_VENTANA, ALTO_VENTANA);
+        setSize(600, 800);
         setResizable(false);
         setLocationRelativeTo(null);
         inicializarComponentes();
@@ -43,15 +40,15 @@ public class vtnCrearInsta extends JDialog {
         panelContenido.setLayout(new BoxLayout(panelContenido, BoxLayout.Y_AXIS));
         panelContenido.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        labelImagen = new JLabel("<html><center>Selecciona una imagen</center></html>", JLabel.CENTER);
+        labelImagen = new JLabel("<html><center>Sin imagen</center></html>", JLabel.CENTER);
         labelImagen.setAlignmentX(Component.CENTER_ALIGNMENT);
-        labelImagen.setPreferredSize(new Dimension(ANCHO_VENTANA - 40, 300));
-        labelImagen.setMinimumSize(new Dimension(ANCHO_VENTANA - 40, 300));
-        labelImagen.setMaximumSize(new Dimension(ANCHO_VENTANA - 40, 300));
+        labelImagen.setPreferredSize(new Dimension(500 - 40, 400));
+        labelImagen.setMinimumSize(new Dimension(500 - 40, 400));
+        labelImagen.setMaximumSize(new Dimension(500 - 40, 400));
         labelImagen.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        
+
         panelContenido.add(labelImagen);
-        panelContenido.add(Box.createVerticalStrut(15));
+        panelContenido.add(Box.createVerticalStrut(15)); 
 
         JButton btnSelec = new JButton("Seleccionar Imagen");
         btnSelec.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -59,18 +56,19 @@ public class vtnCrearInsta extends JDialog {
         btnSelec.addActionListener(e -> seleccionarFoto());
 
         panelContenido.add(btnSelec);
-        panelContenido.add(Box.createVerticalStrut(15));
+        panelContenido.add(Box.createVerticalStrut(30)); 
 
-        JLabel labelDesc = new JLabel("Escribe una descripción");
+        JLabel labelDesc = new JLabel("Añade una descripción");
         labelDesc.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelContenido.add(labelDesc);
-        panelContenido.add(Box.createVerticalStrut(5));
+        panelContenido.add(Box.createVerticalStrut(10));
 
         txtCaption = new JTextArea(5, 30);
         txtCaption.setLineWrap(true);
         txtCaption.setWrapStyleWord(true);
         JScrollPane scrollCaption = new JScrollPane(txtCaption);
-        scrollCaption.setAlignmentX(Component.CENTER_ALIGNMENT);// Usar el mismo ancho máx
+        scrollCaption.setAlignmentX(Component.CENTER_ALIGNMENT);
+        scrollCaption.setMaximumSize(new Dimension(500 - 40, 100)); 
 
         panelContenido.add(scrollCaption);
         panelContenido.add(Box.createVerticalStrut(25));
@@ -86,7 +84,7 @@ public class vtnCrearInsta extends JDialog {
 
     private void seleccionarFoto() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Imágenes (JPG, PNG, GIF)", "jpg", "jpeg", "png", "gif"));
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "jpeg", "png"));
 
         int resultado = fileChooser.showOpenDialog(this);
         if (resultado == JFileChooser.APPROVE_OPTION) {
@@ -97,36 +95,20 @@ public class vtnCrearInsta extends JDialog {
                 ImageIcon icono = new ImageIcon(rutaFotoSeleccionada);
                 Image img = icono.getImage();
 
-                int anchoOriginal = img.getWidth(null);
-                int altoOriginal = img.getHeight(null);
+                int anchoMaximo = labelImagen.getWidth();
+                int altoMaximo = labelImagen.getHeight();
 
-                int nuevoAncho;
-                int nuevaAltura;
+                double ratioX = (double) anchoMaximo / img.getWidth(null);
+                double ratioY = (double) altoMaximo / img.getHeight(null);
+                double ratio = Math.min(ratioX, ratioY);
 
-                int max_w = ANCHO_IMAGEN_MAX; 
-                int max_h = 450; 
-
-                if (anchoOriginal > max_w || altoOriginal > max_h) {
-                    double ratioAncho = (double) max_w / anchoOriginal;
-                    double ratioAlto = (double) max_h / altoOriginal;
-
-                    double ratio = Math.min(ratioAncho, ratioAlto);
-
-                    nuevoAncho = (int) (anchoOriginal * ratio);
-                    nuevaAltura = (int) (altoOriginal * ratio);
-                } else {
-                    nuevoAncho = anchoOriginal;
-                    nuevaAltura = altoOriginal;
-                }
+                int nuevoAncho = (int) (img.getWidth(null) * ratio);
+                int nuevaAltura = (int) (img.getHeight(null) * ratio);
 
                 Image imagenEscalada = img.getScaledInstance(nuevoAncho, nuevaAltura, Image.SCALE_SMOOTH);
 
                 labelImagen.setIcon(new ImageIcon(imagenEscalada));
-                labelImagen.setText(null);
-
-                labelImagen.setPreferredSize(new Dimension(nuevoAncho, nuevaAltura));
-
-                labelImagen.getParent().revalidate();
+                labelImagen.setText(null); 
 
             } catch (Exception e) {
                 labelImagen.setIcon(null);

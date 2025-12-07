@@ -379,7 +379,7 @@ public class PerfilPanel extends JPanel {
                         "¿Estas seguro? Su cuenta no aparecera en busquedas.", "Confirmar Desactivacion", JOptionPane.YES_NO_OPTION);
 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
+                    GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), false);
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
 
@@ -390,7 +390,7 @@ public class PerfilPanel extends JPanel {
                     new vtnLogin().setVisible(true);
                 }
             } else {
-                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario());
+                GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true);
                 JOptionPane.showMessageDialog(this, "Cuenta activada exitosamente.");
                 cargarDatosYRenderizar();
             }

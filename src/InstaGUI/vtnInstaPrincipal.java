@@ -20,16 +20,16 @@ public class vtnInstaPrincipal extends JFrame implements PostListener{
 
     //3 vtn
     private final Usuario usuarioActual;
-    private JTextField txtBusqueda;
     private JPanel panelContenidoCentral;
     private CardLayout cardLayout;
     private TimeLine timeLine;
     private Buscar buscar;
     private vtnPerfil perfil;
+    private JPanel panelContenedor;
 
     public vtnInstaPrincipal(Usuario usuario) {
         this.usuarioActual = usuario;
-        setTitle("INSTA - TimeLine de @" + usuario.getNombreUsuario());
+        setTitle("INSTA - Perfil de @" + usuario.getNombreUsuario());
         setSize(600, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -91,111 +91,28 @@ public class vtnInstaPrincipal extends JFrame implements PostListener{
         add(panelBarraNavegacion, BorderLayout.SOUTH);
     }
 
-    private void mostrarVista(String nombreVista) {
+    public void mostrarVista(String nombreVista) {
         cardLayout.show(panelContenidoCentral, nombreVista);
     }
 
-    private void buscarUsuarios() {
-        String texto = txtBusqueda.getText().trim();
-        if (texto.isEmpty() || texto.equals("Buscar usuario...")) {
-            JOptionPane.showMessageDialog(this, "Ingrese un termino de busqueda valido.");
-            return;
-        }
-
+    public void mostrarOtroPerfil(String username){
+         final String VISTA_PERFIL_OTRO = "PERFIL_AJENO_" + username.toUpperCase();
+        
         try {
-            ArrayList<Usuario> resultados = GestorInsta.buscarPersonas(texto, usuarioActual.getNombreUsuario());
-            JDialog rd = new JDialog(this, "Resultados de Busqueda", true);
-            rd.setSize(400, 500);
-            rd.setLayout(new BorderLayout());
+            cardLayout.show(panelContenedor, VISTA_PERFIL_OTRO);
+            System.out.println("Navegando a vista de perfil existente: " + username);
 
-            JPanel panelLista = new JPanel();
-            panelLista.setLayout(new BoxLayout(panelLista, BoxLayout.Y_AXIS));
-
-            if (resultados.isEmpty()) {
-                panelLista.add(new JLabel("No se encontraron usuarios que coincidan con su busqueda."));
-            } else {
-                for (Usuario u : resultados) {
-                    JPanel userPanel = crearPanelUsuario(u, rd);
-                    panelLista.add(userPanel);
-                    panelLista.add(new JSeparator(SwingConstants.HORIZONTAL));
-                }
-            }
-            rd.add(new JScrollPane(panelLista), BorderLayout.CENTER);
-            rd.setLocationRelativeTo(this);
-            rd.setVisible(true);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error de E/S al buscar usuarios: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            
+            vtnOtroPerfil panelOtroPerfil = new vtnOtroPerfil(username, this); 
+            
+            panelContenedor.add(panelOtroPerfil, VISTA_PERFIL_OTRO);
+            cardLayout.show(panelContenedor, VISTA_PERFIL_OTRO);
+            
+            System.out.println("Creando y mostrando nuevo perfil: " + username);
         }
     }
-
-    private JPanel crearPanelUsuario(Usuario usuarioEncontrado, JDialog dialogoBusqueda) throws IOException {
-        JPanel panel = new JPanel(new BorderLayout(10, 5));
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        JLabel labelUsername = new JLabel("<html><b><a href='#'>@" + usuarioEncontrado.getUsuario() + "</a></b> (" + usuarioEncontrado.getUsuario() + ")</html>");
-        labelUsername.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        labelUsername.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                dialogoBusqueda.dispose();
-                //abrirPerfilUsuario(usuarioEncontrado.getUsuario());
-            }
-        });
-
-        panel.add(labelUsername, BorderLayout.WEST);
-
-        JButton btnFollow = new JButton();
-        boolean esSiguiendo = GestorInsta.estaSiguiendo(usuarioActual.getUsuario(), usuarioEncontrado.getUsuario());
-        btnFollow.setText(esSiguiendo ? "Dejar de Seguir" : "Seguir");
-
-        btnFollow.addActionListener(e -> {
-            manejarFollow(usuarioEncontrado.getUsuario(), !esSiguiendo, btnFollow, dialogoBusqueda);
-        });
-
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnPanel.add(btnFollow);
-        panel.add(btnPanel, BorderLayout.EAST);
-
-        return panel;
-    }
-
-    /*private void abrirPerfilUsuario(String username) {
-        if (username.equalsIgnoreCase(usuarioActual.getUsuario())) {
-            vtnPerfil p = new vtnPerfil(usuarioActual);
-            p.setVisible(true);
-        } else {
-            new vtnOtroPerfil(username, this);
-        }
-    }*/
-
-    private void manejarFollow(String seguido, boolean nuevoEstado, JButton btnFollow, JDialog dialogoBusqueda) {
-        String seguidor = usuarioActual.getUsuario();
-
-        try {
-            if (!nuevoEstado) {
-                int confirmacion = JOptionPane.showConfirmDialog(this,
-                        "¿Desea dejar de seguir a @" + seguido + "?",
-                        "Confirmar Unfollow", JOptionPane.YES_NO_OPTION);
-
-                if (confirmacion != JOptionPane.YES_OPTION) {
-                    return;
-                }
-            }
-
-            GestorInsta.actualizarEstadoFollow(seguidor, seguido, nuevoEstado);
-            dialogoBusqueda.dispose();
-            btnFollow.setText(nuevoEstado ? "Dejar de Seguir" : "Seguir");
-
-            JOptionPane.showMessageDialog(this,
-                    (nuevoEstado ? "¡Ahora sigues a @" : "Has de jado de seguir a @") + seguido,
-                    "Actualizacion de Follow", JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error de E/S al actualizar el estado: " + e.getMessage());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Ocurrio un error: " + e.getMessage());
-        }
-    }
-
+    
     @Override
     public void postPublicadoExitosamente() {
         perfil.cargarDatosPerfil();
