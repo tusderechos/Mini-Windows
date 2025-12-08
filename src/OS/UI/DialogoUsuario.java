@@ -16,16 +16,23 @@ import javax.swing.border.EmptyBorder;
 
 import Compartidas.Usuario;
 import OS.UI.util.TemaOscuro;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.text.JTextComponent;
 
 public class DialogoUsuario extends JDialog {
     
-    private JTextField TxtNombre;
-    private JTextField TxtUsuario;
-    private JPasswordField TxtPass;
-    private JTextField TxtEdad;
-    private JComboBox<String> CBGenero;
-    private JCheckBox CHKAdmin;
-    private JCheckBox CHKActivo;
+    private final JTextField TxtNombre;
+    private final JTextField TxtUsuario;
+    private final JPasswordField TxtPass;
+    private final JTextField TxtEdad;
+    private final JComboBox<String> CBGenero;
+    private final JCheckBox CHKAdmin;
+    private final JCheckBox CHKActivo;
     
     private Usuario Resultado;
     
@@ -51,30 +58,35 @@ public class DialogoUsuario extends JDialog {
         
         JLabel LblNombre = new JLabel("Nombre Completo:");
         LblNombre.setForeground(TemaOscuro.TEXTO);
+        LblNombre.setFont(LblNombre.getFont().deriveFont(Font.BOLD, 14f));
         
         JLabel LblUsuario = new JLabel("Usuario:");
         LblUsuario.setForeground(TemaOscuro.TEXTO);
+        LblUsuario.setFont(LblNombre.getFont().deriveFont(Font.BOLD, 14f));
         
         JLabel LblPass = new JLabel("Contraseña:");
         LblPass.setForeground(TemaOscuro.TEXTO);
+        LblPass.setFont(LblNombre.getFont().deriveFont(Font.BOLD, 14f));
         
         JLabel LblEdad = new JLabel("Edad:");
         LblEdad.setForeground(TemaOscuro.TEXTO);
+        LblEdad.setFont(LblNombre.getFont().deriveFont(Font.BOLD, 14f));
         
         JLabel LblGenero = new JLabel("Genero:");
         LblGenero.setForeground(TemaOscuro.TEXTO);
+        LblGenero.setFont(LblNombre.getFont().deriveFont(Font.BOLD, 14f));
         
         TxtNombre = new JTextField();
-        Estilizar(TxtNombre);
+        CrearCampoEstandar(TxtNombre);
         
         TxtUsuario = new JTextField();
-        Estilizar(TxtUsuario);
+        CrearCampoEstandar(TxtUsuario);
         
         TxtPass = new JPasswordField();
-        Estilizar(TxtPass);
+        CrearCampoEstandar(TxtPass);
         
         TxtEdad = new JTextField();
-        Estilizar(TxtEdad);
+        CrearCampoEstandar(TxtEdad);
         
         CBGenero = new JComboBox<>(new String[]{"M", "F"});
         Estilizar(CBGenero);
@@ -172,6 +184,30 @@ public class DialogoUsuario extends JDialog {
             
             if (pass.length() < 5) {
                 JOptionPane.showMessageDialog(this, "La contraseña tiene que tener minimo 5 caracteres");
+                return;
+            }
+            
+            for (int i = 0; i < pass.length(); i++) {
+                if (Character.isWhitespace(pass.charAt(i))) {
+                    JOptionPane.showMessageDialog(this, "La contraseña no puede contener espacios", "Error", JOptionPane.ERROR_MESSAGE);
+                    TxtPass.requestFocus();
+                    return;
+                }
+            }
+
+            boolean tienemayuscula = false;
+
+            for (int i = 0; i < pass.length(); i++) {
+                if (Character.isUpperCase(pass.charAt(i))) {
+                    tienemayuscula = true;
+                    break;
+                }
+            }
+
+            if (!tienemayuscula) {
+                JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos una letra mayuscula", "Error", JOptionPane.ERROR_MESSAGE);
+                TxtPass.requestFocus();
+                return;
             }
             
             Resultado = new Usuario(nombre, generos.charAt(0), user, pass, edad, admin);
@@ -254,6 +290,60 @@ public class DialogoUsuario extends JDialog {
         boton.setBorder(new EmptyBorder(6, 16, 6, 16));
         
         return boton;
+    }
+    
+    private JPanel CrearCampoEstandar(JTextComponent field) {
+        JPanel contenedor = new JPanel();
+        contenedor.setLayout(new BorderLayout());
+        contenedor.setOpaque(false);
+        contenedor.setBackground(TemaOscuro.CARD.brighter());
+        
+        //Estilo base
+        field.setOpaque(true);
+        field.setBackground(TemaOscuro.CARD.brighter());
+        field.setForeground(TemaOscuro.TEXTO);
+        field.setCaretColor(TemaOscuro.TEXTO);
+        field.setFont(field.getFont().deriveFont(Font.BOLD, 14f));
+        field.setMargin(new Insets(6, 10, 6, 10));
+        
+        int h = field.getFontMetrics(field.getFont()).getHeight() + 10;
+        field.setPreferredSize(new Dimension(260, Math.max(28, h)));
+        
+        //Padding interno
+        Border pad = new EmptyBorder(0, 0, 0, 0);
+        
+        //Borde normal
+        Border base = BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA, 1, true), pad);
+        
+        Border focus = BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(new LineBorder(new Color(130, 80, 200, 120), 2, true), new LineBorder(new Color(160, 110, 255), 1, true)), pad);
+        
+        //Borde inicial
+        field.setBorder(base);
+        
+        contenedor.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                field.requestFocusInWindow();
+            }
+        });
+        
+        //Borde moradito cuando esta en focus (septima vez que lo intento)
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                field.setBorder(focus);
+                field.repaint();
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                field.setBorder(base);
+                field.repaint();
+            }
+        });
+        
+        contenedor.add(field, BorderLayout.CENTER);
+        
+        return contenedor;
     }
     
     private void Estilizar(JComponent component) {

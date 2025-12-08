@@ -325,7 +325,7 @@ public class UsuariosUI extends JFrame {
         boton.setForeground(textoC);
         boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         boton.setRolloverEnabled(true);
-        boton.setFont(boton.getFont().deriveFont(Font.PLAIN, 12f));
+        boton.setFont(boton.getFont().deriveFont(Font.BOLD, 14f));
         boton.setBorder(new EmptyBorder(6, 16, 6, 16));
         
         return boton;

@@ -36,6 +36,10 @@ import javax.swing.event.ChangeListener;
 
 public class ReproductorMusica extends JFrame {
     
+    private boolean EndLatch = false;
+    private Timer UITimer;
+    private long IgnorarFinHasta = 0L;
+    
     private volatile boolean BuscandoConSlider = false;
     
     private final DefaultListModel<File> Modelo = new DefaultListModel<>();
@@ -216,7 +220,7 @@ public class ReproductorMusica extends JFrame {
         Seek.setBackground(TemaOscuro.BAR);
         Seek.setOpaque(false);
         Seek.setBorder(null);
-        Seek.setPreferredSize(new Dimension(360, 18));
+        Seek.setPreferredSize(new Dimension(360, 24));
         Seek.setPaintTicks(false);
         Seek.setPaintLabels(false);
         
@@ -357,20 +361,14 @@ public class ReproductorMusica extends JFrame {
                 BuscandoConSlider = true;
                 Seek.setValueIsAdjusting(true);
                 
-                JComponent p = (JComponent) Seek.getParent();
-                
-                if (p != null) {
-                    p.repaint();
-                }
-                
                 //Calcular fraccion segun el click en la pista
                 int x = e.getX();
                 int w = Seek.getWidth();
                 
                 if (w > 0) {
                     double frac = (w <= 0) ? 0 : (x / (double) w);
-                    int pos = (int) Math.round(frac * 1000.0);
-                    Seek.setValue(pos); //Mover visualmente al click
+                    Seek.setValue((int) Math.round(frac * 1000.0)); //Mover visualmente al click
+                    Seek.repaint();
                 }
             }
             
@@ -379,35 +377,21 @@ public class ReproductorMusica extends JFrame {
                 //Si el usuario de verdad arrastro, se cierra igual con un salto preciso
                 if (InfoActual == null || Hilo == null) {
                     BuscandoConSlider = false;
+                    Seek.setValueIsAdjusting(false);
                     return;
                 }
                 
-                double frac = Seek.getValue() / 1000.0;
-                
-                if (frac < 0) {
-                    frac = 0;
-                }
-                if (frac > 1) {
-                    frac = 1;
-                }
+                double frac = Math.max(0, Math.min(1, Seek.getValue() / 1000.0));
                 int nuevoframe = (int) Math.round(frac * InfoActual.TotalFrames);
-                
-                if (nuevoframe < 0) {
-                    nuevoframe = 0;
-                }
-                if (nuevoframe > InfoActual.TotalFrames) {
-                    nuevoframe = InfoActual.TotalFrames;
-                }
+                nuevoframe = Math.max(0, Math.min(InfoActual.TotalFrames, nuevoframe));
                 
                 Hilo.SaltarA(nuevoframe);
                 
-                Seek.setValueIsAdjusting(true);
-                JComponent p = (JComponent) Seek.getParent();
+                IgnorarFinHasta = System.currentTimeMillis() + 1000;
                 
-                if (p != null) {
-                    p.repaint();
-                }
-                
+                Seek.setValueIsAdjusting(false);
+                BuscandoConSlider = false;
+                Seek.repaint();
                 
                 new Timer(120, ev -> {
                     BuscandoConSlider = false;
@@ -437,21 +421,17 @@ public class ReproductorMusica extends JFrame {
             LblTime.setText(Mp3Utils.fmtt(msprev) + " / " + Mp3Utils.fmtt(mstotal));
         });
         
-        new Timer(200, e -> {
-            if (!BuscandoConSlider) {
-                SyncUI();
-            }
-        }).start();
+        UITimer = new Timer(200, e -> {
+            SyncUI();
+            CheckTrackEnd();
+        });
+        UITimer.start();
         
         ChangeListener RepaintOnChange = e -> {
             JSlider slider = (JSlider) e.getSource();
             
             if (slider.getValueIsAdjusting()) {
-                JComponent p = (JComponent) slider.getParent();
-                
-                if (p != null) {
-                    p.repaint(p.getBounds());
-                }
+                slider.repaint();
             }
         };
         
@@ -582,6 +562,10 @@ public class ReproductorMusica extends JFrame {
             return;
         }
         
+        BuscandoConSlider = false;
+        Seek.setValueIsAdjusting(false);
+        EndLatch = false;
+        
         File file = Modelo.get(i);
         Lista.setSelectedIndex(i);
         LblNow.setText(file.getName());
@@ -596,9 +580,11 @@ public class ReproductorMusica extends JFrame {
             JOptionPane.showMessageDialog(this, "No se pudo leer el MP3");
             return;
         }
-                
+        
         Hilo = new Mp3PlayerThread(file, desdeframe, InfoActual);
         Hilo.start();
+        
+        IgnorarFinHasta = System.currentTimeMillis() + 700;
         
         setPlayVisual(true);
     }
@@ -609,7 +595,7 @@ public class ReproductorMusica extends JFrame {
         }
         
         if (BtnShuffle.isSelected()) {
-            Indice = random.nextInt(Modelo.size());
+            Indice = ElegirDiferenteRandom(Indice, Modelo.size());
         } else {
             Indice = (Indice - 1 + Modelo.size()) % Modelo.size();
         }
@@ -628,7 +614,7 @@ public class ReproductorMusica extends JFrame {
         }
         
         if (BtnShuffle.isSelected()) {
-            Indice = random.nextInt(Modelo.size());
+            Indice = ElegirDiferenteRandom(Indice, Modelo.size());
         } else {
             Indice = (Indice + 1) % Modelo.size();
         }
@@ -655,6 +641,9 @@ public class ReproductorMusica extends JFrame {
             Hilo.Detener();
         }
         
+        EndLatch = true;
+        BuscandoConSlider = false;
+        Seek.setValueIsAdjusting(false);
         Seek.setValue(0);
         LblTime.setText("00:00 / 00:00");
         setPlayVisual(false);
@@ -666,29 +655,9 @@ public class ReproductorMusica extends JFrame {
         }
         
         int frame = Hilo.getFrameEstimadoVivo();
+        frame = Math.max(0, Math.min(InfoActual.TotalFrames, frame));
         
-        if (frame < 0) {
-            frame = 0;
-        }
-        if (frame > InfoActual.TotalFrames) {
-            frame = InfoActual.TotalFrames;
-        }
-        
-        int total = InfoActual.TotalFrames;
-        
-        if (total > 0) {
-            int pos = (int) Math.round(1000.0 * frame / total);
-            
-            if (pos < 0) {
-                pos = 0;
-            }
-            if (pos > 1000) {
-                pos = 1000;
-            }
-            
-            Seek.setValue(pos);
-        }
-        
+        int total = Math.max(1, InfoActual.TotalFrames);
         int msactual = (int)Math.round(frame * InfoActual.msPerFrame);
         int mstotal = (InfoActual.DurationMs > 0) ? InfoActual.DurationMs : (int)Math.round(total * InfoActual.msPerFrame);
         
@@ -697,6 +666,12 @@ public class ReproductorMusica extends JFrame {
         }
         
         LblTime.setText(Mp3Utils.fmtt(msactual) + " / " + Mp3Utils.fmtt(mstotal));
+
+        if (!Seek.getValueIsAdjusting() && !BuscandoConSlider) {
+            int pos = (int) Math.round(1000.0 * frame / total);
+            pos = Math.max(0, Math.min(1000, pos));
+            Seek.setValue(pos);
+        }
     }
     
     private boolean esMp3(File file) {
@@ -756,6 +731,57 @@ public class ReproductorMusica extends JFrame {
             Indice = 0;
             Reproducir(0, 0);
         }
+    }
+    
+    private void OnTrackEnd() {
+        if (Modelo.size() <= 1 && !BtnRepetir.isSelected()) {
+            setPlayVisual(false);
+            return;
+        }
+        
+        if (BtnRepetir.isSelected() && Indice >= 0) {
+            Reproducir(Indice, 0);
+            return;
+        }
+        
+        //Avanzar segun el shuffle o secuencial
+        if (BtnShuffle.isSelected()) {
+            Indice = ElegirDiferenteRandom(Indice, Modelo.size());            
+        } else {
+            Indice = (Indice + 1) % Modelo.size();
+        }
+        
+        Reproducir(Indice, 0);
+    }
+    
+    private void CheckTrackEnd() {
+        if (Hilo == null || InfoActual == null || EndLatch) {
+            return;
+        }
+        
+        //Si esta dentro del 'cooldown', que no se evalue el fin de la cancion (asi evito que salte de canciones con cada movimiento)
+        if (System.currentTimeMillis() < IgnorarFinHasta) {
+            return;
+        }
+        
+        if (Hilo.ConsumirFinNatural()) {
+            EndLatch = true;
+            SwingUtilities.invokeLater(this::OnTrackEnd);
+        }
+    }
+    
+    private int ElegirDiferenteRandom(int excluir, int tamano) {
+        if (tamano <= 1) {
+            return excluir;
+        }
+        
+        int n;
+        
+        do {            
+            n = random.nextInt(tamano);
+        } while (n == excluir);
+        
+        return n;
     }
     
     private Icon LoadIcon(String path, int tamanopixel) {        

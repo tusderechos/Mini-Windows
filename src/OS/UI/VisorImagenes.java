@@ -26,11 +26,12 @@ import javax.swing.border.LineBorder;
 
 public class VisorImagenes extends JFrame {
     
+    private final JScrollPane ScrollImagen;
+    
     private final JLabel LblImagen = new JLabel();
     private BufferedImage ImagenActual = null;
     private File ArchivoActual = null;
     
-    private final Color Texto = new Color(230, 230, 230);
     private final Color Sel = new Color(76, 141, 255);
     
     private final ArrayList<File> Imagenes = new ArrayList<>();
@@ -78,11 +79,11 @@ public class VisorImagenes extends JFrame {
         
         LblImagen.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JScrollPane centro = new JScrollPane(LblImagen);
-        centro.getViewport().setBackground(new Color(30, 30, 30));
-        centro.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(60, 60, 60)));
+        ScrollImagen = new JScrollPane(LblImagen);
+        ScrollImagen.getViewport().setBackground(new Color(30, 30, 30));
+        ScrollImagen.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(60, 60, 60)));
         
-        add(centro, BorderLayout.CENTER);
+        add(ScrollImagen, BorderLayout.CENTER);
         
         GradientWallpaper bottom = new GradientWallpaper();
         bottom.setLayout(new BorderLayout());
@@ -151,12 +152,8 @@ public class VisorImagenes extends JFrame {
         });
         
         BtnExportar.addActionListener(e -> {
-            ArrayList<File> nuevos = ImageImporter.Importar(this);
-            
-            if (!nuevos.isEmpty()) {
-                CargarColeccionDesde(nuevos.get(0));
-                MostrarActual();
-            }
+            File actual = (Indice >= 0 && Indice < Imagenes.size()) ? Imagenes.get(Indice) : null;
+            ImageImporter.Exportar(this, actual);
         });
         
         CargarColeccionDesde(ArchivoActual);
@@ -327,29 +324,49 @@ public class VisorImagenes extends JFrame {
             return;
         }
         
-        int maxw = getWidth() - 80;
-        int maxh = getHeight() - 220;
+        Dimension ext = ScrollImagen.getViewport().getExtentSize();
+        int maxw = Math.max(1, ext.width);
+        int maxh = Math.max(1, ext.height);
         
-        double fw = (double) maxw / ImagenActual.getWidth();
-        double fh = (double) maxh / ImagenActual.getHeight();
+        int iw = ImagenActual.getWidth();
+        int ih = ImagenActual.getHeight();
         
-        double factor = Math.min(fw, fh);
+        double factor = Math.min((double) maxw / iw, (double) maxh / ih);
         
-        int nw = (int)(ImagenActual.getWidth() * factor);
-        int nh = (int)(ImagenActual.getHeight() * factor);
+        if (factor <= 0) {
+            factor = 1;
+        }
+                
+        int nw = Math.max(1, (int) Math.round(iw * factor));
+        int nh = Math.max(1, (int) Math.round(ih * factor));
         
         Image escalada = ImagenActual.getScaledInstance(nw, nh, Image.SCALE_SMOOTH);
         
+        LblImagen.setPreferredSize(new Dimension(nw, nh));
         LblImagen.setIcon(new ImageIcon(escalada));
+        LblImagen.revalidate();
+        LblImagen.repaint();
+        
+        CentrarEnViewport(nw, nh);
     }
     
     /*
         Muestra la imagen original como estaba antes de escalar o ajustar o etc etc
     */
     private void Original() {
-        if (ImagenActual != null) {
-            LblImagen.setIcon(new ImageIcon(ImagenActual));
+        if (ImagenActual == null) {
+            return;
         }
+        
+        int w = ImagenActual.getWidth();
+        int h = ImagenActual.getHeight();
+        
+        LblImagen.setPreferredSize(new Dimension(w, h));
+        LblImagen.setIcon(new ImageIcon(ImagenActual));
+        LblImagen.revalidate();
+        LblImagen.repaint();
+        
+        CentrarEnViewport(w, h);
     }
     
     private void Anterior() {
@@ -424,5 +441,19 @@ public class VisorImagenes extends JFrame {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    private void CentrarEnViewport(int contenidow, int contenidoh) {
+        if (ScrollImagen == null) {
+            return;
+        }
+        
+        JViewport vp = ScrollImagen.getViewport();
+        Dimension ext = vp.getExtentSize();
+        
+        int x = Math.max(0, (contenidow - ext.width) / 2);
+        int y = Math.max(0, (contenidoh - ext.height) / 2);
+        
+        SwingUtilities.invokeLater(() -> vp.setViewPosition(new Point(x, y)));
     }
 }

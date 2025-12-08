@@ -27,6 +27,7 @@ public class Mp3PlayerThread extends Thread {
     private volatile int FrameActual;
     private volatile boolean Detener = false;
     private volatile boolean Pausa = false;
+    private volatile boolean FinNatural = false;
     
     private AdvancedPlayer Player;
     private VolumeAudioDevice Dispositivo;
@@ -38,6 +39,15 @@ public class Mp3PlayerThread extends Thread {
         this.Info = Info;
         this.FrameInicio = FrameInicio;
         setName("MP3-Player");
+    }
+    
+    public boolean ConsumirFinNatural() {
+        if (FinNatural) {
+            FinNatural = false;
+            return true;
+        }
+        
+        return false;
     }
     
     public boolean estaPausado() {
@@ -148,7 +158,16 @@ public class Mp3PlayerThread extends Thread {
                 }
             });
             
+            FinNatural = false;
+            
             Player.play(desdeframe, Integer.MAX_VALUE);
+            
+            //Si no se paro/arrastro/pauso y el token sigue siendo el mismo, entonces fue un fin natural (que la cancion termino sin skipear o otra cosa) de la cancion
+            boolean pausadoparadoskipeado = Pausa || Detener || (token != PlayToken);
+            
+            if (!pausadoparadoskipeado) {
+                FinNatural = true;
+            }
             
         } catch (Exception ignorar) {
         } finally {

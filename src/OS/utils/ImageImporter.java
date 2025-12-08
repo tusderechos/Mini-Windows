@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageImporter {
-    
+        
     public static ArrayList<File> Importar(JFrame padre) {
         JFileChooser fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
@@ -89,7 +89,7 @@ public class ImageImporter {
         JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Exportar Imagen");
         fc.setCurrentDirectory(dirimagenes);
-        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setAcceptAllFileFilterUsed(false);
         fc.setFileFilter(new FileNameExtensionFilter("Imagenes (jpg, jpeg, png, gif, bmp)", "jpg", "jpeg", "png", "gif", "bmp"));
         
@@ -104,15 +104,32 @@ public class ImageImporter {
             String nombrefinal = elegido.getName();
             
             if (extensionsalida.isEmpty()) {
-                nombrefinal = elegido.getName() + (extensionsrc.isEmpty() ? ".png" : "." + extensionsrc);
+                String usar = extensionsrc.isEmpty() ? "png" : extensionsrc;
+                nombrefinal = elegido.getName() + "." + usar;
             }
             
             File filesalida = new File(elegido.getParentFile(), nombrefinal);
+            
+            try {
+                if (imagenactual.getCanonicalPath().equalsIgnoreCase(filesalida.getCanonicalPath())) {
+                    JOptionPane.showMessageDialog(padre, "El archivo de destino es el mismo que el de origen");
+                    return;
+                }
+            } catch (Exception ignorar) {
+            }
 
             File parent = filesalida.getParentFile();
 
             if (parent != null && !parent.exists()) {
                 parent.mkdirs();
+            }
+            
+            if (filesalida.exists()) {
+                int r = JOptionPane.showConfirmDialog(padre, "El archivo ya existe:\n" + filesalida.getAbsolutePath() + "\nDeseas reemplazarlo?", "Confirmar reemplazo", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                
+                if (r != JOptionPane.YES_OPTION) {
+                    return;
+                }
             }
             
             try {
