@@ -13,9 +13,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.border.EmptyBorder;
-
-import Compartidas.Usuario;
-import OS.UI.util.TemaOscuro;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -23,6 +20,10 @@ import java.awt.event.MouseEvent;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.text.JTextComponent;
+
+import Compartidas.Usuario;
+import OS.Core.SesionActual;
+import OS.UI.util.TemaOscuro;
 
 public class DialogoUsuario extends JDialog {
     
@@ -157,7 +158,7 @@ public class DialogoUsuario extends JDialog {
     private void onGuardar(Usuario base) {
         String nombre = TxtNombre.getText().trim();
         String user = TxtUsuario.getText().trim();
-        String pass =new String(TxtPass.getPassword()).trim();
+        String pass = new String(TxtPass.getPassword()).trim();
         String edads = TxtEdad.getText().trim();
         String generos = (String) CBGenero.getSelectedItem();
         boolean admin = CHKAdmin.isSelected();
@@ -212,7 +213,7 @@ public class DialogoUsuario extends JDialog {
             
             Resultado = new Usuario(nombre, generos.charAt(0), user, pass, edad, admin);
             Resultado.setActivo(CHKActivo.isSelected());
-        } else {
+        } else {            
             //Actualizar sobre el mismo username
             base.setNombreUsuario(nombre);
             base.setGenero(generos.charAt(0));
@@ -226,6 +227,14 @@ public class DialogoUsuario extends JDialog {
             base.setActivo(activo);
             
             Resultado = base;
+        }
+        
+        Usuario UsuarioActual = SesionActual.getUsuario();
+        
+        if (UsuarioActual != null && Resultado != null && UsuarioActual == Resultado && !Resultado.isAdministrador()) {
+            JOptionPane.showMessageDialog(this, "Te has quitado los permisos de administrador.\n" + "La ventana de Usuarios procedera a cerrarse.", "Permisos actualizados", JOptionPane.WARNING_MESSAGE);
+            
+            getOwner().dispose();
         }
         
         dispose();

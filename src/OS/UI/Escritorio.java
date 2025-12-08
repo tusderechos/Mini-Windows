@@ -47,7 +47,7 @@ public class Escritorio extends JFrame {
         WireF11();
         
         GradientWallpaper fondo = new GradientWallpaper();
-        fondo.setGradient(Color.MAGENTA.darker().darker().darker(), Color.BLACK);
+        fondo.setGradient(Color.MAGENTA.darker().darker(), Color.BLACK);
         fondo.setLayout(new BorderLayout());
         
         JPanel centro = new JPanel();
@@ -67,6 +67,9 @@ public class Escritorio extends JFrame {
         centro.add(Grid, gbc);
         fondo.add(centro, BorderLayout.CENTER);
         
+//        Usuario usu = SesionActual.getUsuario();        
+//        boolean esadmin = (usu != null && usu.isAdministrador());
+        
         //2 filas x 3 columnas
         addTile("Archivos", "icons/folder.png", () -> new NavegadorArchivos().setVisible(true));
         addTile("Consola", "icons/terminal.png", () -> new Consola().setVisible(true));
@@ -76,6 +79,10 @@ public class Escritorio extends JFrame {
         addTile("Intagran", "icons/instagram.png", () -> new vtnLogin().setVisible(true));
         addTile("Musica", "icons/music.png", () -> new ReproductorMusica().setVisible(true));
         
+//        if (esadmin) {
+//            addTile("Usuarios", "icons/users.png", () -> new UsuariosUI(SesionActual.getUsuario()).setVisible(true));
+//        }
+                
         BarraTareas taskbar = new BarraTareas();
         taskbar.AnadirApp(new BotonesBarra("Archivos", "icons/folder.png", () -> new NavegadorArchivos().setVisible(true)));
         taskbar.AnadirApp(new BotonesBarra("Consola", "icons/terminal.png", () -> new Consola().setVisible(true)));
@@ -88,7 +95,7 @@ public class Escritorio extends JFrame {
         boolean esadmin = (usu != null && usu.isAdministrador());
         
         if (esadmin) {
-            taskbar.AnadirApp(new BotonesBarra("Usuarios", "icons/users.png", () -> new UsuariosUI(SesionActual.getUsuario()).setVisible(true)));
+            taskbar.AnadirApp(new BotonesBarra("Usuarios", "icons/users.png", () -> UsuariosUI.mostrar(this, usu)));
         }
         
         taskbar.setUsuario("Usuario: " + (usu != null ? usu.getUsuario() : "-") + (esadmin ? " (admin)" : ""));
