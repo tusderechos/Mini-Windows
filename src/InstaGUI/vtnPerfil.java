@@ -66,7 +66,7 @@ public class vtnPerfil extends JPanel {
         panelTopBar.setBackground(COLOR_FONDO);
         panelTopBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
-        JButton btnVolver = new JButton("<-");
+        JButton btnVolver = new JButton("<<<");
         btnVolver.setFont(new Font("Arial", Font.BOLD, 18));
         btnVolver.setForeground(COLOR_TEXTO);
         btnVolver.setBackground(COLOR_FONDO);

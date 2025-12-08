@@ -52,17 +52,9 @@ public class UsuariosUI extends JFrame {
     private JTable Tabla = new JTable(Modelo);
     private final DateTimeFormatter fecha = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
-    public UsuariosUI(Usuario UsuarioActual) {
-        //Asegurar que solo el admin pueda entrar
-        if (UsuarioActual == null || !UsuarioActual.isAdministrador()) {
-            JOptionPane.showMessageDialog(null, "Acceso Denegado: Solo Administradores.");
-            dispose();
-            return;
-        }
-        
+    public UsuariosUI(Usuario UsuarioActual) {        
         setTitle("Mini-Windows - Usuarios");
         setSize(800, 520);
-        setLocationRelativeTo(null);
         setMinimumSize(new Dimension(720, 440));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         getContentPane().setBackground(TemaOscuro.BG);
@@ -108,6 +100,17 @@ public class UsuariosUI extends JFrame {
         
         //Cargar datos
         Refrescar();
+    }
+    
+    public static void mostrar(JFrame padre, Usuario UsuarioActual) {
+        if (UsuarioActual == null || !UsuarioActual.isAdministrador()) {
+            JOptionPane.showMessageDialog(null, "Acceso Denegado: Solo Administradores.");
+            return;
+        }
+        
+        UsuariosUI ui = new UsuariosUI(UsuarioActual);
+        ui.setLocationRelativeTo(padre);
+        ui.setVisible(true);
     }
     
     private void Refrescar() {
@@ -325,7 +328,7 @@ public class UsuariosUI extends JFrame {
         boton.setForeground(textoC);
         boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         boton.setRolloverEnabled(true);
-        boton.setFont(boton.getFont().deriveFont(Font.PLAIN, 12f));
+        boton.setFont(boton.getFont().deriveFont(Font.BOLD, 14f));
         boton.setBorder(new EmptyBorder(6, 16, 6, 16));
         
         return boton;

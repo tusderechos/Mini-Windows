@@ -3,6 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Insta.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Follow.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/ManejoArchivosBinarios.java</file>
@@ -32,6 +33,9 @@
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/vtnOpcionesUsuario.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/vtnBusquedaUsuarios.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/ResultadoBusqueda.java</file>
+=======
+            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/ReproductorMusica.java</file>
+>>>>>>> de839c392aa4c757f7ea7ed2206eedf087238826
         </group>
     </open-files>
 </project-private>

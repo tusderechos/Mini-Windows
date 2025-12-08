@@ -139,6 +139,7 @@ public class EditorTexto extends JFrame {
         MiGuardarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         
         MiGuardarRTF.addActionListener(e -> GuardarComoRTF());
+        MiGuardarRTF.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         
         addWindowListener(new WindowAdapter() {
             @Override
@@ -464,17 +465,6 @@ public class EditorTexto extends JFrame {
         t.setFont(t.getFont().deriveFont(Font.BOLD, 12f));
         t.setBorder(new EmptyBorder(4, 12, 4, 12));
         return t;
-    }
-
-    
-    private JToggleButton ToggleStyle(String texto) {
-        JToggleButton tb = new JToggleButton(texto);
-        tb.setBackground(TemaOscuro.CARD);
-        tb.setForeground(TemaOscuro.TEXTO);
-        tb.setBorder(BorderFactory.createLineBorder(TemaOscuro.LINEA));
-        tb.setFocusPainted(false);
-        
-        return tb;
     }
     
     private void AplicarEstilos(Consumer<SimpleAttributeSet> edit) {
