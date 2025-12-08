@@ -139,6 +139,7 @@ public class EditorTexto extends JFrame {
         MiGuardarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         
         MiGuardarRTF.addActionListener(e -> GuardarComoRTF());
+        MiGuardarRTF.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         
         addWindowListener(new WindowAdapter() {
             @Override
