@@ -35,7 +35,7 @@ public class vtnLogin extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(COLOR_FONDO);
         inicializarComponentes();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void inicializarComponentes() {
