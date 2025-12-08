@@ -34,7 +34,7 @@ public class IconTile extends JPanel {
         JLabel icon = new JLabel(LoadIcon(iconpath), SwingConstants.CENTER);
         JLabel texto = new JLabel(titulo, SwingConstants.CENTER);
         texto.setForeground(TemaOscuro.TEXTO);
-        texto.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        texto.setFont(new Font("Segoe UI", Font.BOLD, 15));
         
         add(icon, BorderLayout.CENTER);
         add(texto, BorderLayout.SOUTH);

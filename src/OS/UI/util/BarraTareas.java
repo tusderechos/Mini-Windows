@@ -41,12 +41,12 @@ public class BarraTareas extends JPanel {
         Derecha.setLayout(new BoxLayout(Derecha, BoxLayout.Y_AXIS));
         
         //Reloj simple
-        Reloj.setForeground(TemaOscuro.SUTIL);
-        Reloj.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        Reloj.setForeground(TemaOscuro.TEXTO);
+        Reloj.setFont(new Font("Segoe UI", Font.BOLD, 14));
         Reloj.setAlignmentX(1.0f);
         
-        LblUsuario.setForeground(TemaOscuro.SUTIL);
-        LblUsuario.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        LblUsuario.setForeground(TemaOscuro.TEXTO);
+        LblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 14));
         LblUsuario.setAlignmentX(1.0f);
                 
         Derecha.add(Reloj);

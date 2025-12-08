@@ -99,7 +99,9 @@ public class ReproductorMusica extends JFrame {
         JButton BtnExportar = CrearBoton("Exportar", false, 15);
         
         JLabel lblvolumen = new JLabel("Volumen ");
+        lblvolumen.setFont(lblvolumen.getFont().deriveFont(Font.BOLD, 14));
         lblvolumen.setForeground(TemaOscuro.TEXTO);
+        
         
         top.add(BtnAbrir);
         top.add(BtnCarpeta);
@@ -114,7 +116,8 @@ public class ReproductorMusica extends JFrame {
         top.add(Volumen);
         
         top.add(Box.createHorizontalStrut(6));
-        LblVolPct.setForeground(TemaOscuro.SUTIL);
+        LblVolPct.setForeground(TemaOscuro.TEXTO);
+        LblVolPct.setFont(LblVolPct.getFont().deriveFont(Font.BOLD, 14));
         top.add(LblVolPct);
         
         Volumen.addChangeListener(e -> {
@@ -206,11 +209,13 @@ public class ReproductorMusica extends JFrame {
         info.setOpaque(false);
         
         LblNow.setForeground(TemaOscuro.TEXTO);
+        LblNow.setFont(LblNow.getFont().deriveFont(Font.BOLD, 14));
         LblNow.setBorder(new EmptyBorder(6, 10, 4, 10));
         
         info.add(LblNow, BorderLayout.WEST);
         
         LblTime.setForeground(TemaOscuro.SUTIL);
+        LblTime.setFont(LblTime.getFont().deriveFont(Font.BOLD, 14));
         LblTime.setBorder(new EmptyBorder(6, 10, 4, 10));
         
         info.add(LblTime, BorderLayout.EAST);
