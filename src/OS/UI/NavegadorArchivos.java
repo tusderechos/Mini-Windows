@@ -14,14 +14,20 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.TreePath;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.awt.event.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableRowSorter;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.geom.RoundRectangle2D;
 
 import OS.Archivos.ResultadoListado;
 import OS.Archivos.SistemaArchivo;
@@ -30,16 +36,6 @@ import OS.UI.util.NodoArchivo;
 import OS.UI.util.RendererTreeOscuro;
 import OS.Archivos.Archivo;
 import OS.Archivos.Carpeta;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableRowSorter;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 public class NavegadorArchivos extends JFrame {
     
@@ -100,8 +96,8 @@ public class NavegadorArchivos extends JFrame {
         acciones.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 8));
         acciones.setBackground(TemaOscuro.BAR);
         
-        JButton BtnUp = BotonStyle("Arriba");
-        JButton BtnRefrescar = BotonStyle("Refrescar");
+        JButton BtnUp = CrearBoton("Arriba", true, 15);
+        JButton BtnRefrescar = CrearBoton("Refrescar", false, 15);
         
         acciones.add(BtnUp);
         acciones.add(BtnRefrescar);
@@ -710,14 +706,63 @@ public class NavegadorArchivos extends JFrame {
         return isDentroRuta(path) ? p : RUTA;
     }
     
-    private JButton BotonStyle(String texto) {
-        JButton boton = new JButton(texto);
+    private JButton CrearBoton(String texto, boolean primario, int radio) {
+        //Colores base segun el tipo
+        Color BG = primario ? new Color(84, 36, 122) : new Color(44, 44, 50);
+        Color hover = primario ? new Color(110, 50, 150) : new Color(60, 60, 68);
+        Color presionado = primario ? new Color(60, 20, 95) : new Color(24, 24, 28);
+        Color textoC = primario ? Color.WHITE : new Color(230, 230, 230);
+        
+        JButton boton = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                int w = getWidth();
+                int h = getHeight();
+                
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                //Estado actual
+                ButtonModel modelo = getModel();
+                Color fill = !isEnabled() ? BG.darker().darker() : modelo.isPressed() ? presionado : modelo.isRollover() ? hover : BG;
+                
+                //Fondo redondeado
+                Shape rr = new RoundRectangle2D.Float(0, 0, w - 1, h - 1, radio, radio);
+                
+                //Sombra sutil
+                g2d.setColor(new Color(0, 0, 0, 40));
+                g2d.fillRoundRect(2, 3, w - 4, h - 5, radio + 2, radio + 2);
+                
+                //Relleno
+                g2d.setColor(fill);
+                g2d.fill(rr);
+                
+                //Borde
+                g2d.setColor(new Color(0, 0, 0, 40));
+                g2d.draw(new RoundRectangle2D.Float(2, 3, w - 1, h - 1, radio, radio));
+                
+                g2d.setClip(rr);
+                super.paintComponent(g);
+                g2d.dispose();
+            }
+            
+            @Override
+            public boolean contains(int x, int y) {
+                Shape rr = new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
+                return rr.contains(x, y);
+            }
+        };
+        
+        //Baseline de estilo
+        boton.setContentAreaFilled(false);
+        boton.setOpaque(false);
         boton.setFocusPainted(false);
-        boton.setBackground(TemaOscuro.CARD);
-        boton.setForeground(TemaOscuro.TEXTO);
+        boton.setBorderPainted(false);
+        boton.setForeground(textoC);
         boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        boton.setBorder(BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA), new EmptyBorder(6, 12, 6, 12)));
-        boton.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        boton.setRolloverEnabled(true);
+        boton.setFont(boton.getFont().deriveFont(Font.BOLD, 14f));
+        boton.setBorder(new EmptyBorder(6, 16, 6, 16));
         
         return boton;
     }

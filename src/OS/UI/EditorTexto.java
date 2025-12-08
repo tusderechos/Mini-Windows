@@ -31,7 +31,10 @@ import javax.swing.text.rtf.RTFEditorKit;
 import OS.apps.editor.ArchivoTexto;
 import OS.apps.editor.EditorTextoCore;
 import OS.Archivos.SistemaArchivo;
+import OS.UI.util.GradientWallpaper;
 import OS.UI.util.TemaOscuro;
+import java.awt.geom.RoundRectangle2D;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -64,9 +67,9 @@ public class EditorTexto extends JFrame {
         
         add(scroll, BorderLayout.CENTER);
         
-        JPanel barra = new JPanel();
-        barra.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        barra.setBackground(TemaOscuro.BAR);
+        GradientWallpaper barra = new GradientWallpaper();
+        barra.setGradient(new Color(35, 35, 40), Color.MAGENTA.darker().darker());
+        barra.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(70, 70, 70)));
         
         String[] fuentes = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         
@@ -79,9 +82,9 @@ public class EditorTexto extends JFrame {
         CBTamano.setSelectedItem(14);
         stydark(CBTamano);
         
-        JButton BtnColor = BotonStyle("Color");
-        JToggleButton BtnBold = ToggleStyle("B");
-        JToggleButton BtnItalica = ToggleStyle("I");
+        JButton BtnColor = CrearBoton("Color", true, 18);
+        JToggleButton BtnBold = CrearToggle("B", 14);
+        JToggleButton BtnItalica = CrearToggle("I", 14);
         
         barra.add(new JLabel("  Fuente:")).setForeground(TemaOscuro.TEXTO);
         barra.add(CBFuente);
@@ -342,15 +345,127 @@ public class EditorTexto extends JFrame {
         }
     }
     
-    private JButton BotonStyle(String texto) {
-        JButton boton = new JButton(texto);
-        boton.setBackground(TemaOscuro.CARD);
-        boton.setForeground(TemaOscuro.TEXTO);
-        boton.setBorder(BorderFactory.createLineBorder(TemaOscuro.LINEA));
+    private JButton CrearBoton(String texto, boolean primario, int radio) {
+        //Colores base segun el tipo
+        Color BG = primario ? new Color(84, 36, 122) : new Color(44, 44, 50);
+        Color hover = primario ? new Color(110, 50, 150) : new Color(60, 60, 68);
+        Color presionado = primario ? new Color(60, 20, 95) : new Color(24, 24, 28);
+        Color textoC = primario ? Color.WHITE : new Color(230, 230, 230);
+        
+        JButton boton = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                int w = getWidth();
+                int h = getHeight();
+                
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                //Estado actual
+                ButtonModel modelo = getModel();
+                Color fill = !isEnabled() ? BG.darker().darker() : modelo.isPressed() ? presionado : modelo.isRollover() ? hover : BG;
+                
+                //Fondo redondeado
+                Shape rr = new RoundRectangle2D.Float(0, 0, w - 1, h - 1, radio, radio);
+                
+                //Sombra sutil
+                g2d.setColor(new Color(0, 0, 0, 40));
+                g2d.fillRoundRect(2, 3, w - 4, h - 5, radio + 2, radio + 2);
+                
+                //Relleno
+                g2d.setColor(fill);
+                g2d.fill(rr);
+                
+                //Borde
+                g2d.setColor(new Color(0, 0, 0, 40));
+                g2d.draw(new RoundRectangle2D.Float(2, 3, w - 1, h - 1, radio, radio));
+                
+                g2d.setClip(rr);
+                super.paintComponent(g);
+                g2d.dispose();
+            }
+            
+            @Override
+            public boolean contains(int x, int y) {
+                Shape rr = new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
+                return rr.contains(x, y);
+            }
+        };
+        
+        //Baseline de estilo
+        boton.setContentAreaFilled(false);
+        boton.setOpaque(false);
         boton.setFocusPainted(false);
+        boton.setBorderPainted(false);
+        boton.setForeground(textoC);
+        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        boton.setRolloverEnabled(true);
+        boton.setFont(boton.getFont().deriveFont(Font.BOLD, 14f));
+        boton.setBorder(new EmptyBorder(6, 16, 6, 16));
         
         return boton;
     }
+    
+    private JToggleButton CrearToggle(String texto, int radio) {
+        //Colores base
+        final Color BG_BASE = new Color(44, 44, 50);
+        final Color BG_HOVER = new Color(60, 60, 68);
+        final Color BG_PRESS = new Color(24, 24, 28);
+        final Color BG_ON = new Color(110, 50, 150);
+        final Color FG_BASE = new Color(230, 230, 230);
+        final Color FG_ON = Color.WHITE;
+
+        JToggleButton t = new JToggleButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                int w = getWidth(), h = getHeight();
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                ButtonModel m = getModel();
+                boolean seleccion = isSelected();
+                Color fill = !isEnabled() ? BG_BASE.darker().darker() : m.isPressed() ? (seleccion ? BG_ON.darker() : BG_PRESS) : m.isRollover() ? (seleccion ? BG_ON.brighter() : BG_HOVER) : (seleccion ? BG_ON : BG_BASE);
+                Color fg = seleccion ? FG_ON : FG_BASE;
+
+                Shape rr = new RoundRectangle2D.Float(0, 0, w - 1, h - 1, radio, radio);
+
+                //sombra
+                g2.setColor(new Color(0, 0, 0, 40));
+                g2.fill(new RoundRectangle2D.Float(2, 3, w - 4, h - 5, radio + 2, radio + 2));
+
+                //relleno
+                g2.setColor(fill);
+                g2.fill(rr);
+
+                //borde leve
+                g2.setColor(new Color(0, 0, 0, 40));
+                g2.draw(new RoundRectangle2D.Float(2, 3, w - 1, h - 1, radio, radio));
+
+                //contenido
+                g2.setClip(rr);
+                setForeground(fg);
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+            
+            @Override
+            public boolean contains(int x, int y) {
+                Shape rr = new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
+                return rr.contains(x, y);
+            }
+        };
+
+        t.setContentAreaFilled(false);
+        t.setOpaque(false);
+        t.setBorderPainted(false);
+        t.setFocusPainted(false);
+        t.setRolloverEnabled(true);
+        t.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        t.setFont(t.getFont().deriveFont(Font.BOLD, 12f));
+        t.setBorder(new EmptyBorder(4, 12, 4, 12));
+        return t;
+    }
+
     
     private JToggleButton ToggleStyle(String texto) {
         JToggleButton tb = new JToggleButton(texto);

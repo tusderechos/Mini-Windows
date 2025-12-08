@@ -11,6 +11,8 @@ package OS.UI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
+import javax.swing.border.EmptyBorder;
 
 import OS.Core.GestorCarpetasUsuario;
 import OS.Core.SistemaOperativo;
@@ -27,8 +29,8 @@ public class CrearCuenta extends JFrame {
     private final JTextField TxtUser = new JTextField(18);
     private final JPasswordField TxtPass = new JPasswordField(18);
     private final JSpinner SPEdad = new JSpinner(new SpinnerNumberModel(18, 1, 120, 1));
-    private final JButton BtnCrear = new JButton("Crear Cuenta");
-    private final JButton BtnVolver = new JButton("Volver");
+    private final JButton BtnCrear = CrearBoton("Crear Cuenta", true, 18);
+    private final JButton BtnVolver = CrearBoton("Volver", false, 18);
     private final JLabel LblEstado = new JLabel(" ");
     
     public CrearCuenta(SistemaOperativo SO, JFrame VentanaLogin) {
@@ -149,6 +151,67 @@ public class CrearCuenta extends JFrame {
         JOptionPane.showMessageDialog(this, "Cuenta creada con exito", "Mini-Windows", JOptionPane.INFORMATION_MESSAGE);
         VentanaLogin.setVisible(true);
         dispose();
+    }
+    
+    private JButton CrearBoton(String texto, boolean primario, int radio) {
+        //Colores base segun el tipo
+        Color BG = primario ? new Color(84, 36, 122) : new Color(44, 44, 50);
+        Color hover = primario ? new Color(110, 50, 150) : new Color(60, 60, 68);
+        Color presionado = primario ? new Color(60, 20, 95) : new Color(24, 24, 28);
+        Color textoC = primario ? Color.WHITE : new Color(230, 230, 230);
+        
+        JButton boton = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                int w = getWidth();
+                int h = getHeight();
+                
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                //Estado actual
+                ButtonModel modelo = getModel();
+                Color fill = !isEnabled() ? BG.darker().darker() : modelo.isPressed() ? presionado : modelo.isRollover() ? hover : BG;
+                
+                //Fondo redondeado
+                Shape rr = new RoundRectangle2D.Float(0, 0, w - 1, h - 1, radio, radio);
+                
+                //Sombra sutil
+                g2d.setColor(new Color(0, 0, 0, 40));
+                g2d.fillRoundRect(2, 3, w - 4, h - 5, radio + 2, radio + 2);
+                
+                //Relleno
+                g2d.setColor(fill);
+                g2d.fill(rr);
+                
+                //Borde
+                g2d.setColor(new Color(0, 0, 0, 40));
+                g2d.draw(new RoundRectangle2D.Float(2, 3, w - 1, h - 1, radio, radio));
+                
+                g2d.setClip(rr);
+                super.paintComponent(g);
+                g2d.dispose();
+            }
+            
+            @Override
+            public boolean contains(int x, int y) {
+                Shape rr = new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
+                return rr.contains(x, y);
+            }
+        };
+        
+        //Baseline de estilo
+        boton.setContentAreaFilled(false);
+        boton.setOpaque(false);
+        boton.setFocusPainted(false);
+        boton.setBorderPainted(false);
+        boton.setForeground(textoC);
+        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        boton.setRolloverEnabled(true);
+        boton.setFont(boton.getFont().deriveFont(Font.PLAIN, 12f));
+        boton.setBorder(new EmptyBorder(6, 16, 6, 16));
+        
+        return boton;
     }
     
     private void AplicarLook() {
