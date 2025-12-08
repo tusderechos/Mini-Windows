@@ -17,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 import java.io.File;
 
 import Compartidas.Usuario;
+import InstaGUI.vtnLogin;
 import OS.Archivos.SistemaArchivo;
 import OS.Core.SistemaOperativo;
 import OS.Core.SesionActual;
@@ -72,7 +73,7 @@ public class Escritorio extends JFrame {
         addTile("Editor de Texto", "icons/notepad.png", () -> new EditorTexto().setVisible(true));
         
         addTile("Fotos", "icons/photos.png", this::AbrirFoto);
-        addTile("Intagran", "icons/instagram.png", () -> JOptionPane.showMessageDialog(this, "No he conectado el insta aun :/"));
+        addTile("Intagran", "icons/instagram.png", () -> new vtnLogin().setVisible(true));
         addTile("Musica", "icons/music.png", () -> new ReproductorMusica().setVisible(true));
         
         BarraTareas taskbar = new BarraTareas();
@@ -80,7 +81,7 @@ public class Escritorio extends JFrame {
         taskbar.AnadirApp(new BotonesBarra("Consola", "icons/terminal.png", () -> new Consola().setVisible(true)));
         taskbar.AnadirApp(new BotonesBarra("Editor de Texto", "icons/notepad.png", () -> new EditorTexto().setVisible(true)));
         taskbar.AnadirApp(new BotonesBarra("Fotos", "icons/photos.png", () -> AbrirFoto()));
-        taskbar.AnadirApp(new BotonesBarra("Intagran", "icons/instagram.png", () -> JOptionPane.showMessageDialog(this, "No he conectado el insta aun :/")));
+        taskbar.AnadirApp(new BotonesBarra("Intagran", "icons/instagram.png", () -> new vtnLogin().setVisible(true)));
         taskbar.AnadirApp(new BotonesBarra("Musica", "icons/music.png", () -> new ReproductorMusica().setVisible(true)));
         
         Usuario usu = SesionActual.getUsuario();        

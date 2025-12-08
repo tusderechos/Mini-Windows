@@ -41,7 +41,7 @@ public class ManejoUsuarios {
                 Lista = (ArrayList<Usuario>) obj;
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error al cargar users.ins");
+            JOptionPane.showMessageDialog(null, "Error al cargar users.os");
             Lista = new ArrayList<>();
         }
     }
@@ -52,7 +52,7 @@ public class ManejoUsuarios {
             
             oos.writeObject(Lista);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error al guardar users.ins");
+            JOptionPane.showMessageDialog(null, "Error al guardar users.os");
         }
     }
     

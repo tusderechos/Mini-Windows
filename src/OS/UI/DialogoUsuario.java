@@ -170,6 +170,10 @@ public class DialogoUsuario extends JDialog {
                 return;
             }
             
+            if (pass.length() < 5) {
+                JOptionPane.showMessageDialog(this, "La contraseña tiene que tener minimo 5 caracteres");
+            }
+            
             Resultado = new Usuario(nombre, generos.charAt(0), user, pass, edad, admin);
             Resultado.setActivo(CHKActivo.isSelected());
         } else {

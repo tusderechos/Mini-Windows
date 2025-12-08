@@ -17,7 +17,7 @@ public class Constantes {
     public static final String RUTA_BASE = new File(System.getProperty("user.dir"), "Z").getAbsolutePath();
     
     //Archivo donde se van a guardar todos los usuarios del sistema
-    public static final String ARCHIVO_USUARIOS = "users.ins";
+    public static final String ARCHIVO_USUARIOS = "users.os";
     
     //Las carpetas predeterminadas que se crean en cada nuevo usuario del mini windows
     public static final String[] CARPETAS_PREDETERMINADAS = {"Mis Documentos", "Musica", "Mis Imagenes"};

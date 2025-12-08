@@ -18,8 +18,12 @@ import OS.Core.SistemaOperativo;
 import OS.Core.SesionActual;
 import OS.UI.util.TemaOscuro;
 import OS.UI.util.GradientWallpaper;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
-import javax.swing.plaf.basic.BasicTextFieldUI;
 
 public class Login extends JFrame {
     
@@ -29,9 +33,7 @@ public class Login extends JFrame {
     private final JPasswordField TxtPass = new JPasswordField(20);
     private JButton BtnLogin;
     private final JLabel LblEstado = new JLabel(" ");
-    
-    private char PassEcho;
-    
+        
     public Login(SistemaOperativo SO) {
         this.SO = SO;
         
@@ -43,36 +45,39 @@ public class Login extends JFrame {
         setLocationRelativeTo(null);
         
         GradientWallpaper fondo = new GradientWallpaper();
-        fondo.setGradient(Color.MAGENTA.darker().darker().darker(), new Color(18, 18, 22));
+        fondo.setGradient(Color.MAGENTA.darker().darker(), new Color(18, 18, 22));
         fondo.setLayout(new GridBagLayout());
         setContentPane(fondo);
                 
-        JPanel card = new JPanel();
-        card.setLayout(new GridBagLayout());
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA), new EmptyBorder(16, 18, 16, 18)));
-        card.setOpaque(false);
+        JPanel card = CrearCardCristal();
+        
+        GridBagConstraints root = new GridBagConstraints();
+        root.gridx = 0;
+        root.gridy = 0;
+        root.anchor = GridBagConstraints.CENTER;
+        
+        fondo.add(card, root);
         
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
-        gbc.anchor = GridBagConstraints.WEST;
-        
-        //Titulo
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0;
-      
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+
         JLabel titulo = new JLabel("Bienvenido");
         titulo.setForeground(TemaOscuro.TEXTO);
         titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 28f));
         
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        
         card.add(titulo, gbc);
         
         //Usuario
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
         gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
         
         JLabel LblUser = new JLabel("Usuario:");
         LblUser.setForeground(TemaOscuro.TEXTO);
@@ -80,58 +85,35 @@ public class Login extends JFrame {
         
         card.add(LblUser, gbc);
         
-        gbc.gridx = 1;
+        gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         
-        CrearCampo(TxtUser);
         TxtUser.setColumns(22);
-        card.add(TxtUser, gbc);
+        Icon iconouser = UIManager.getIcon("FileView.computerIcon");
+        card.add(CrearCampoConIcono(TxtUser, iconouser), gbc);
         
         //Contrasena
-        gbc.gridx = 0;
         gbc.gridy++;
-        gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
         
         JLabel LblPass = new JLabel("Contraseña:");
         LblPass.setForeground(TemaOscuro.TEXTO);
+        LblPass.setFont(LblPass.getFont().deriveFont(Font.BOLD, 16f));
         
         card.add(LblPass, gbc);
         
         //Fila de contrasena
-        gbc.gridx = 1;
-        gbc.gridwidth = 1;
+        gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         
-        CrearCampo(TxtPass);
         TxtPass.setColumns(24);
-        card.add(TxtPass, gbc);
-        
-        //Fila de checkbox
-        gbc.gridx = 1;
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0;
-        
-        JCheckBox mostrar = new JCheckBox("Mostrar");
-        mostrar.setOpaque(false);
-        mostrar.setForeground(TemaOscuro.SUTIL);
-        
-        PassEcho = TxtPass.getEchoChar();
-        
-        mostrar.addActionListener(e -> TxtPass.setEchoChar(mostrar.isSelected() ? (char) 0 : PassEcho));
-        
-        //Margen superior para separarlo del campo
-        ((GridBagLayout)card.getLayout()).setConstraints(mostrar, gbc);
-        
-        card.add(mostrar, gbc);
+        TxtPass.setOpaque(true);
+        card.add(CrearPasswordConOjo(TxtPass), gbc);
         
         //Boton        
-        gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -143,25 +125,23 @@ public class Login extends JFrame {
         
         //Estado/errores
         gbc.gridy++;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
         
         LblEstado.setHorizontalAlignment(SwingConstants.CENTER);
         LblEstado.setForeground(new Color(220, 80, 80));
         
         card.add(LblEstado, gbc);
         
-        //Colocar tarjeta al centro en el fondo
-        GridBagConstraints centro = new GridBagConstraints();
-        centro.gridx = 0;
-        centro.gridy = 0;
-        centro.anchor = GridBagConstraints.CENTER;
-                
-        fondo.add(card, centro);
+        getRootPane().setDefaultButton(BtnLogin);
+        fondo.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "salir");
+        
+        fondo.getActionMap().put("salir", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
         
         BtnLogin.addActionListener(e -> IntentarLogin());
-        getRootPane().setDefaultButton(BtnLogin);
         
         SwingUtilities.invokeLater(() -> TxtUser.requestFocusInWindow());
     }
@@ -173,6 +153,10 @@ public class Login extends JFrame {
         if (usuario.isBlank() || contra.isBlank()) {
             LblEstado.setText("Complete usuario y contraseña");
             return;
+        }
+        
+        if (contra.length() < 5) {
+            LblEstado.setText("La contraseña tiene que tener minimo 5 caracteres");
         }
         
         if (SO.IniciarSesion(usuario, contra)) {
@@ -266,5 +250,115 @@ public class Login extends JFrame {
         boton.setBorder(new EmptyBorder(6, 16, 6, 16));
         
         return boton;
+    }
+    
+    private JPanel CrearCardCristal() {
+        JPanel card = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getWidth();
+                int h = getHeight();
+                int radio = 18;
+                
+                //Fondo translucido
+                g2d.setColor(new Color(25, 10, 30, 150));
+                g2d.fillRoundRect(0, 0, w - 1, h - 1, radio, radio);
+                
+                //Borde doble (tipo cristal)
+                g2d.setColor(new Color(255, 255, 255, 35));
+                g2d.drawRoundRect(0, 0, w - 1, h - 1, radio, radio);
+                g2d.setColor(new Color(0, 0, 0, 80));
+                g2d.drawRoundRect(1, 1, w - 3, h - 3, radio - 2, radio - 2);
+                
+                g2d.dispose();
+            }
+        };
+        
+        card.setOpaque(false);
+        card.setBorder(new EmptyBorder(22, 28, 24, 28));
+        
+        return card;
+    }
+    
+    private JPanel CrearCampoConIcono(JTextField field, Icon icono) {
+        JPanel wrap = new JPanel();
+        wrap.setLayout(new BorderLayout(8, 0));
+        wrap.setOpaque(false);
+        
+        JLabel ico = new JLabel(icono);
+        ico.setOpaque(false);
+        
+        JPanel campo = CrearCampo(field);
+        campo.setOpaque(false);
+        
+        //Borde moradito cuando esta en focus
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                campo.setBorder(BorderFactory.createCompoundBorder(new LineBorder(new Color(130, 80, 200), 2, true), new EmptyBorder(6, 10, 6, 10)));
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                campo.setBorder(BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA, 1, true), new EmptyBorder(6, 10, 6, 10)));
+            }
+        });
+        
+        wrap.add(ico, BorderLayout.EAST);
+        wrap.add(campo, BorderLayout.CENTER);
+        
+        return wrap;
+    }
+    
+    private JPanel CrearPasswordConOjo(JPasswordField pass) {
+        JPanel contenedor = new JPanel();
+        contenedor.setLayout(new BorderLayout());
+        contenedor.setOpaque(false);
+        
+        JPanel campo = CrearCampo(pass);
+        
+        JButton ojo = new JButton("\uD83D\uDC41");
+        ojo.setBorder(new EmptyBorder(0, 8, 0, 8));
+        ojo.setContentAreaFilled(false);
+        ojo.setFocusPainted(false);
+        ojo.setForeground(TemaOscuro.TEXTO);
+        ojo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        ojo.addActionListener(e -> {
+            pass.setEchoChar(pass.getEchoChar() == 0 ? '\u2022' : (char)0);
+        });
+        
+        JPanel derecha = new JPanel();
+        derecha.setLayout(new BorderLayout());
+        derecha.setOpaque(false);
+        
+        derecha.add(ojo, BorderLayout.CENTER);
+        
+        contenedor.add(campo, BorderLayout.CENTER);
+        contenedor.add(derecha, BorderLayout.EAST);
+        
+        //Borde moradito cuando esta en focus
+        pass.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                campo.setBorder(BorderFactory.createCompoundBorder(new LineBorder(new Color(130, 80, 200), 2, true), new EmptyBorder(6, 10, 6, 10)));
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                campo.setBorder(BorderFactory.createCompoundBorder(new LineBorder(TemaOscuro.LINEA, 1, true), new EmptyBorder(6, 10, 6, 10)));
+            }
+        });
+        
+        pass.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                boolean caps = Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
+                contenedor.setToolTipText(caps ? "Mayusculas activadas" : null);
+            }
+        });
+        
+        return contenedor;
     }
 }

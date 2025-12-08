@@ -465,17 +465,6 @@ public class EditorTexto extends JFrame {
         t.setBorder(new EmptyBorder(4, 12, 4, 12));
         return t;
     }
-
-    
-    private JToggleButton ToggleStyle(String texto) {
-        JToggleButton tb = new JToggleButton(texto);
-        tb.setBackground(TemaOscuro.CARD);
-        tb.setForeground(TemaOscuro.TEXTO);
-        tb.setBorder(BorderFactory.createLineBorder(TemaOscuro.LINEA));
-        tb.setFocusPainted(false);
-        
-        return tb;
-    }
     
     private void AplicarEstilos(Consumer<SimpleAttributeSet> edit) {
         int inicio = Texto.getSelectionStart();
