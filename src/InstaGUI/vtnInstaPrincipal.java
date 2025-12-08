@@ -25,7 +25,7 @@ public class vtnInstaPrincipal extends JFrame implements PostListener{
     private TimeLine timeLine;
     private Buscar buscar;
     private vtnPerfil perfil;
-    private JPanel panelContenedor;
+    //private JPanel panelContenedor;
 
     public vtnInstaPrincipal(Usuario usuario) {
         this.usuarioActual = usuario;
@@ -64,7 +64,8 @@ public class vtnInstaPrincipal extends JFrame implements PostListener{
         JButton btnTimeLine = new JButton("TimeLine");
         btnTimeLine.addActionListener(e -> {
         timeLine.cargarTimeLine();
-        mostrarVista("TimeLine");});
+        mostrarVista("TimeLine");
+        });
 
         JButton btnBuscar = new JButton("Buscar");
         btnBuscar.addActionListener(e -> {
@@ -95,27 +96,102 @@ public class vtnInstaPrincipal extends JFrame implements PostListener{
         cardLayout.show(panelContenidoCentral, nombreVista);
     }
 
-    public void mostrarOtroPerfil(String username){
+    /*public void mostrarOtroPerfil(String username){
          final String VISTA_PERFIL_OTRO = "PERFIL_AJENO_" + username.toUpperCase();
         
         try {
-            cardLayout.show(panelContenedor, VISTA_PERFIL_OTRO);
+            cardLayout.show(panelContenidoCentral, VISTA_PERFIL_OTRO);
             System.out.println("Navegando a vista de perfil existente: " + username);
+            
+            Component componenteExistente = null;
+        for (Component comp : panelContenidoCentral.getComponents()) {
+            // Comprobamos si el nombre del componente coincide con la vista
+            if (VISTA_PERFIL_OTRO.equals(panelContenidoCentral.getLayout().getConstraints(comp))) {
+                 componenteExistente = comp;
+                 break;
+            }
+        }
+        
+        if (componenteExistente instanceof vtnOtroPerfil) {
+            ((vtnOtroPerfil) componenteExistente).recargarPerfil();
+        }
 
         } catch (IllegalArgumentException e) {
             
             vtnOtroPerfil panelOtroPerfil = new vtnOtroPerfil(username, this); 
             
-            panelContenedor.add(panelOtroPerfil, VISTA_PERFIL_OTRO);
-            cardLayout.show(panelContenedor, VISTA_PERFIL_OTRO);
+            panelContenidoCentral.add(panelOtroPerfil, VISTA_PERFIL_OTRO);
+            cardLayout.show(panelContenidoCentral, VISTA_PERFIL_OTRO);
             
             System.out.println("Creando y mostrando nuevo perfil: " + username);
         }
+    }*/
+    
+    /*public void mostrarOtroPerfil(String username){
+    final String VISTA_PERFIL_OTRO = "PERFIL_AJENO_" + username.toUpperCase();
+    
+    try {
+        cardLayout.show(panelContenidoCentral, VISTA_PERFIL_OTRO);
+        System.out.println("Navegando a vista de perfil existente: " + username);
+
+        Component componenteExistente = null;
+        for (Component comp : panelContenidoCentral.getComponents()) {
+            if (VISTA_PERFIL_OTRO.equals(cardLayout.getConstraints(comp))) {
+                 componenteExistente = comp;
+                 break;
+            }
+        }
+        
+        if (componenteExistente instanceof vtnOtroPerfil) {
+            ((vtnOtroPerfil) componenteExistente).recargarPerfil();
+            System.out.println("Perfil existente recargado: " + username);
+        }
+
+    } catch (Exception e) { 
+        
+        try {
+            vtnOtroPerfil panelOtroPerfil = new vtnOtroPerfil(username, this); 
+            
+            panelContenidoCentral.add(panelOtroPerfil, VISTA_PERFIL_OTRO);
+            
+            cardLayout.show(panelContenidoCentral, VISTA_PERFIL_OTRO);
+            
+            System.out.println("Creando y mostrando nuevo perfil: " + username);
+            
+        } catch (Exception exCreacion) {
+            System.err.println("--- ERROR CRÍTICO AL CARGAR PERFIL ---");
+            exCreacion.printStackTrace();
+            
+            JOptionPane.showMessageDialog(this, 
+                "Error al cargar el perfil de @" + username + ". Verifique la consola.", 
+                "Error de Navegación", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
+    
+    panelContenidoCentral.revalidate();
+    panelContenidoCentral.repaint();
+}*/
     
     @Override
     public void postPublicadoExitosamente() {
         perfil.cargarDatosPerfil();
         mostrarVista("Perfil");
+    }
+    
+    public void refrescarVistas(){
+        SwingUtilities.invokeLater(() -> {
+        this.perfil.cargarDatosPerfil(); 
+        this.timeLine.cargarTimeLine(); 
+        this.panelContenidoCentral.invalidate();
+        this.panelContenidoCentral.validate();
+        this.panelContenidoCentral.repaint();
+        
+        Dimension actTam = this.getSize();
+        this.setSize(actTam);
+        
+        this.revalidate();
+        this.repaint();
+    });
     }
 }

@@ -54,7 +54,7 @@ public class GestorInsta {
         System.out.println("Cuenta creada, debe abrir la ventana principal de INSTA.");
     }
 
-    public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException {
+    /*public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException {
         ArrayList<Insta> timeLine = new ArrayList<>();
 
         String rutaFollowing = Constantes.RUTA_BASE + usuarioActual + "\\following.ins";
@@ -71,7 +71,37 @@ public class GestorInsta {
 
         java.util.Collections.sort(timeLine, java.util.Collections.reverseOrder());
         return timeLine;
+    }*/
+    
+    public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException {
+    ArrayList<Insta> timeLine = new ArrayList<>();
+    
+    Usuario usuarioLogueado = buscarUsuarioPorUsername(usuarioActual); 
+    if (usuarioLogueado == null) {
+        return timeLine; 
     }
+    
+    String rutaFollowing = Constantes.RUTA_BASE + usuarioActual + "\\following.ins";
+    ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
+
+    for (Follow f : seguidos) {
+        if (f.isActivo()) {
+            
+            Usuario usuarioSeguido = buscarUsuarioPorUsername(f.getUsername());
+            
+            if (usuarioSeguido != null) {
+                String clavePosts = usuarioSeguido.getUsuario(); 
+                timeLine.addAll(ManejoArchivosBinarios.leerInstasDeUsuario(clavePosts));
+            }
+        }
+    }
+
+    ArrayList<Insta> instasPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioLogueado.getUsuario());
+    timeLine.addAll(instasPropios);
+
+    java.util.Collections.sort(timeLine, java.util.Collections.reverseOrder());
+    return timeLine;
+}
 
     public static ArrayList<Insta> buscarPorMencion(String usuarioActual) throws IOException {
         ArrayList<Insta> instasMencionados = new ArrayList<>();
@@ -246,7 +276,7 @@ public class GestorInsta {
         if (!new File(rutaFollowing).exists()) {
             return false;
         }
-        
+
         ArrayList<Follow> listaFollowing = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
 
         for (Follow f : listaFollowing) {
@@ -257,12 +287,12 @@ public class GestorInsta {
         return false;
     }
 
-    public static DatosPerfil obtenerPefilCompleto(String perfilUsername, String usuarioLogueado) throws PerfilNoEncontrado, IOException {
+    /*public static DatosPerfil obtenerPefilCompleto(String perfilUsername, String usuarioLogueado) throws PerfilNoEncontrado, IOException {
         Usuario perfil = null;
         ArrayList<Usuario> todos = ManejoArchivosBinarios.leerTodosLosUsuarios();
 
         for (Usuario u : todos) {
-            if (u.getUsuario().equalsIgnoreCase(perfilUsername) && u.isActivo()) {
+            if (u.getNombreUsuario().equalsIgnoreCase(perfilUsername) && u.isActivo()) {
                 perfil = u;
                 break;
             }
@@ -283,7 +313,48 @@ public class GestorInsta {
         java.util.Collections.sort(instas);
 
         return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
+    }*/
+    
+    public static DatosPerfil obtenerPefilCompleto(String perfilUsername, String usuarioLogueado) throws PerfilNoEncontrado, IOException {
+    Usuario perfil = null;
+    ArrayList<Usuario> todos = ManejoArchivosBinarios.leerTodosLosUsuarios();
+
+    // 🚨 CORRECCIÓN CLAVE: Buscar por el Nombre de Usuario (Alias)
+    for (Usuario u : todos) {
+        // Comparamos el perfilUsername (Alias recibido) con u.getNombreUsuario() (Alias guardado)
+        if (u.getNombreUsuario().equalsIgnoreCase(perfilUsername) && u.isActivo()) { 
+            perfil = u;
+            break;
+        }
     }
+    
+    if (perfil == null) {
+        throw new PerfilNoEncontrado("El perfil de @" + perfilUsername + " no existe o esta desactivado");
+    }
+
+    // ---------------------------------------------------------------------------------
+    // ⚠️ USO DE CLAVES:
+    // Follows/Seguimiento usa el Username (Alias): perfilUsername
+    // Lectura de Posts usa el Nombre Real (Clave de archivo): perfil.getUsuario()
+    // ---------------------------------------------------------------------------------
+
+    // Contadores de Follows (usan el Username)
+    int seguidores = contarFollows(perfilUsername, false);
+    int seguidos = contarFollows(perfilUsername, true);
+
+    // Seguimiento (usa el Username)
+    boolean loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
+    if (!perfilUsername.equalsIgnoreCase(usuarioLogueado)) {
+        loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
+    }
+    
+    // 🚨 CORRECCIÓN CLAVE: Lectura de Posts (debe usar el Nombre Real/Clave de archivo)
+    String claveArchivoPosts = perfil.getUsuario();
+    ArrayList<Insta> instas = ManejoArchivosBinarios.leerInstasDeUsuario(claveArchivoPosts);
+    java.util.Collections.sort(instas);
+
+    return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
+}
 
     public static final int MAX_CARACTERES_INSTA = 140;
 
@@ -384,5 +455,16 @@ public class GestorInsta {
                 + ".ins";
 
         return ManejoArchivosBinarios.leerComentariosDePost(rutaArchivoComentarios);
+    }
+
+    public static Usuario buscarUsuarioPorUsername(String username) {
+        ArrayList<Usuario> listaUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+
+        for (Usuario u : listaUsuarios) {
+            if (u.getNombreUsuario().equalsIgnoreCase(username)) {
+                return u; 
+            }
+        }
+        return null;
     }
 }

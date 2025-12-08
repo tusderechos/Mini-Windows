@@ -45,7 +45,7 @@ public class TimeLine extends JPanel {
         panelContenido.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 50));
 
         try {
-            ArrayList<Insta> timeLine = GestorInsta.generarTimeLine(usuarioActual.getUsuario());
+            ArrayList<Insta> timeLine = GestorInsta.generarTimeLine(usuarioActual.getNombreUsuario());
 
             if (timeLine.isEmpty()) {
                 panelContenido.add(new JLabel("Aun no sigues a nadie o no hay post para mostrar.", SwingConstants.CENTER));

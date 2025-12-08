@@ -154,13 +154,14 @@ public class vtnPerfil extends JPanel {
     }
 
     public void cargarDatosPerfil() {
+        //Usuario us = SesionManager.getUsuarioActual();
         int followings = 0;
         int followers = 0;
         ArrayList<Insta> postPropios = new ArrayList<>();
         int numPosts = 0;
         try {
-            followings = GestorInsta.contarFollows(usuarioActual.getUsuario(), true); //true para labelFollowings
-            followers = GestorInsta.contarFollows(usuarioActual.getUsuario(), false); //false para los labelFollowers
+            followings = GestorInsta.contarFollows(usuarioActual.getNombreUsuario(), true); //true para labelFollowings
+            followers = GestorInsta.contarFollows(usuarioActual.getNombreUsuario(), false); //false para los labelFollowers
             postPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioActual.getUsuario());
             numPosts = postPropios.size();
 
@@ -169,8 +170,17 @@ public class vtnPerfil extends JPanel {
             if (labelPosts != null) {
                 labelPosts.setText(String.format(format, numPosts, "Posts"));
             }
-            labelFollowers.setText(String.format(format, followers, "Seguidores"));
-            labelFollowings.setText(String.format(format, followings, "Siguiendo"));
+            
+            if(labelFollowers!=null){
+                labelFollowers.setText(String.format(format, followers, "Seguidores"));
+            }
+            
+            if(labelFollowings!=null){
+                labelFollowings.setText(String.format(format, followings, "Siguiendo"));
+            }
+            
+            //labelFollowers.setText(String.format(format, followers, "Seguidores"));
+            //labelFollowings.setText(String.format(format, followings, "Siguiendo"));
 
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar contadores o posts: " + e.getMessage());
@@ -201,6 +211,8 @@ public class vtnPerfil extends JPanel {
         cargarFotoPerfil();
         panelPostPropios.revalidate();
         panelPostPropios.repaint();
+        this.revalidate();
+        this.repaint();
     }
 
     private void cargarFotoPerfil() {

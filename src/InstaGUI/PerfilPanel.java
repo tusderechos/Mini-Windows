@@ -32,13 +32,18 @@ public class PerfilPanel extends JPanel {
     public PerfilPanel(String usernamePerfil) {
         this.usernamePerfil = usernamePerfil;
         setLayout(new BorderLayout());
+         try {
         cargarDatosYRenderizar();
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Fallo al crear PerfilPanel: " + ex.getMessage(), "Error Crítico de Carga", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    }
     }
 
-    private void cargarDatosYRenderizar() {
+    public void cargarDatosYRenderizar() {
         removeAll();
         try {
-            String usuarioLogueado = SesionManager.getUsuarioActual().getUsuario();
+            String usuarioLogueado = SesionManager.getUsuarioActual().getNombreUsuario();
             DatosPerfil datos = GestorInsta.obtenerPefilCompleto(usernamePerfil, usuarioLogueado);
             add(crearEncabezadoPerfil(datos, usuarioLogueado), BorderLayout.NORTH);
             //add(crearGridPublicaciones(datos.getInstasPropios()), BorderLayout.CENTER);

@@ -10,17 +10,26 @@ import java.awt.*;
  *
  * @author HP
  */
-public class vtnOtroPerfil extends JFrame{
+public class vtnOtroPerfil extends JPanel{
+    private final vtnInstaPrincipal vtnP;
+    private final PerfilPanel panelContenido;
     
     //otro perfil
-    public vtnOtroPerfil(String usernameOtro, Frame owner){
-        setTitle("INST - Perfil de @"+usernameOtro);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    public vtnOtroPerfil(String usernameOtro, vtnInstaPrincipal vtnP){
+        super(new BorderLayout());
+        this.vtnP = vtnP;
+        this.panelContenido = new PerfilPanel(usernameOtro);
+//        setTitle("INST - Perfil de @"+usernameOtro);
+//        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setSize(600, 800);
-        setLocationRelativeTo(null);
+        //setLocationRelativeTo(null);
         
         PerfilPanel panelOtro = new PerfilPanel(usernameOtro);
         add(panelOtro, BorderLayout.CENTER);
-        setVisible(true);
+        //setVisible(true);
     }
+    
+    public void recargarPerfil() {
+    this.panelContenido.cargarDatosYRenderizar();
+}
 }
