@@ -125,7 +125,7 @@ public class vtnBusquedaUsuarios extends JDialog {
             @Override
             public void mouseClicked(MouseEvent e) {
                 dispose();
-                vtnP.mostrarOtroPerfil(usuarioEncontrado.getNombreUsuario());
+                //vtnP.mostrarOtroPerfil(usuarioEncontrado.getNombreUsuario());
             }
         });
 
@@ -182,7 +182,7 @@ public class vtnBusquedaUsuarios extends JDialog {
         // Lógica para entrar al perfil
         btnEntrar.addActionListener(e -> {
             dispose(); // Cierra la ventana actual
-            vtnP.mostrarOtroPerfil(usuarioEncontrado.getNombreUsuario());
+            //vtnP.mostrarOtroPerfil(usuarioEncontrado.getNombreUsuario());
         });
 
         panelAccion.add(btnFollow);
