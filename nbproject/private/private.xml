@@ -3,14 +3,6 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-<<<<<<< HEAD
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/Launcher.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/EditorTexto.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/CrearCuenta.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/DialogoUsuario.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/NavegadorArchivos.java</file>
-            <file>file:/C:/Users/Hp/Documents/NetBeansProjects/Mini-Windows/src/OS/UI/VisorImagenes.java</file>
-=======
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Insta.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/Follow.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/Insta/ManejoArchivosBinarios.java</file>
@@ -37,13 +29,9 @@
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/TimeLine.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/Buscar.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/PostListener.java</file>
-<<<<<<< HEAD
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/vtnOpcionesUsuario.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/vtnBusquedaUsuarios.java</file>
             <file>file:/C:/Users/lapto/OneDrive/Escritorio/Proyecto2_progra2/Mini-Windows/src/InstaGUI/ResultadoBusqueda.java</file>
-=======
->>>>>>> 807e88eff191346c363ce2dc3e4f5e11aa2a425f
->>>>>>> e233b5be33d5a795788697885545c29ae993cfb1
         </group>
     </open-files>
 </project-private>

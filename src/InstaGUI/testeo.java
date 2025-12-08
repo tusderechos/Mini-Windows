@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
  */
 public class testeo {
     public static void main(String[] args) {
-        ManejoArchivosBinarios.asegurarArchivoUsuario();
+        //ManejoArchivosBinarios.asegurarArchivoUsuario();
         SwingUtilities.invokeLater(()-> {
         new vtnLogin().setVisible(true);
     });

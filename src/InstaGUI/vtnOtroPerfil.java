@@ -19,14 +19,8 @@ public class vtnOtroPerfil extends JPanel{
         super(new BorderLayout());
         this.vtnP = vtnP;
         this.panelContenido = new PerfilPanel(usernameOtro);
-//        setTitle("INST - Perfil de @"+usernameOtro);
-//        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(600, 800);
-        //setLocationRelativeTo(null);
         
-        PerfilPanel panelOtro = new PerfilPanel(usernameOtro);
-        add(panelOtro, BorderLayout.CENTER);
-        //setVisible(true);
+        add(this.panelContenido, BorderLayout.CENTER);
     }
     
     public void recargarPerfil() {

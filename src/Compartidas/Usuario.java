@@ -23,6 +23,7 @@ public class Usuario implements Serializable {
     private boolean Activo;    
     private boolean Administrador;
     private String rutaFotoPerfil;
+    private static final long serialVersionUID = 1L; 
 
     public Usuario(String NombreUsuario, char Genero, String Usuario, String Contrasena, int Edad, boolean Administrador) {
         this.NombreUsuario = NombreUsuario;

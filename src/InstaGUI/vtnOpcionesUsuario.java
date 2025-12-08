@@ -18,6 +18,12 @@ import java.io.IOException;
 import javax.swing.*;
 
 public class vtnOpcionesUsuario extends JDialog implements ActionListener {
+    private final Color COLOR_FONDO = new Color(18, 18, 18); 
+    private final Color COLOR_TEXTO = Color.WHITE;
+    private final Color COLOR_BOTON_PRIMARIO = new Color(38, 38, 38); 
+    private final Color COLOR_BOTON_TEXTO = Color.WHITE;
+    private final Color COLOR_BORDE_BOTON = new Color(50, 50, 50); 
+    private final Color COLOR_BOTON_DESTRUCTIVO = new Color(255, 48, 48); 
 
     private final Usuario usuarioActual;
     private final vtnInstaPrincipal vtnP;
@@ -28,8 +34,13 @@ public class vtnOpcionesUsuario extends JDialog implements ActionListener {
         this.usuarioActual = usuario;
         this.vtnP = vtnP;
 
+        // Aplicar estilos a la ventana
+        getContentPane().setBackground(COLOR_FONDO);
+        
         inicializarComponentes();
         setSize(400, 300);
+        
+        setLocationRelativeTo(vtnP); 
     }
 
     private void inicializarComponentes() {
@@ -40,22 +51,40 @@ public class vtnOpcionesUsuario extends JDialog implements ActionListener {
         String estado = usuarioActual.isActivo() ? "DESACTIVAR Cuenta" : "ACTIVAR Cuenta";
         btnDesactivar = new JButton(estado);
 
+        // Aplicar estilos a los botones
+        styleButton(btnBuscar, false);
+        styleButton(btnEntrar, false);
+        styleButton(btnDesactivar, usuarioActual.isActivo()); 
+
         btnBuscar.addActionListener(this);
         btnEntrar.addActionListener(this);
         btnDesactivar.addActionListener(this);
 
-        // Añadir componentes con espacio
-        add(Box.createVerticalStrut(10));
+        add(Box.createVerticalGlue());
         add(wrapInPanel(btnBuscar));
-        add(Box.createVerticalStrut(10));
+        add(Box.createVerticalStrut(20)); 
         add(wrapInPanel(btnEntrar));
-        add(Box.createVerticalStrut(10));
+        add(Box.createVerticalStrut(20));
         add(wrapInPanel(btnDesactivar));
-        add(Box.createVerticalStrut(10));
+        add(Box.createVerticalGlue()); 
+    }
+    
+    private void styleButton(JButton button, boolean isDestructive) {
+        Color bgColor = isDestructive ? COLOR_BOTON_DESTRUCTIVO : COLOR_BOTON_PRIMARIO;
+        Color fgColor = isDestructive ? Color.WHITE : COLOR_BOTON_TEXTO;
+        
+        button.setBackground(bgColor);
+        button.setForeground(fgColor);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createLineBorder(isDestructive ? bgColor.darker() : COLOR_BORDE_BOTON, 1));
+        button.setPreferredSize(new Dimension(300, 40));
+        button.setMaximumSize(new Dimension(300, 40));
     }
 
     private JPanel wrapInPanel(JComponent component) {
         JPanel panel = new JPanel();
+        panel.setBackground(COLOR_FONDO); 
         panel.add(component);
         return panel;
     }
@@ -89,11 +118,11 @@ public class vtnOpcionesUsuario extends JDialog implements ActionListener {
     private void manejarDesactivacion() {
         if (usuarioActual.isActivo()) {
             int confirmacion = JOptionPane.showConfirmDialog(this,
-                    "¿Estás seguro? Su cuenta no aparecerá en búsquedas.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
+                        "¿Estás seguro? Su cuenta no aparecerá en búsquedas.", "Confirmar Desactivación", JOptionPane.YES_NO_OPTION);
 
             if (confirmacion == JOptionPane.YES_OPTION) {
                 try {
-                    GestorInsta.actualizarEstadoCuenta(usuarioActual.getUsuario(), false); // Marcar como inactivo
+                    GestorInsta.actualizarEstadoCuenta(usuarioActual.getUsuario(), false);
                     SesionManager.cerrarSesion();
                     JOptionPane.showMessageDialog(this, "Cuenta desactivada. Volviendo al login.");
                     dispose();

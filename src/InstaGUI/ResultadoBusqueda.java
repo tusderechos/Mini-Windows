@@ -15,7 +15,14 @@ import java.awt.*;
 import java.io.IOException;
 import javax.swing.*;
 
-public class ResultadoBusqueda extends JPanel{
+public class ResultadoBusqueda extends JPanel { 
+    private final Color COLOR_FONDO_ITEM = new Color(38, 38, 38); 
+    private final Color COLOR_TEXTO = Color.WHITE;
+    private final Color COLOR_BORDE_SUAVE = new Color(50, 50, 50);
+    private final Color COLOR_AZUL_SEGUIR = new Color(0, 150, 255);
+    private final Color COLOR_ROJO_DEJAR_SEGUIR = new Color(237, 73, 86); 
+    private final Color COLOR_FONDO_DIALOGO = new Color(25, 25, 25);
+    
     private final Usuario usuarioObjetivo;
     private final vtnInstaPrincipal vtnP;
     private final JDialog dialogBusqueda;
@@ -35,9 +42,10 @@ public class ResultadoBusqueda extends JPanel{
         }
         
         setLayout(new BorderLayout(10, 5));
-        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        setBackground(COLOR_FONDO_ITEM);
+        setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15)); 
 
-        JLabel labelUsername = new JLabel("<html><b>@" + usuarioObjetivo.getUsuario() + "</b></html>");
+        JLabel labelUsername = new JLabel("<html><b style='color:#FFFFFF;'>@" + usuarioObjetivo.getUsuario() + "</b></html>");
         labelUsername.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         labelUsername.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -49,21 +57,32 @@ public class ResultadoBusqueda extends JPanel{
 
         btnFollow = new JButton();
         actualizarBotonFollow();
+        
+        btnFollow.setFont(new Font("Arial", Font.BOLD, 12));
+        btnFollow.setFocusPainted(false);
+        btnFollow.setBorderPainted(false);
+        
         btnFollow.addActionListener(e -> toggleFollow());
         
         add(btnFollow, BorderLayout.EAST);
-        add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.SOUTH);
+        
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setForeground(COLOR_BORDE_SUAVE);
+        separator.setBackground(COLOR_FONDO_ITEM);
+        add(separator, BorderLayout.SOUTH);
     }
     
     private void actualizarBotonFollow() {
         if (siguiendo) {
             btnFollow.setText("Dejar de Seguir");
-            btnFollow.setBackground(Color.RED);
-            btnFollow.setForeground(Color.WHITE);
+            btnFollow.setBackground(COLOR_FONDO_ITEM.brighter()); 
+            btnFollow.setForeground(COLOR_ROJO_DEJAR_SEGUIR); 
+            btnFollow.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_SUAVE));
         } else {
             btnFollow.setText("Seguir");
-            btnFollow.setBackground(Color.GREEN);
-            btnFollow.setForeground(Color.BLACK);
+            btnFollow.setBackground(COLOR_AZUL_SEGUIR);
+            btnFollow.setForeground(Color.WHITE);
+            btnFollow.setBorder(BorderFactory.createEmptyBorder());
         }
     }
 
@@ -78,34 +97,63 @@ public class ResultadoBusqueda extends JPanel{
                     "Confirmar", JOptionPane.YES_NO_OPTION);
                 
                 if (confirmacion == JOptionPane.YES_OPTION) {
-                    GestorInsta.actualizarEstadoFollow(seguidor, seguido, false); // false = inactivo
+                    GestorInsta.actualizarEstadoFollow(seguidor, seguido, false); 
                     siguiendo = false;
                 }
             } else {
-                GestorInsta.actualizarEstadoFollow(seguidor, seguido, true); // true = activo
+                GestorInsta.actualizarEstadoFollow(seguidor, seguido, true); 
                 siguiendo = true;
             }
             actualizarBotonFollow();
+            
             vtnP.mostrarVista("BUSCAR"); 
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al actualizar el estado de seguimiento: " + e.getMessage(), "Error I/O", JOptionPane.ERROR_MESSAGE);
         }
     }
-   
+    
     private void mostrarDetallesPerfil() {
         JDialog dialogoDatos = new JDialog(dialogBusqueda, "Datos de @" + usuarioObjetivo.getUsuario(), false);
         dialogoDatos.setLayout(new BorderLayout());
+        dialogoDatos.getContentPane().setBackground(COLOR_FONDO_DIALOGO);
         
         JPanel panelInfo = new JPanel(new GridLayout(6, 1));
         panelInfo.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        panelInfo.setBackground(COLOR_FONDO_DIALOGO);
         
-        panelInfo.add(new JLabel("Username: @" + usuarioObjetivo.getNombreUsuario()));
-        panelInfo.add(new JLabel("Nombre: " + usuarioObjetivo.getUsuario()));
-        panelInfo.add(new JLabel("Edad: " + usuarioObjetivo.getEdad()));
-        panelInfo.add(new JLabel("Género: " + usuarioObjetivo.getGenero()));
-        panelInfo.add(new JLabel("Fecha Ingreso: " + usuarioObjetivo.getFechaEntrada()));
+        Font font = new Font("Arial", Font.PLAIN, 14);
+        Color textColor = Color.WHITE;
+        
+        JLabel lblUsername = new JLabel("Username: @" + usuarioObjetivo.getNombreUsuario());
+        lblUsername.setForeground(textColor);
+        lblUsername.setFont(font);
+        panelInfo.add(lblUsername);
+        
+        JLabel lblNombre = new JLabel("Nombre: " + usuarioObjetivo.getUsuario());
+        lblNombre.setForeground(textColor);
+        lblNombre.setFont(font);
+        panelInfo.add(lblNombre);
+        
+        JLabel lblEdad = new JLabel("Edad: " + usuarioObjetivo.getEdad());
+        lblEdad.setForeground(textColor);
+        lblEdad.setFont(font);
+        panelInfo.add(lblEdad);
+        
+        JLabel lblGenero = new JLabel("Género: " + usuarioObjetivo.getGenero());
+        lblGenero.setForeground(textColor);
+        lblGenero.setFont(font);
+        panelInfo.add(lblGenero);
+        
+        JLabel lblFecha = new JLabel("Fecha Ingreso: " + usuarioObjetivo.getFechaEntrada());
+        lblFecha.setForeground(textColor);
+        lblFecha.setFont(font);
+        panelInfo.add(lblFecha);
 
         JButton btnVerCompleto = new JButton("Entrar a Perfil Completo");
+        btnVerCompleto.setBackground(COLOR_AZUL_SEGUIR);
+        btnVerCompleto.setForeground(Color.WHITE);
+        btnVerCompleto.setFocusPainted(false);
+        
         btnVerCompleto.addActionListener(e -> {
             dialogoDatos.dispose(); 
             dialogBusqueda.dispose(); 
@@ -113,7 +161,13 @@ public class ResultadoBusqueda extends JPanel{
         });
         
         dialogoDatos.add(panelInfo, BorderLayout.CENTER);
-        dialogoDatos.add(btnVerCompleto, BorderLayout.SOUTH);
+        
+        JPanel panelBoton = new JPanel();
+        panelBoton.setBackground(COLOR_FONDO_DIALOGO);
+        panelBoton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelBoton.add(btnVerCompleto);
+        
+        dialogoDatos.add(panelBoton, BorderLayout.SOUTH);
         
         dialogoDatos.pack();
         dialogoDatos.setLocationRelativeTo(dialogBusqueda);

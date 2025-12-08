@@ -18,6 +18,12 @@ import javax.swing.*;
  * @author HP
  */
 public class vtnCrearInsta extends JDialog {
+    private final Color COLOR_FONDO = new Color(18, 18, 18); 
+    private final Color COLOR_TEXTO = Color.WHITE;
+    private final Color COLOR_SECUNDARIO_TEXTO = new Color(150, 150, 150); 
+    private final Color COLOR_BOTON_DOMINANTE = new Color(193, 53, 132); 
+    private final Color COLOR_BOTON_FONDO = new Color(38, 38, 38); 
+    private final Color COLOR_BORDE_POST = new Color(50, 50, 50); 
 
     private JTextArea txtCaption;
     private JLabel labelImagen;
@@ -30,6 +36,9 @@ public class vtnCrearInsta extends JDialog {
         setSize(600, 800);
         setResizable(false);
         setLocationRelativeTo(null);
+        
+        getContentPane().setBackground(COLOR_FONDO);
+        
         inicializarComponentes();
     }
 
@@ -39,13 +48,18 @@ public class vtnCrearInsta extends JDialog {
         JPanel panelContenido = new JPanel();
         panelContenido.setLayout(new BoxLayout(panelContenido, BoxLayout.Y_AXIS));
         panelContenido.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
+        panelContenido.setBackground(COLOR_FONDO);
+        
         labelImagen = new JLabel("<html><center>Sin imagen</center></html>", JLabel.CENTER);
         labelImagen.setAlignmentX(Component.CENTER_ALIGNMENT);
         labelImagen.setPreferredSize(new Dimension(500 - 40, 400));
         labelImagen.setMinimumSize(new Dimension(500 - 40, 400));
         labelImagen.setMaximumSize(new Dimension(500 - 40, 400));
-        labelImagen.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        
+        labelImagen.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST, 1));
+        labelImagen.setBackground(COLOR_BOTON_FONDO);
+        labelImagen.setOpaque(true);
+        labelImagen.setForeground(COLOR_SECUNDARIO_TEXTO);
 
         panelContenido.add(labelImagen);
         panelContenido.add(Box.createVerticalStrut(15)); 
@@ -54,21 +68,34 @@ public class vtnCrearInsta extends JDialog {
         btnSelec.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnSelec.setMaximumSize(new Dimension(200, btnSelec.getPreferredSize().height));
         btnSelec.addActionListener(e -> seleccionarFoto());
+        
+        btnSelec.setBackground(COLOR_BOTON_FONDO);
+        btnSelec.setForeground(COLOR_TEXTO);
+        btnSelec.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST, 1));
+        btnSelec.setFocusPainted(false);
 
         panelContenido.add(btnSelec);
         panelContenido.add(Box.createVerticalStrut(30)); 
 
         JLabel labelDesc = new JLabel("Añade una descripción");
         labelDesc.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelDesc.setForeground(COLOR_TEXTO); // Texto blanco
         panelContenido.add(labelDesc);
         panelContenido.add(Box.createVerticalStrut(10));
 
         txtCaption = new JTextArea(5, 30);
         txtCaption.setLineWrap(true);
         txtCaption.setWrapStyleWord(true);
+        
+        txtCaption.setBackground(COLOR_BOTON_FONDO);
+        txtCaption.setForeground(COLOR_TEXTO);
+        txtCaption.setCaretColor(COLOR_TEXTO); 
+        
         JScrollPane scrollCaption = new JScrollPane(txtCaption);
         scrollCaption.setAlignmentX(Component.CENTER_ALIGNMENT);
-        scrollCaption.setMaximumSize(new Dimension(500 - 40, 100)); 
+        scrollCaption.setMaximumSize(new Dimension(500 - 40, 100));
+        scrollCaption.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST)); 
+        scrollCaption.getViewport().setBackground(COLOR_BOTON_FONDO); 
 
         panelContenido.add(scrollCaption);
         panelContenido.add(Box.createVerticalStrut(25));
@@ -76,6 +103,11 @@ public class vtnCrearInsta extends JDialog {
         JButton btnPublicar = new JButton("PUBLICAR INSTA");
         btnPublicar.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnPublicar.addActionListener(e -> publicarInsta());
+
+        btnPublicar.setBackground(COLOR_BOTON_DOMINANTE);
+        btnPublicar.setForeground(Color.WHITE);
+        btnPublicar.setFocusPainted(false);
+        btnPublicar.setBorderPainted(false);
 
         panelContenido.add(btnPublicar);
 

@@ -72,36 +72,35 @@ public class GestorInsta {
         java.util.Collections.sort(timeLine, java.util.Collections.reverseOrder());
         return timeLine;
     }*/
-    
     public static ArrayList<Insta> generarTimeLine(String usuarioActual) throws IOException {
-    ArrayList<Insta> timeLine = new ArrayList<>();
-    
-    Usuario usuarioLogueado = buscarUsuarioPorUsername(usuarioActual); 
-    if (usuarioLogueado == null) {
-        return timeLine; 
-    }
-    
-    String rutaFollowing = Constantes.RUTA_BASE + usuarioActual + "\\following.ins";
-    ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
+        ArrayList<Insta> timeLine = new ArrayList<>();
 
-    for (Follow f : seguidos) {
-        if (f.isActivo()) {
-            
-            Usuario usuarioSeguido = buscarUsuarioPorUsername(f.getUsername());
-            
-            if (usuarioSeguido != null) {
-                String clavePosts = usuarioSeguido.getUsuario(); 
-                timeLine.addAll(ManejoArchivosBinarios.leerInstasDeUsuario(clavePosts));
+        Usuario usuarioLogueado = buscarUsuarioPorUsername(usuarioActual);
+        if (usuarioLogueado == null) {
+            return timeLine;
+        }
+
+        String rutaFollowing = Constantes.RUTA_BASE + usuarioActual + "\\following.ins";
+        ArrayList<Follow> seguidos = ManejoArchivosBinarios.leerListaFollows(rutaFollowing);
+
+        for (Follow f : seguidos) {
+            if (f.isActivo()) {
+
+                Usuario usuarioSeguido = buscarUsuarioPorUsername(f.getUsername());
+
+                if (usuarioSeguido != null) {
+                    String clavePosts = usuarioSeguido.getUsuario();
+                    timeLine.addAll(ManejoArchivosBinarios.leerInstasDeUsuario(clavePosts));
+                }
             }
         }
+
+        ArrayList<Insta> instasPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioLogueado.getUsuario());
+        timeLine.addAll(instasPropios);
+
+        java.util.Collections.sort(timeLine, java.util.Collections.reverseOrder());
+        return timeLine;
     }
-
-    ArrayList<Insta> instasPropios = ManejoArchivosBinarios.leerInstasDeUsuario(usuarioLogueado.getUsuario());
-    timeLine.addAll(instasPropios);
-
-    java.util.Collections.sort(timeLine, java.util.Collections.reverseOrder());
-    return timeLine;
-}
 
     public static ArrayList<Insta> buscarPorMencion(String usuarioActual) throws IOException {
         ArrayList<Insta> instasMencionados = new ArrayList<>();
@@ -157,7 +156,7 @@ public class GestorInsta {
         return instasEncontrados;
     }
 
-    public static boolean actualizarEstadoCuenta(String username, boolean nuevoEstado) throws IOException {
+    /*public static boolean actualizarEstadoCuenta(String username, boolean nuevoEstado) throws IOException {
         ArrayList<Usuario> listaUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
 
         boolean estadoCambiado = false;
@@ -181,8 +180,45 @@ public class GestorInsta {
         if (!estadoCambiado) {
             throw new IOException("Usuario no encontrado para la actualizacion");
         }
-        ManejoArchivosBinarios.reescribirTodosLosUsuarios(listaUsuarios);
+        ManejoArchivosBinarios.reescribirListaCompletaUsuarios(listaUsuarios);
         return nuevoEstado;
+    }*/
+    public static boolean actualizarEstadoCuenta(String username, boolean nuevoEstado) throws IOException {
+        ArrayList<Usuario> listaUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+        if (listaUsuarios.isEmpty()) {
+            throw new IOException("La lista de usuarios está vacía. No se puede actualizar el estado.");
+        }
+
+        boolean estadoCambiado = false;
+        boolean estadoFinal = false;
+
+        for (Usuario u : listaUsuarios) {
+            if (u.getUsuario().equalsIgnoreCase(username)) {
+
+                boolean estadoActual = u.isActivo();
+                estadoFinal = !estadoActual;
+
+                u.setActivo(estadoFinal);
+
+                if (!estadoFinal) {
+                    System.out.println("Cuenta de " + username + " Desactivada");
+                } else {
+                    System.out.println("Cuenta de " + username + " Activada");
+                }
+
+                estadoCambiado = true;
+                break;
+            }
+        }
+
+        if (!estadoCambiado) {
+            throw new IOException("Usuario no encontrado para la actualizacion.");
+        }
+
+        System.out.println("DEBUG: Tamaño de la lista antes de escribir: " + listaUsuarios.size());
+        ManejoArchivosBinarios.reescribirListaCompletaUsuarios(listaUsuarios);
+
+        return estadoFinal;
     }
 
     public static int contarFollows(String username, boolean esFollowing) throws IOException {
@@ -234,7 +270,7 @@ public class GestorInsta {
             }
         }
         if (!encontrado && estado) {
-            followsExistentes.add(new Follow(seguidor));
+            followersExistentes.add(new Follow(seguidor));
         }
 
         File carpetaSeguido = new File(Constantes.RUTA_BASE + seguido);
@@ -314,47 +350,35 @@ public class GestorInsta {
 
         return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
     }*/
-    
     public static DatosPerfil obtenerPefilCompleto(String perfilUsername, String usuarioLogueado) throws PerfilNoEncontrado, IOException {
-    Usuario perfil = null;
-    ArrayList<Usuario> todos = ManejoArchivosBinarios.leerTodosLosUsuarios();
+        Usuario perfil = null;
+        ArrayList<Usuario> todos = ManejoArchivosBinarios.leerTodosLosUsuarios();
 
-    // 🚨 CORRECCIÓN CLAVE: Buscar por el Nombre de Usuario (Alias)
-    for (Usuario u : todos) {
-        // Comparamos el perfilUsername (Alias recibido) con u.getNombreUsuario() (Alias guardado)
-        if (u.getNombreUsuario().equalsIgnoreCase(perfilUsername) && u.isActivo()) { 
-            perfil = u;
-            break;
+        for (Usuario u : todos) {
+            if (u.getNombreUsuario().equalsIgnoreCase(perfilUsername) && u.isActivo()) {
+                perfil = u;
+                break;
+            }
         }
+
+        if (perfil == null) {
+            throw new PerfilNoEncontrado("El perfil de @" + perfilUsername + " no existe o esta desactivado");
+        }
+
+        int seguidores = contarFollows(perfilUsername, false);
+        int seguidos = contarFollows(perfilUsername, true);
+
+        boolean loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
+        if (!perfilUsername.equalsIgnoreCase(usuarioLogueado)) {
+            loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
+        }
+
+        String claveArchivoPosts = perfil.getUsuario();
+        ArrayList<Insta> instas = ManejoArchivosBinarios.leerInstasDeUsuario(claveArchivoPosts);
+        java.util.Collections.sort(instas);
+
+        return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
     }
-    
-    if (perfil == null) {
-        throw new PerfilNoEncontrado("El perfil de @" + perfilUsername + " no existe o esta desactivado");
-    }
-
-    // ---------------------------------------------------------------------------------
-    // ⚠️ USO DE CLAVES:
-    // Follows/Seguimiento usa el Username (Alias): perfilUsername
-    // Lectura de Posts usa el Nombre Real (Clave de archivo): perfil.getUsuario()
-    // ---------------------------------------------------------------------------------
-
-    // Contadores de Follows (usan el Username)
-    int seguidores = contarFollows(perfilUsername, false);
-    int seguidos = contarFollows(perfilUsername, true);
-
-    // Seguimiento (usa el Username)
-    boolean loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
-    if (!perfilUsername.equalsIgnoreCase(usuarioLogueado)) {
-        loSigue = estaSiguiendo(usuarioLogueado, perfilUsername);
-    }
-    
-    // 🚨 CORRECCIÓN CLAVE: Lectura de Posts (debe usar el Nombre Real/Clave de archivo)
-    String claveArchivoPosts = perfil.getUsuario();
-    ArrayList<Insta> instas = ManejoArchivosBinarios.leerInstasDeUsuario(claveArchivoPosts);
-    java.util.Collections.sort(instas);
-
-    return new DatosPerfil(perfil, seguidores, seguidos, loSigue, instas);
-}
 
     public static final int MAX_CARACTERES_INSTA = 140;
 
@@ -369,22 +393,29 @@ public class GestorInsta {
     }
 
     public static Usuario logIn(String username, String password) throws CredencialesInvalidas, IOException {
-        ManejoUsuarios manager = new ManejoUsuarios();
-        ArrayList<Compartidas.Usuario> todosLosUsuarios = manager.getUsuarios();
+
+        ArrayList<Compartidas.Usuario> todosLosUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
+
         if (todosLosUsuarios.isEmpty()) {
             System.err.println("La lista de usuarios está vacía.");
         }
 
-        for (Compartidas.Usuario u : todosLosUsuarios) {
-            if (u.getNombreUsuario().equalsIgnoreCase(username)
-                    && u.getContrasena().equals(password)
-                    && u.isActivo()) {
+        String inputUsername = username.trim();
+        String inputPassword = password.trim();
 
+        for (Compartidas.Usuario u : todosLosUsuarios) {
+            if (u.getNombreUsuario().equalsIgnoreCase(inputUsername)
+                    && u.getContrasena().equals(inputPassword)) {
+
+                if (!u.isActivo()) {
+                    actualizarEstadoCuenta(u.getUsuario(), true);
+                    u.setActivo(true);
+                    System.out.println("¡Cuenta de " + username + " reactivada exitosamente!");
+                }
                 return u;
             }
         }
         throw new CredencialesInvalidas("Credenciales inválidas: Usuario no encontrado.");
-
     }
 
     public static String copiarFotoPerfil(String username, String rutaOriginal, String extension) throws IOException {
@@ -457,12 +488,12 @@ public class GestorInsta {
         return ManejoArchivosBinarios.leerComentariosDePost(rutaArchivoComentarios);
     }
 
-    public static Usuario buscarUsuarioPorUsername(String username) {
+    public static Usuario buscarUsuarioPorUsername(String username) throws IOException {
         ArrayList<Usuario> listaUsuarios = ManejoArchivosBinarios.leerTodosLosUsuarios();
 
         for (Usuario u : listaUsuarios) {
             if (u.getNombreUsuario().equalsIgnoreCase(username)) {
-                return u; 
+                return u;
             }
         }
         return null;

@@ -22,8 +22,14 @@ import javax.swing.*;
  * @author HP
  */
 public class PerfilPanel extends JPanel {
+    private final Color COLOR_FONDO = new Color(18, 18, 18);
+    private final Color COLOR_TEXTO = Color.WHITE;
+    private final Color COLOR_SECUNDARIO_TEXTO = new Color(150, 150, 150);
+    private final Color COLOR_BOTON_DOMINANTE = new Color(193, 53, 132); 
+    private final Color COLOR_BOTON_FONDO = new Color(38, 38, 38); 
+    private final Color COLOR_BORDE_POST = new Color(50, 50, 50); 
+    private final Color COLOR_UNFOLLOW = new Color(80, 80, 80); 
 
-    //logica para el otro perfil
     private String usernamePerfil;
     private JLabel username, nombre, edad, genero, fecha;
     private JButton btnAccion;
@@ -32,12 +38,18 @@ public class PerfilPanel extends JPanel {
     public PerfilPanel(String usernamePerfil) {
         this.usernamePerfil = usernamePerfil;
         setLayout(new BorderLayout());
-         try {
-        cargarDatosYRenderizar();
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Fallo al crear PerfilPanel: " + ex.getMessage(), "Error Crítico de Carga", JOptionPane.ERROR_MESSAGE);
-        ex.printStackTrace();
+        setBackground(COLOR_FONDO); 
+
+        try {
+            cargarDatosYRenderizar();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Fallo al crear PerfilPanel: " + ex.getMessage(), "Error Crítico de Carga", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
     }
+
+    private String toHex(Color c) {
+        return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
     }
 
     public void cargarDatosYRenderizar() {
@@ -46,14 +58,20 @@ public class PerfilPanel extends JPanel {
             String usuarioLogueado = SesionManager.getUsuarioActual().getNombreUsuario();
             DatosPerfil datos = GestorInsta.obtenerPefilCompleto(usernamePerfil, usuarioLogueado);
             add(crearEncabezadoPerfil(datos, usuarioLogueado), BorderLayout.NORTH);
-            //add(crearGridPublicaciones(datos.getInstasPropios()), BorderLayout.CENTER);
             add(crearListaPublicaciones(datos.getInstasPropios()), BorderLayout.CENTER);
+
         } catch (PerfilNoEncontrado e) {
-            add(new JLabel("<html><h1>Error: Perfil no encontrado<h1><p>" + e.getMessage() + "<p></html>"), BorderLayout.CENTER);
+            JLabel errorLabel = new JLabel("<html><h1 style='color:" + toHex(COLOR_TEXTO) + ";'>Error: Perfil no encontrado<h1><p style='color:" + toHex(COLOR_SECUNDARIO_TEXTO) + ";'>" + e.getMessage() + "<p></html>", SwingConstants.CENTER);
+            errorLabel.setBackground(COLOR_FONDO);
+            add(errorLabel, BorderLayout.CENTER);
         } catch (IOException e) {
-            add(new JLabel("<html><h1>Error de Archivos<h1><p>No se pudieron cargar los datos del perfil<p></html>"));
+            JLabel errorLabel = new JLabel("<html><h1 style='color:" + toHex(COLOR_TEXTO) + ";'>Error de Archivos<h1><p style='color:" + toHex(COLOR_SECUNDARIO_TEXTO) + ";'>No se pudieron cargar los datos del perfil<p></html>", SwingConstants.CENTER);
+            errorLabel.setBackground(COLOR_FONDO);
+            add(errorLabel, BorderLayout.CENTER);
         } catch (Exception e) {
-            add(new JLabel("Error: " + e.getMessage()), BorderLayout.CENTER);
+            JLabel errorLabel = new JLabel("Error: " + e.getMessage(), SwingConstants.CENTER);
+            errorLabel.setForeground(Color.RED);
+            add(errorLabel, BorderLayout.CENTER);
         }
         revalidate();
         repaint();
@@ -63,14 +81,20 @@ public class PerfilPanel extends JPanel {
 
         JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panelPrincipal.setBackground(COLOR_FONDO); // Fondo oscuro
 
         JPanel panelInfoSuperior = new JPanel(new BorderLayout(30, 0));
+        panelInfoSuperior.setBackground(COLOR_FONDO);
 
         JPanel panelDatosGenerales = new JPanel();
+        panelDatosGenerales.setBackground(COLOR_FONDO);
 
         JLabel labelFotoPerfil = new JLabel();
         labelFotoPerfil.setPreferredSize(new Dimension(150, 150));
-        labelFotoPerfil.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        labelFotoPerfil.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST, 1));
+        labelFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+        labelFotoPerfil.setVerticalAlignment(SwingConstants.CENTER);
+        labelFotoPerfil.setForeground(COLOR_SECUNDARIO_TEXTO);
 
         String rutaFoto = datos.getDatosGenerales().getRutaFotoPerfil();
 
@@ -79,27 +103,32 @@ public class PerfilPanel extends JPanel {
                 ImageIcon icono = new ImageIcon(rutaFoto);
                 Image img = icono.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
                 labelFotoPerfil.setIcon(new ImageIcon(img));
+                labelFotoPerfil.setText(null);
             } catch (Exception ex) {
                 labelFotoPerfil.setText("Error cargando foto");
             }
         } else {
-            ImageIcon iconoDefault = new ImageIcon("default_profile.png");
-            labelFotoPerfil.setIcon(iconoDefault);
+            labelFotoPerfil.setText("Sin foto");
+            labelFotoPerfil.setBackground(COLOR_BOTON_FONDO);
+            labelFotoPerfil.setOpaque(true);
         }
         panelInfoSuperior.add(labelFotoPerfil, BorderLayout.WEST);
 
         panelDatosGenerales.setLayout(new BoxLayout(panelDatosGenerales, BoxLayout.Y_AXIS));
 
-        // Username
-        username = new JLabel("<html><h1>@" + datos.getDatosGenerales().getUsuario() + "</h1></html>");
+        username = new JLabel("<html><h1 style='color:" + toHex(COLOR_TEXTO) + ";'>@" + datos.getDatosGenerales().getNombreUsuario() + "</h1></html>");
         panelDatosGenerales.add(username);
         panelDatosGenerales.add(Box.createVerticalStrut(5));
 
-        // Datos Personales
-        nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getNombreUsuario());
+        nombre = new JLabel("Nombre: " + datos.getDatosGenerales().getUsuario());
         edad = new JLabel("Edad: " + datos.getDatosGenerales().getEdad());
         genero = new JLabel("Genero: " + datos.getDatosGenerales().getGenero());
-        fecha = new JLabel("Desde: "+datos.getDatosGenerales().getFechaEntrada());
+        fecha = new JLabel("Desde: " + datos.getDatosGenerales().getFechaEntrada());
+
+        nombre.setForeground(COLOR_TEXTO);
+        edad.setForeground(COLOR_TEXTO);
+        genero.setForeground(COLOR_TEXTO);
+        fecha.setForeground(COLOR_SECUNDARIO_TEXTO);
 
         panelDatosGenerales.add(nombre);
         panelDatosGenerales.add(edad);
@@ -113,13 +142,17 @@ public class PerfilPanel extends JPanel {
 
         JPanel panelCentral = new JPanel();
         panelCentral.setLayout(new BoxLayout(panelCentral, BoxLayout.Y_AXIS));
+        panelCentral.setBackground(COLOR_FONDO);
 
         JSeparator separador = new JSeparator(SwingConstants.HORIZONTAL);
         separador.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
+        separador.setBackground(COLOR_FONDO);
+        separador.setForeground(COLOR_BORDE_POST);
         panelCentral.add(separador);
         panelCentral.add(Box.createVerticalStrut(20));
 
         JPanel panelContadores = new JPanel(new GridLayout(1, 3, 20, 0));
+        panelContadores.setBackground(COLOR_FONDO);
         panelContadores.add(crearContador("Posts", datos.getInstasPropios().size()));
         panelContadores.add(crearContador("Followers", datos.getTotalSeguidores()));
         panelContadores.add(crearContador("Following", datos.getTotalSeguidos()));
@@ -131,37 +164,63 @@ public class PerfilPanel extends JPanel {
         if (usernamePerfil.equalsIgnoreCase(usuarioLogueado)) {
             btnAccion = new JButton("EDITAR PERFIL");
             btnAccion.addActionListener(e -> mostrarOpcionesEdicion(datos.getDatosGenerales()));
+
+            btnAccion.setBackground(COLOR_BOTON_FONDO);
+            btnAccion.setForeground(COLOR_TEXTO);
+            btnAccion.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST, 1));
+
         } else {
             if (datos.getloSigueElUsuarioActual()) {
                 btnAccion = new JButton("DEJAR DE SEGUIR");
+                btnAccion.setBackground(COLOR_UNFOLLOW);
+                btnAccion.setForeground(COLOR_TEXTO);
+                btnAccion.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST, 1));
             } else {
                 btnAccion = new JButton("SEGUIR");
+                btnAccion.setBackground(COLOR_BOTON_DOMINANTE);
+                btnAccion.setForeground(Color.WHITE);
+                btnAccion.setBorderPainted(false);
             }
             btnAccion.addActionListener(e -> manejarFollow(usuarioLogueado, usernamePerfil, datos.getloSigueElUsuarioActual()));
+            btnAccion.setPreferredSize(new Dimension(200, 30));
         }
+
+        btnAccion.setFocusPainted(false);
+        btnAccion.setMaximumSize(new Dimension(500, btnAccion.getPreferredSize().height));
 
         btnAccion.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelCentral.add(btnAccion);
         panelCentral.add(Box.createVerticalStrut(20));
-        panelCentral.add(separador);
+
+        JSeparator separador2 = new JSeparator(SwingConstants.HORIZONTAL);
+        separador2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
+        separador2.setBackground(COLOR_FONDO);
+        separador2.setForeground(COLOR_BORDE_POST);
+        panelCentral.add(separador2);
 
         panelPrincipal.add(panelInfoSuperior, BorderLayout.NORTH);
-
         panelPrincipal.add(panelCentral, BorderLayout.CENTER);
 
         JPanel contenedorFinal = new JPanel(new BorderLayout());
         contenedorFinal.add(panelPrincipal, BorderLayout.NORTH);
+        contenedorFinal.setBackground(COLOR_FONDO);
 
         return contenedorFinal;
     }
 
     private JPanel crearContador(String titulo, int valor) {
         JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(COLOR_FONDO);
+
         JLabel labelValor = new JLabel(String.valueOf(valor));
         labelValor.setFont(new Font("Arial", Font.BOLD, 18));
         labelValor.setHorizontalAlignment(SwingConstants.CENTER);
+        labelValor.setForeground(COLOR_TEXTO); 
+
         JLabel labelTitulo = new JLabel(titulo);
         labelTitulo.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTitulo.setForeground(COLOR_TEXTO); 
+
         p.add(labelValor, BorderLayout.CENTER);
         p.add(labelTitulo, BorderLayout.SOUTH);
         return p;
@@ -172,11 +231,15 @@ public class PerfilPanel extends JPanel {
         panelPosts.setLayout(new BoxLayout(panelPosts, BoxLayout.Y_AXIS));
         panelPosts.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelPosts.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelPosts.setBackground(COLOR_FONDO); 
 
         final int anchoPost = 500;
-        
+
         if (instas.isEmpty()) {
-            panelPosts.add(new JLabel("Aún no tiene posts publicados."));
+            JLabel labelNoPosts = new JLabel("Aún no tiene posts publicados.");
+            labelNoPosts.setForeground(COLOR_SECUNDARIO_TEXTO);
+            labelNoPosts.setAlignmentX(Component.CENTER_ALIGNMENT);
+            panelPosts.add(labelNoPosts);
         } else {
             for (Insta post : instas) {
                 JPanel panelPostCompleto = crearPanelPost(post);
@@ -191,23 +254,32 @@ public class PerfilPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(panelPosts);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
+        scrollPane.setBorder(BorderFactory.createEmptyBorder()); 
+        scrollPane.getViewport().setBackground(COLOR_FONDO); 
         return scrollPane;
     }
 
     private JPanel crearPanelPost(Insta post) {
         JPanel panel = new JPanel();
-        panel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        panel.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST, 1));
         panel.setLayout(new BorderLayout(10, 10));
-
+        panel.setBackground(COLOR_FONDO); 
+        
         JPanel panelHeader = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel labelAutor = new JLabel("<html><b>@" + post.getAutorUsername() + "</b></html>");
+        panelHeader.setBackground(COLOR_FONDO);
+
+        JLabel labelAutor = new JLabel("<html><b style='color:" + toHex(COLOR_TEXTO) + ";'>@" + post.getAutorUsername() + "</b></html>");
         panelHeader.add(labelAutor);
-        panelHeader.add(new JLabel(" - " + post.getFechaPublicacion().toString()));
+
+        JLabel labelFecha = new JLabel(" - " + post.getFechaPublicacion().toString());
+        labelFecha.setForeground(COLOR_SECUNDARIO_TEXTO);
+        panelHeader.add(labelFecha);
+
         panel.add(panelHeader, BorderLayout.NORTH);
 
         JPanel panelCuerpo = new JPanel();
         panelCuerpo.setLayout(new BoxLayout(panelCuerpo, BoxLayout.Y_AXIS));
+        panelCuerpo.setBackground(COLOR_FONDO);
 
         JLabel labelImg = new JLabel();
         String rutaImg = post.getRutaImg();
@@ -223,9 +295,13 @@ public class PerfilPanel extends JPanel {
 
             } catch (Exception e) {
                 labelImg.setText("Error al cargar imagen");
+                labelImg.setForeground(Color.RED);
             }
         } else {
             labelImg.setText("IMAGEN NO DISPONIBLE");
+            labelImg.setForeground(COLOR_SECUNDARIO_TEXTO);
+            labelImg.setBackground(COLOR_BOTON_FONDO);
+            labelImg.setOpaque(true);
         }
         panelCuerpo.add(labelImg);
         panelCuerpo.add(Box.createVerticalStrut(5));
@@ -235,8 +311,13 @@ public class PerfilPanel extends JPanel {
             areaTexto.setEditable(false);
             areaTexto.setLineWrap(true);
             areaTexto.setWrapStyleWord(true);
+
+
+            areaTexto.setBackground(COLOR_FONDO);
+            areaTexto.setForeground(COLOR_TEXTO);
+
             areaTexto.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            areaTexto.setAlignmentX(Component.CENTER_ALIGNMENT); 
+            areaTexto.setAlignmentX(Component.CENTER_ALIGNMENT);
             areaTexto.setMaximumSize(new Dimension(480, areaTexto.getPreferredSize().height));
             panelCuerpo.add(areaTexto);
         }
@@ -250,8 +331,10 @@ public class PerfilPanel extends JPanel {
     }
 
     private JPanel crearPanelInteraccion(Insta post) {
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+        panel.setBackground(COLOR_FONDO);
 
         JTextArea areaComentarios = new JTextArea();
         areaComentarios.setEditable(false);
@@ -259,14 +342,33 @@ public class PerfilPanel extends JPanel {
         areaComentarios.setLineWrap(true);
         areaComentarios.setFont(new Font("Arial", Font.PLAIN, 10));
 
+
+        areaComentarios.setBackground(COLOR_FONDO);
+        areaComentarios.setForeground(COLOR_SECUNDARIO_TEXTO);
+
         JScrollPane scrollComentarios = new JScrollPane(areaComentarios);
         scrollComentarios.setMinimumSize(new Dimension(0, 70));
         scrollComentarios.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
         scrollComentarios.setPreferredSize(new Dimension(490, 70));
+        scrollComentarios.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST));
+        scrollComentarios.getViewport().setBackground(COLOR_FONDO);
 
         JPanel panelAgregar = new JPanel(new BorderLayout(5, 5));
+        panelAgregar.setBackground(COLOR_FONDO);
+
         JTextField txtComentario = new JTextField();
         JButton btnComentar = new JButton("Comentar");
+
+
+        txtComentario.setBackground(COLOR_BOTON_FONDO);
+        txtComentario.setForeground(COLOR_TEXTO);
+        txtComentario.setCaretColor(COLOR_TEXTO);
+        txtComentario.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST));
+
+
+        btnComentar.setBackground(COLOR_FONDO);
+        btnComentar.setForeground(COLOR_BOTON_DOMINANTE);
+        btnComentar.setBorderPainted(false);
 
         btnComentar.addActionListener(e -> {
             agregarComentario(post, txtComentario.getText(), areaComentarios, txtComentario);
@@ -299,6 +401,7 @@ public class PerfilPanel extends JPanel {
     }
 
     private void agregarComentario(Insta post, String texto, JTextArea areaComentarios, JTextField txtComentario) {
+        // LÓGICA ORIGINAL
         if (!texto.trim().isEmpty()) {
             try {
                 String autor = SesionManager.getUsuarioActual().getNombreUsuario();
@@ -319,14 +422,17 @@ public class PerfilPanel extends JPanel {
 
     private JScrollPane crearGridPublicaciones(ArrayList<Insta> instas) {
         JPanel grid = new JPanel(new GridLayout(0, 3, 5, 5));
+        grid.setBackground(COLOR_FONDO);
 
         for (Insta i : instas) {
             JPanel postPanel = new JPanel(new BorderLayout());
-            postPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            postPanel.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_POST));
+            postPanel.setBackground(COLOR_BOTON_FONDO);
 
             JLabel labelImg = new JLabel();
             labelImg.setPreferredSize(new Dimension(100, 200));
             labelImg.setHorizontalAlignment(SwingConstants.CENTER);
+            labelImg.setForeground(COLOR_SECUNDARIO_TEXTO);
 
             String rutaImg = i.getRutaImg();
             if (rutaImg != null && !rutaImg.isEmpty() && new java.io.File(rutaImg).exists()) {
@@ -334,6 +440,7 @@ public class PerfilPanel extends JPanel {
                     ImageIcon icono = new ImageIcon(rutaImg);
                     Image img = icono.getImage().getScaledInstance(100, 200, Image.SCALE_SMOOTH);
                     labelImg.setIcon(new ImageIcon(img));
+                    labelImg.setText(null);
                 } catch (Exception e) {
                     labelImg.setText("IMG ERROR");
                 }
@@ -343,12 +450,14 @@ public class PerfilPanel extends JPanel {
 
             postPanel.add(labelImg, BorderLayout.CENTER);
 
-            JLabel labelContenido = new JLabel("<html><p style='width: 90px'>" + i.getTexto() + "</p></html>");
+            JLabel labelContenido = new JLabel("<html><p style='width: 90px; color:" + toHex(COLOR_SECUNDARIO_TEXTO) + ";'>" + i.getTexto() + "</p></html>");
             postPanel.add(labelContenido, BorderLayout.SOUTH);
 
             grid.add(postPanel);
         }
-        return new JScrollPane(grid);
+        JScrollPane scrollPane = new JScrollPane(grid);
+        scrollPane.getViewport().setBackground(COLOR_FONDO);
+        return scrollPane;
     }
 
     private void mostrarOpcionesEdicion(Usuario usuario) {
@@ -356,6 +465,10 @@ public class PerfilPanel extends JPanel {
 
         String estadoActual = usuario.isActivo() ? "(ACTIVA)" : "(DESACTIVA)";
         opciones[1] = opciones[1] + estadoActual;
+
+        UIManager.put("OptionPane.background", COLOR_FONDO);
+        UIManager.put("Panel.background", COLOR_FONDO);
+        UIManager.put("OptionPane.messageForeground", COLOR_TEXTO);
 
         String seleccion = (String) JOptionPane.showInputDialog(
                 this,
@@ -365,6 +478,10 @@ public class PerfilPanel extends JPanel {
                 null,
                 opciones,
                 opciones[0]);
+
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
 
         if (seleccion != null) {
             if (seleccion.contains("Buscar Personas")) {
@@ -392,7 +509,7 @@ public class PerfilPanel extends JPanel {
                     if (vtnActual != null) {
                         vtnActual.dispose();
                     }
-                    new vtnLogin().setVisible(true);
+                    new vtnLogin().setVisible(true); 
                 }
             } else {
                 GestorInsta.actualizarEstadoCuenta(usuario.getUsuario(), true);

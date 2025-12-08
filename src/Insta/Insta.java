@@ -5,6 +5,7 @@
 package Insta;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -17,7 +18,8 @@ public class Insta implements Serializable, Comparable<Insta>{
     private String contenido;
     private String rutaImg;
     private String texto;
-    private long idPost;
+    private final long idPost;
+    private ArrayList<String> likes;
     
     public Insta(String autorUsername, String texto, String rutaImg){
         this.autorUsername = autorUsername;
@@ -26,6 +28,7 @@ public class Insta implements Serializable, Comparable<Insta>{
         this.rutaImg = rutaImg;
         this.texto = texto;
         this.idPost = this.fechaPublicacion.getTime();
+        this.likes = new ArrayList<>();
     }
     
     public int compareTo(Insta otroInsta){

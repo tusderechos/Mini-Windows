@@ -51,7 +51,8 @@ public class ManejoArchivosBinarios {
         }
     }
 
-    public static ArrayList<Usuario> leerTodosLosUsuarios() /*throws IOException*/ {
+    ///
+    /*public static ArrayList<Usuario> leerTodosLosUsuarios()  {
         ArrayList<Compartidas.Usuario> usuarios = new ArrayList<>();
 
         File archivo = new File(ARCHIVO_USUARIOS);
@@ -64,6 +65,8 @@ public class ManejoArchivosBinarios {
 
             if (obj instanceof ArrayList) {
                 usuarios = (ArrayList<Compartidas.Usuario>) obj;
+            } else{
+                System.err.println("Advertencia: El objeto leído de users.ins no es una lista.");
             }
 
         } catch (FileNotFoundException e) {
@@ -75,9 +78,37 @@ public class ManejoArchivosBinarios {
         }
 
         return usuarios;
+    }*/
+    
+    public static ArrayList<Usuario> leerTodosLosUsuarios() throws IOException {
+        ArrayList<Compartidas.Usuario> usuarios = new ArrayList<>();
+        File archivo = new File(ARCHIVO_USUARIOS);
+
+        if (!archivo.exists() || archivo.length() == 0) {
+            return usuarios;
+        }
+
+        try (FileInputStream fis = new FileInputStream(archivo); ObjectInputStream ois = new ObjectInputStream(fis)) {
+
+            Object obj = ois.readObject();
+            if (obj instanceof ArrayList) {
+                usuarios = (ArrayList<Compartidas.Usuario>) obj;
+            }
+
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error de clase durante la lectura: " + e.getMessage());
+        } catch (IOException e) {
+            // 🚨 CRÍTICO: Si falla la lectura (corrupción), lanzar error en lugar de devolver lista vacía.
+            System.err.println("Error CRÍTICO de I/O/Serialización al leer users.ins.");
+            throw new IOException("Fallo de lectura por posible corrupción del archivo binario.", e);
+        } catch (Exception e) {
+            throw new IOException("Error desconocido durante la deserialización.", e);
+        }
+
+        return usuarios;
     }
 
-    public static boolean existeUsername(String username) {
+    public static boolean existeUsername(String username) throws IOException {
         ArrayList<Usuario> listaUsuarios = leerTodosLosUsuarios();
         for (Usuario u : listaUsuarios) {
             if (u.getUsuario().equalsIgnoreCase(username)) {
@@ -158,6 +189,11 @@ public class ManejoArchivosBinarios {
                 }
             }
 
+        } catch (IOException e) {
+            System.err.println("Error de E/S al leer follows (posible corrupción o archivo incompleto): " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            throw new IOException("Error desconocido durante la deserialización de follows.", e);
         }
         return follows;
     }
@@ -171,7 +207,7 @@ public class ManejoArchivosBinarios {
         }
     }
 
-    public static void reescribirTodosLosUsuarios(ArrayList<Usuario> listaUsuarios) throws IOException {
+    /*public static void reescribirTodosLosUsuarios(ArrayList<Usuario> listaUsuarios) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(ARCHIVO_USUARIOS, false); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 
             for (Usuario u : listaUsuarios) {
@@ -182,8 +218,7 @@ public class ManejoArchivosBinarios {
             System.err.println("Archivo users.ins no encontrado para reescritura");
             throw e;
         }
-    }
-
+    }*/
     public static void reescribirListaCompletaUsuarios(ArrayList<Usuario> listaUsuarios) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(ARCHIVO_USUARIOS, false); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 
@@ -224,8 +259,7 @@ public class ManejoArchivosBinarios {
 
         boolean append = archivo.exists() && archivo.length() > 0;
 
-        try (FileOutputStream fos = new FileOutputStream(archivo, true); 
-                 ObjectOutputStream oos = append ? new AppendingObjectOutputStream(fos) : new ObjectOutputStream(fos)) {
+        try (FileOutputStream fos = new FileOutputStream(archivo, true); ObjectOutputStream oos = append ? new AppendingObjectOutputStream(fos) : new ObjectOutputStream(fos)) {
 
             oos.writeObject(nuevoComentario);
             System.out.println("Comentario escrito en: " + rutaArchivoComentarios);
@@ -235,7 +269,7 @@ public class ManejoArchivosBinarios {
             throw e;
         }
     }
-    
+
     public static ArrayList<Comentario> leerComentariosDePost(String rutaArchivoComentarios) {
         ArrayList<Comentario> comentarios = new ArrayList<>();
         File archivo = new File(rutaArchivoComentarios);
